@@ -529,6 +529,16 @@ app.get('/public-url', (req, res) => {
   }
 });
 
+// Endpoint to get ngrok URL
+app.get('/ngrok-url', (req, res) => {
+  console.log('GET /ngrok-url called');
+  if (ngrokUrl) {
+    res.json({ url: ngrokUrl });
+  } else {
+    res.status(500).json({ error: 'Ngrok URL not available' });
+  }
+});
+
 // Endpoint to test image accessibility
 app.post('/test-image', async (req, res) => {
   console.log('POST /test-image called');

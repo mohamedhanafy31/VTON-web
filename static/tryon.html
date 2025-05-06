@@ -1222,6 +1222,7 @@
     let apiKey = '';
     let cameraStream = null;
     let facingMode = 'user';
+    let NGROK_URL = '';
 
     const pages = document.querySelectorAll('.page');
     const steps = document.querySelectorAll('.progress-step');
@@ -1306,6 +1307,17 @@
       setTimeout(() => {
         element.classList.remove('visible');
       }, 10000); // Keep error visible longer (10 seconds)
+    }
+
+    async function fetchNgrokUrl() {
+      try {
+        const res = await fetch('/ngrok-url');
+        const data = await res.json();
+        NGROK_URL = data.url;
+        console.log('Fetched ngrok URL:', NGROK_URL);
+      } catch (err) {
+        console.error('Failed to fetch ngrok URL:', err);
+      }
     }
 
     async function loadGarments() {
@@ -1565,6 +1577,9 @@
 
       showToast('Starting try-on process...');
       try {
+        // Fetch the ngrok URL before making the try-on request
+        await fetchNgrokUrl();
+        
         const response = await fetch(`${BASE_URL}/tryon`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -1693,7 +1708,10 @@
       showToast(`Switched to ${isDarkMode ? 'dark' : 'light'} mode`, 'success');
     });
 
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Fetch the ngrok URL when the page loads
+      await fetchNgrokUrl();
+      
       loadGarments();
 
       toPage2Btn.addEventListener('click', (event) => {
