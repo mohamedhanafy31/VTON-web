@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Garment Image Upload to Cloudinary</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/index.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Upload Garment Images to Cloudinary</h1>
+        
+        <!-- Add public URL notice -->
+        <div id="publicUrlNotice" class="public-url-notice" style="display: none; margin-bottom: 20px; background-color: rgba(0,0,0,0.05); padding: 10px; border-radius: 8px; text-align: center;">
+            <p style="margin-bottom: 10px;">You're viewing this on localhost. A public URL is also available:</p>
+            <a id="publicUrlLink" href="#" target="_blank" style="word-break: break-all; color: #4f46e5; font-weight: 500;">Loading public URL...</a>
+        </div>
+        
+        <div class="upload-container">
+            <input type="file" id="imageInput" accept="image/*" multiple>
+            <select id="colorSelect">
+                <option value="" disabled selected>Select Color</option>
+                <option value="Red">Red</option>
+                <option value="Blue">Blue</option>
+                <option value="Green">Green</option>
+                <option value="Black">Black</option>
+                <option value="White">White</option>
+            </select>
+            <select id="garmentTypeSelect">
+                <option value="" disabled selected>Select Garment Type</option>
+                <option value="Shirt">Shirt</option>
+                <option value="T-Shirt">T-Shirt</option>
+                <option value="Dress">Dress</option>
+                <option value="Pants">Pants</option>
+                <option value="Jacket">Jacket</option>
+            </select>
+            <button id="uploadButton" onclick="uploadImages()">Upload</button>
+            <div class="remaining-counter" id="remainingCounter">Remaining: 6/6</div>
+        </div>
+        <h2>Uploaded Garments</h2>
+        <div class="spinner" id="spinner"></div>
+        <div class="image-gallery" id="imageGallery"></div>
+    </div>
+
+    <script>
+        let uploadedImages = [];
+        let descriptions = {};
+        let clientLogs = []; // Array to store client-side logs
+
+        // Logging function
+        function logClientAction(action, details = {}, level = 'info') {
+            const logEntry = {
+                timestamp: new Date().toISOString(),
+                level,
+                action,
+                details,
+                page: 'index',
+                userAgent: navigator.userAgent
+            };
+            
+            clientLogs.push(logEntry);
+            
+            // Log to console
+            const logMethod = level === 'error' ? console.error : console.log;
+            logMethod(`[${logEntry.timestamp}] [${level.toUpperCase()}] ${action}`, details);
+            
+            // If we have more than 100 logs, remove the oldest ones
+            if (clientLogs.length > 100) {
+                clientLogs = clientLogs.slice(-100);
+            }
+            
+            // Send logs to server every 10 entries or on errors
+            if (clientLogs.length % 10 === 0 || level === 'error') {
+                sendLogsToServer();
+            }
+        }
+        
+        // Function to send logs to server
+        async function sendLogsToServer() {
+            // Clone the logs array and clear it for new logs
+            const logsToSend = [...clientLogs];
+            clientLogs = [];
+            
+            try {
+                const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+                    ? 'http://localhost:3000' 
+                    : window.location.origin;
+                
+                const response = await fetch(`${API_URL}/client-logs`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ logs: logsToSend })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to send logs to server');
+                }
+            } catch (error) {
+                console.error('Error sending logs to server:', error);
+                // Put logs back in the queue for next attempt
+                clientLogs = [...clientLogs, ...logsToSend];
+            }
+        }
+
+        // Base URL for API server - Using the correct Express server URLs
+        const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+            ? 'http://localhost:3000' 
+            : window.location.origin;
+
+        // Fetch images, descriptions, and update counter on page load
+        async function fetchImages() {
+            logClientAction('fetch_images_started');
+            const spinner = document.getElementById('spinner');
+            const gallery = document.getElementById('imageGallery');
+            spinner.classList.add('active');
+            gallery.innerHTML = '';
+            
+            try {
+                logClientAction('fetching_images_and_descriptions');
+                // Fix: Use the correct Express API endpoints
+                const [imageResponse, descriptionsResponse] = await Promise.all([
+                    fetch(`${API_URL}/images`),
+                    fetch(`${API_URL}/descriptions`)
+                ]);
+                
+                if (!imageResponse.ok) {
+                    logClientAction('image_fetch_failed', { status: imageResponse.status }, 'error');
+                    throw new Error(`Failed to fetch images: ${imageResponse.status}`);
+                }
+                if (!descriptionsResponse.ok) {
+                    logClientAction('descriptions_fetch_failed', { status: descriptionsResponse.status }, 'error');
+                    throw new Error(`Failed to fetch descriptions: ${descriptionsResponse.status}`);
+                }
+                
+                const [imageResult, descriptionsResult] = await Promise.all([
+                    imageResponse.json(),
+                    descriptionsResponse.json()
+                ]);
+                
+                if (imageResult.images) {
+                    uploadedImages = imageResult.images;
+                    descriptions = descriptionsResult.descriptions || {};
+                    logClientAction('fetch_completed', { imageCount: uploadedImages.length });
+                    displayImages();
+                    updateRemainingCounter(uploadedImages.length);
+                } else {
+                    logClientAction('no_images_found', {}, 'warn');
+                    gallery.innerHTML = '<div class="error-message">No images found</div>';
+                }
+            } catch (error) {
+                logClientAction('fetch_error', { message: error.message }, 'error');
+                console.error('Error fetching data:', error);
+                gallery.innerHTML = `<div class="error-message">Failed to load: ${error.message}</div>`;
+            } finally {
+                spinner.classList.remove('active');
+            }
+        }
+
+        async function uploadImages() {
+            const imageInput = document.getElementById('imageInput');
+            const colorSelect = document.getElementById('colorSelect');
+            const garmentTypeSelect = document.getElementById('garmentTypeSelect');
+            const uploadButton = document.getElementById('uploadButton');
+            const spinner = document.getElementById('spinner');
+            const files = imageInput.files;
+
+            if (!files.length) {
+                logClientAction('upload_rejected', { reason: 'no files selected' }, 'warn');
+                alert('Please select at least one image');
+                return;
+            }
+            if (!colorSelect.value || !garmentTypeSelect.value) {
+                logClientAction('upload_rejected', { reason: 'missing color or garment type' }, 'warn');
+                alert('Please select both a color and garment type');
+                return;
+            }
+
+            if (uploadedImages.length + files.length > 6) {
+                logClientAction('upload_rejected', { reason: 'max limit reached', current: uploadedImages.length, attempted: files.length }, 'warn');
+                alert('Maximum limit of 6 images reached. Remove some images to upload more.');
+                return;
+            }
+
+            logClientAction('upload_started', { 
+                fileCount: files.length, 
+                color: colorSelect.value, 
+                garmentType: garmentTypeSelect.value 
+            });
+
+            uploadButton.disabled = true;
+            spinner.classList.add('active');
+
+            const formData = new FormData();
+            for (let file of files) {
+                formData.append('images', file);
+            }
+            formData.append('color', colorSelect.value);
+            formData.append('garmentType', garmentTypeSelect.value);
+            formData.append('folder', 'VirtualTryOn_Images');
+
+            try {
+                logClientAction('sending_upload_request');
+                const response = await fetch(`${API_URL}/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    const responseData = await response.json();
+                    logClientAction('upload_failed', { status: response.status, error: responseData.error }, 'error');
+                    throw new Error(responseData.error || 'Upload failed');
+                }
+                
+                const result = await response.json();
+                
+                if (result.images) {
+                    uploadedImages = [...uploadedImages, ...result.images];
+                    logClientAction('upload_success', { count: result.images.length });
+                    
+                    // Refresh the descriptions
+                    const descriptionsResponse = await fetch(`${API_URL}/descriptions`);
+                    const descriptionsResult = await descriptionsResponse.json();
+                    descriptions = descriptionsResult.descriptions || {};
+                    
+                    displayImages();
+                    updateRemainingCounter(uploadedImages.length);
+                    // Reset form
+                    imageInput.value = '';
+                    colorSelect.value = '';
+                    garmentTypeSelect.value = '';
+                    logClientAction('form_reset');
+                }
+            } catch (error) {
+                logClientAction('upload_error', { message: error.message }, 'error');
+                console.error('Upload error:', error);
+                alert('Failed to upload images');
+            } finally {
+                uploadButton.disabled = false;
+                spinner.classList.remove('active');
+            }
+        }
+
+        async function deleteImage(publicId) {
+            logClientAction('delete_started', { publicId });
+            const spinner = document.getElementById('spinner');
+            spinner.classList.add('active');
+            try {
+                // Fix: Use the correct Express API endpoint
+                const response = await fetch(`${API_URL}/delete/${publicId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    logClientAction('delete_failed', { publicId, status: response.status, error: errorData.error }, 'error');
+                    throw new Error(errorData.error || `Delete failed with status: ${response.status}`);
+                }
+                
+                const result = await response.json();
+
+                if (result.success) {
+                    uploadedImages = uploadedImages.filter(img => img.public_id !== publicId && img.public_id !== `VirtualTryOn_Images/${publicId}`);
+                    delete descriptions[publicId];
+                    delete descriptions[`VirtualTryOn_Images/${publicId}`];
+                    logClientAction('delete_success', { publicId });
+                    displayImages();
+                    updateRemainingCounter(uploadedImages.length);
+                } else {
+                    logClientAction('delete_failed', { publicId, error: result.error }, 'error');
+                    throw new Error(result.error || 'Deletion failed');
+                }
+            } catch (error) {
+                logClientAction('delete_error', { publicId, message: error.message }, 'error');
+                console.error('Delete error:', error);
+                alert('Failed to delete image: ' + error.message);
+            } finally {
+                spinner.classList.remove('active');
+            }
+        }
+
+        function displayImages() {
+            const gallery = document.getElementById('imageGallery');
+            gallery.innerHTML = '';
+            
+            uploadedImages.forEach(image => {
+                const imageItem = document.createElement('div');
+                imageItem.className = 'image-item';
+                
+                // Get public_id from the full path if needed
+                const fullPublicId = image.public_id;
+                const publicId = fullPublicId.includes('/') ? 
+                    fullPublicId.split('/').pop() : 
+                    fullPublicId;
+                
+                // First try to find description using full public_id, then try with short id
+                const desc = descriptions[fullPublicId] || descriptions[publicId] || { color: 'Unknown', garmentType: 'Unknown' };
+                
+                imageItem.innerHTML = `
+                    <img src="${image.url}" alt="${desc.garmentType || 'Garment'}">
+                    <div class="image-description">
+                        ${desc.color || 'Unknown'} ${desc.garmentType || 'Garment'}
+                    </div>
+                    <button class="delete-button" onclick="deleteImage('${publicId}')">Delete</button>
+                `;
+                gallery.appendChild(imageItem);
+            });
+        }
+
+        function updateRemainingCounter(currentCount) {
+            const remaining = 6 - currentCount;
+            const counter = document.getElementById('remainingCounter');
+            counter.textContent = `Remaining: ${remaining}/6`;
+            if (remaining === 0) {
+                counter.style.color = '#ff4444';
+            } else {
+                counter.style.color = 'var(--text)';
+            }
+        }
+
+        // Load images when the page loads
+        window.onload = function() {
+            fetchImages();
+            
+            // Check for public URL if we're on localhost
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                checkPublicUrl();
+            }
+        };
+        
+        // Function to check and display the public URL
+        async function checkPublicUrl() {
+            try {
+                const response = await fetch(`${API_URL}/public-url`);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.publicUrl) {
+                        const publicUrlNotice = document.getElementById('publicUrlNotice');
+                        const publicUrlLink = document.getElementById('publicUrlLink');
+                        
+                        publicUrlLink.href = data.publicUrl + window.location.pathname;
+                        publicUrlLink.textContent = data.publicUrl + window.location.pathname;
+                        publicUrlNotice.style.display = 'block';
+                        
+                        logClientAction('public_url_displayed', { url: data.publicUrl });
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching public URL:', error);
+            }
+        }
+        
+        // Log page load event
+        logClientAction('page_loaded');
+    </script>
+</body>
+</html>

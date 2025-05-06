@@ -1,0 +1,34 @@
+[2025-05-05T10:21:50.241Z] [INFO] [Page index] page_loaded - {}
+[2025-05-05T10:21:50.405Z] [INFO] [Page index] fetch_images_started - {}
+[2025-05-05T10:21:50.407Z] [INFO] [Page index] fetching_images_and_descriptions - {}
+[2025-05-05T10:21:51.710Z] [ERROR] [Page index] fetch_error - {"message":"Failed to fetch"}
+[2025-05-05T11:09:57.759Z] [INFO] [Page 1] load_garments_started - {}
+[2025-05-05T11:09:57.760Z] [INFO] [Page 1] fetching_garments - {}
+[2025-05-05T11:09:58.546Z] [INFO] [Page 1] garments_loaded - {"count":3}
+[2025-05-05T11:09:59.760Z] [INFO] [Page 1] garment_selected - {"publicId":"VirtualTryOn_Images/vton_image_1746206959770","type":"T-Shirt","category":"upper_body"}
+[2025-05-05T11:09:59.761Z] [INFO] [Page 1] toast_shown - {"message":"Garment selected!","type":"success"}
+[2025-05-05T11:10:00.767Z] [INFO] [Page 2] page_navigation - {"from":2,"to":2}
+[2025-05-05T11:10:01.268Z] [INFO] [Page 2] camera_init_started - {"facingMode":"user"}
+[2025-05-05T11:10:04.657Z] [INFO] [Page 2] camera_initialized - {"width":640,"height":480}
+[2025-05-05T11:10:28.230Z] [INFO] [Page 2] camera_stopped - {}
+[2025-05-05T11:10:28.230Z] [INFO] [Page 3] page_navigation - {"from":3,"to":3}
+[2025-05-05T11:10:29.333Z] [INFO] [Page 3] tryon_started - {"garmentId":"VirtualTryOn_Images/vton_image_1746206959770","garmentType":"T-Shirt","category":"upper_body"}
+[2025-05-05T11:10:29.334Z] [INFO] [Page 3] sending_tryon_request - {}
+[2025-05-05T11:10:29.342Z] [ERROR] [Page 3] tryon_request_failed - {"status":500,"error":"{\"error\":\"Public URL not available. Make sure a tunneling service (ngrok/localtunnel) is running.\"}"}
+[2025-05-05T11:10:29.342Z] [ERROR] [Page 3] tryon_error - {"message":"Try-on request failed: {\"error\":\"Public URL not available. Make sure a tunneling service (ngrok/localtunnel) is running.\"}"}
+[2025-05-05T11:10:29.343Z] [ERROR] [Page 3] error_shown - {"element":"errorMessage","message":"Try-on request failed: {\"error\":\"Public URL not available. Make sure a tunneling service (ngrok/localtunnel) is running.\"}"}
+[2025-05-05T11:10:55.942Z] [INFO] [Page 3] tryon_started - {"garmentId":"VirtualTryOn_Images/vton_image_1746206959770","garmentType":"T-Shirt","category":"upper_body"}
+[2025-05-05T11:10:55.943Z] [INFO] [Page 3] sending_tryon_request - {}
+[2025-05-05T11:10:55.950Z] [ERROR] [Page 3] tryon_request_failed - {"status":500,"error":"{\"error\":\"Public URL not available. Make sure a tunneling service (ngrok/localtunnel) is running.\"}"}
+[2025-05-05T11:10:55.950Z] [ERROR] [Page 3] tryon_error - {"message":"Try-on request failed: {\"error\":\"Public URL not available. Make sure a tunneling service (ngrok/localtunnel) is running.\"}"}
+[2025-05-05T11:10:55.950Z] [ERROR] [Page 3] error_shown - {"element":"errorMessage","message":"Try-on request failed: {\"error\":\"Public URL not available. Make sure a tunneling service (ngrok/localtunnel) is running.\"}"}
+[2025-05-05T11:27:20.875Z] [INFO] [Page 1] load_garments_started - {}
+[2025-05-05T11:27:20.875Z] [INFO] [Page 1] fetching_garments - {}
+[2025-05-05T11:27:21.149Z] [INFO] [Page 1] garments_loaded - {"count":3}
+[2025-05-05T11:27:22.303Z] [INFO] [Page 1] garment_selected - {"publicId":"VirtualTryOn_Images/vton_image_1746206959770","type":"T-Shirt","category":"upper_body"}
+[2025-05-05T11:27:22.303Z] [INFO] [Page 1] toast_shown - {"message":"Garment selected!","type":"success"}
+[2025-05-05T11:27:23.264Z] [INFO] [Page 2] page_navigation - {"from":2,"to":2}
+[2025-05-05T11:27:23.766Z] [INFO] [Page 2] camera_init_started - {"facingMode":"user"}
+[2025-05-05T11:27:24.750Z] [INFO] [Page 2] camera_initialized - {"width":640,"height":480}
+[2025-05-05T11:27:31.208Z] [INFO] [Page 2] camera_stopped - {}
+[2025-05-05T11:27:31.208Z] [INFO] [Page 3] page_navigation - {"from":3,"to":3}

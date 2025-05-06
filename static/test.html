@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Try Clothes Demo</title>
+</head>
+<body>
+  <h1>AI Try‑On Demo</h1>
+
+  <div>
+    <label>Upload Human Photo:</label><br>
+    <input type="file" id="humanFile" accept="image/*" /><br>
+    <img id="previewHuman" width="150" />
+  </div>
+
+  <div>
+    <label>Upload Garment Image:</label><br>
+    <input type="file" id="garmentFile" accept="image/*" /><br>
+    <img id="previewGarment" width="150" />
+  </div>
+
+  <input id="description" placeholder="Garment description" /><br>
+  <select id="category">
+    <option value="upper_body">Upper Body</option>
+    <option value="lower_body">Lower Body</option>
+  </select><br><br>
+
+  <button id="submit">Try On!</button>
+
+  <h2>Result</h2>
+  <img id="result" width="300" />
+
+  <script>
+    const CLOUD_NAME = 'dj3ewvbqm'; // CHANGE ME
+    const UPLOAD_PRESET = ''; // CHANGE ME
+
+    let humanUrl = null;
+    let garmentUrl = null;
+
+    function uploadToCloudinary(file) {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', UPLOAD_PRESET);
+
+      return fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.secure_url) {
+          return data.secure_url;
+        } else {
+          throw new Error('Upload failed');
+        }
+      });
+    }
+
+    document.getElementById('humanFile').addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        document.getElementById('previewHuman').src = URL.createObjectURL(file);
+        try {
+          humanUrl = await uploadToCloudinary(file);
+          console.log('Human uploaded:', humanUrl);
+        } catch (err) {
+          console.error('Upload error (human):', err);
+          alert('Failed to upload human photo.');
+        }
+      }
+    });
+
+    document.getElementById('garmentFile').addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        document.getElementById('previewGarment').src = URL.createObjectURL(file);
+        try {
+          garmentUrl = await uploadToCloudinary(file);
+          console.log('Garment uploaded:', garmentUrl);
+        } catch (err) {
+          console.error('Upload error (garment):', err);
+          alert('Failed to upload garment image.');
+        }
+      }
+    });
+
+    document.getElementById('submit').addEventListener('click', async () => {
+      if (!humanUrl || !garmentUrl) {
+        alert('Please upload both human and garment images.');
+        return;
+      }
+
+      const description = document.getElementById('description').value;
+      const category = document.getElementById('category').value;
+
+      try {
+        const response = await fetch('/tryon', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            api_key: "dd240ad8f2e64de35e0b25ecddf1b42c2a7e637d", // Add your API key here
+            human: humanUrl,
+            garment: garmentUrl,
+            garment_description: description,
+            category: category
+          })
+        });
+        const result = await response.json();
+        console.log('Generated:', result);
+
+        if (result.output_url) {
+          document.getElementById('result').src = result.output_url;
+        } else {
+          alert('Successfully generated. Check console for details.');
+        }
+      } catch (err) {
+        console.error('Generation error:', err);
+        alert('Failed to generate output.');
+      }
+    });
+  </script>
+</body>
+</html>

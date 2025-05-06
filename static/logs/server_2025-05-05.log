@@ -1,0 +1,435 @@
+[2025-05-05T10:15:51.308Z] [INFO] Server application starting
+[2025-05-05T10:15:51.319Z] [INFO] Server running at http://localhost:3000
+[2025-05-05T10:15:51.321Z] [INFO] Attempting to start Cloudflare Tunnel
+[2025-05-05T10:15:51.819Z] [INFO] Cloudflared is installed: cloudflared version 2025.4.2 (built 2025-04-30-1407 UTC)
+[2025-05-05T10:15:52.152Z] [ERROR] Error starting Cloudflare Tunnel: Command failed: cloudflared tunnel list
+2025-05-05T10:15:52Z ERR Cannot determine default origin certificate path. No file cert.pem in [~/.cloudflared ~/.cloudflare-warp ~/cloudflare-warp]. You need to specify the origin certificate path by specifying the origincert option in the configuration file, or set TUNNEL_ORIGIN_CERT environment variable originCertPath=
+Error locating origin cert: client didn't specify origincert path
+
+[2025-05-05T10:17:09.693Z] [INFO] Server application starting
+[2025-05-05T10:17:09.702Z] [INFO] Server running at http://localhost:3000
+[2025-05-05T10:17:09.704Z] [INFO] Attempting to start Cloudflare Tunnel
+[2025-05-05T10:17:10.024Z] [INFO] Cloudflared is installed: cloudflared version 2025.4.2 (built 2025-04-30-1407 UTC)
+[2025-05-05T10:17:10.341Z] [ERROR] Error starting Cloudflare Tunnel: Command failed: cloudflared tunnel list
+2025-05-05T10:17:10Z ERR Cannot determine default origin certificate path. No file cert.pem in [~/.cloudflared ~/.cloudflare-warp ~/cloudflare-warp]. You need to specify the origin certificate path by specifying the origincert option in the configuration file, or set TUNNEL_ORIGIN_CERT environment variable originCertPath=
+Error locating origin cert: client didn't specify origincert path
+
+[2025-05-05T10:17:28.541Z] [INFO] Server application starting
+[2025-05-05T10:17:28.551Z] [INFO] Server running at http://localhost:3000
+[2025-05-05T10:17:28.552Z] [INFO] Attempting to start Cloudflare Tunnel
+[2025-05-05T10:17:28.862Z] [INFO] Cloudflared is installed: cloudflared version 2025.4.2 (built 2025-04-30-1407 UTC)
+[2025-05-05T10:17:29.186Z] [ERROR] Error starting Cloudflare Tunnel: Command failed: cloudflared tunnel list
+2025-05-05T10:17:29Z ERR Cannot determine default origin certificate path. No file cert.pem in [~/.cloudflared ~/.cloudflare-warp ~/cloudflare-warp]. You need to specify the origin certificate path by specifying the origincert option in the configuration file, or set TUNNEL_ORIGIN_CERT environment variable originCertPath=
+Error locating origin cert: client didn't specify origincert path
+
+[2025-05-05T10:18:59.812Z] [INFO] GET /descriptions called
+[2025-05-05T10:18:59.814Z] [INFO] Loaded descriptions file with 3 entries
+[2025-05-05T10:18:59.997Z] [INFO] GET /images called
+[2025-05-05T10:18:59.999Z] [INFO] Fetching images from Cloudinary
+[2025-05-05T10:19:01.206Z] [INFO] Successfully fetched 3 images
+[2025-05-05T10:19:40.911Z] [INFO] GET /images called
+[2025-05-05T10:19:40.912Z] [INFO] Fetching images from Cloudinary
+[2025-05-05T10:19:41.008Z] [INFO] GET /descriptions called
+[2025-05-05T10:19:41.010Z] [INFO] Loaded descriptions file with 3 entries
+[2025-05-05T10:19:41.647Z] [INFO] Successfully fetched 3 images
+[2025-05-05T10:21:53.744Z] [INFO] Received 4 client logs
+[2025-05-05T10:21:53.746Z] [INFO] Saved 4 client logs to file
+[2025-05-05T11:09:44.605Z] [INFO] GET /images called
+[2025-05-05T11:09:44.606Z] [INFO] GET /descriptions called
+[2025-05-05T11:09:44.609Z] [INFO] Fetching images from Cloudinary
+[2025-05-05T11:09:44.616Z] [INFO] Loaded descriptions file with 3 entries
+[2025-05-05T11:09:45.513Z] [INFO] Successfully fetched 3 images
+[2025-05-05T11:09:57.762Z] [INFO] GET /images called
+[2025-05-05T11:09:57.763Z] [INFO] GET /descriptions called
+[2025-05-05T11:09:57.766Z] [INFO] Fetching images from Cloudinary
+[2025-05-05T11:09:57.770Z] [INFO] Loaded descriptions file with 3 entries
+[2025-05-05T11:09:58.543Z] [INFO] Successfully fetched 3 images
+[2025-05-05T11:10:25.803Z] [INFO] POST /upload called
+[2025-05-05T11:10:25.804Z] [INFO] Upload request: color=User Photo, garmentType=Photo, folder=VirtualTryOn_UserPhotos, files=1
+[2025-05-05T11:10:26.481Z] [INFO] Uploading image to Cloudinary: folder=VirtualTryOn_UserPhotos, publicId=vton_image_1746443426480
+[2025-05-05T11:10:27.662Z] [INFO] Image uploaded successfully: VirtualTryOn_UserPhotos/vton_image_1746443426480
+[2025-05-05T11:10:27.663Z] [INFO] All 1 images uploaded successfully
+[2025-05-05T11:10:27.664Z] [INFO] Upload process completed successfully
+[2025-05-05T11:10:28.235Z] [INFO] Received 10 client logs
+[2025-05-05T11:10:28.238Z] [INFO] Saved 10 client logs to file
+[2025-05-05T11:10:29.336Z] [INFO] POST /tryon called
+[2025-05-05T11:10:29.337Z] [INFO] Try-on request received: category=upper_body, has_api_key=true, has_human=true, has_garment=true
+[2025-05-05T11:10:29.339Z] [INFO] Created new job with ID: d862e9e8-0bc6-4a35-8e4a-b9b53a474991
+[2025-05-05T11:10:29.340Z] [ERROR] Try-on failed: Public URL not available
+[2025-05-05T11:10:29.344Z] [INFO] Received 3 client logs
+[2025-05-05T11:10:29.346Z] [INFO] Received 1 client logs
+[2025-05-05T11:10:29.346Z] [INFO] Received 1 client logs
+[2025-05-05T11:10:29.347Z] [INFO] Saved 3 client logs to file
+[2025-05-05T11:10:29.348Z] [INFO] Saved 1 client logs to file
+[2025-05-05T11:10:29.349Z] [INFO] Saved 1 client logs to file
+[2025-05-05T11:10:55.945Z] [INFO] POST /tryon called
+[2025-05-05T11:10:55.946Z] [INFO] Try-on request received: category=upper_body, has_api_key=true, has_human=true, has_garment=true
+[2025-05-05T11:10:55.946Z] [INFO] Created new job with ID: 25805e1d-ce8c-4277-9f80-f2a280196fdf
+[2025-05-05T11:10:55.947Z] [ERROR] Try-on failed: Public URL not available
+[2025-05-05T11:10:55.951Z] [INFO] Received 3 client logs
+[2025-05-05T11:10:55.952Z] [INFO] Received 1 client logs
+[2025-05-05T11:10:55.953Z] [INFO] Received 1 client logs
+[2025-05-05T11:10:55.955Z] [INFO] Saved 3 client logs to file
+[2025-05-05T11:10:55.956Z] [INFO] Saved 1 client logs to file
+[2025-05-05T11:10:55.956Z] [INFO] Saved 1 client logs to file
+[2025-05-05T11:26:59.652Z] [INFO] Server application starting
+[2025-05-05T11:26:59.661Z] [INFO] Server running at http://localhost:3000
+[2025-05-05T11:27:15.768Z] [INFO] GET /images called
+[2025-05-05T11:27:15.768Z] [INFO] GET /descriptions called
+[2025-05-05T11:27:15.772Z] [INFO] Fetching images from Cloudinary
+[2025-05-05T11:27:15.843Z] [INFO] Loaded descriptions file with 3 entries
+[2025-05-05T11:27:16.830Z] [INFO] Successfully fetched 3 images
+[2025-05-05T11:27:20.878Z] [INFO] GET /images called
+[2025-05-05T11:27:20.878Z] [INFO] GET /descriptions called
+[2025-05-05T11:27:20.880Z] [INFO] Fetching images from Cloudinary
+[2025-05-05T11:27:20.883Z] [INFO] Loaded descriptions file with 3 entries
+[2025-05-05T11:27:21.145Z] [INFO] Successfully fetched 3 images
+[2025-05-05T11:27:28.364Z] [INFO] POST /upload called
+[2025-05-05T11:27:28.366Z] [INFO] Upload request: color=User Photo, garmentType=Photo, folder=VirtualTryOn_UserPhotos, files=1
+[2025-05-05T11:27:29.010Z] [INFO] Uploading image to Cloudinary: folder=VirtualTryOn_UserPhotos, publicId=vton_image_1746444449010
+[2025-05-05T11:27:30.053Z] [INFO] Image uploaded successfully: VirtualTryOn_UserPhotos/vton_image_1746444449010
+[2025-05-05T11:27:30.054Z] [INFO] All 1 images uploaded successfully
+[2025-05-05T11:27:30.055Z] [INFO] Upload process completed successfully
+[2025-05-05T11:27:31.229Z] [INFO] Received 10 client logs
+[2025-05-05T11:27:31.231Z] [INFO] Saved 10 client logs to file
+[2025-05-05T11:27:32.424Z] [INFO] POST /tryon called
+[2025-05-05T11:27:32.425Z] [INFO] Try-on request received: category=upper_body, has_api_key=true, has_human=true, has_garment=true
+[2025-05-05T11:27:32.426Z] [INFO] Created new job with ID: 53405415-877b-4f3d-a55d-9a4ffa4abc86
+[2025-05-05T11:27:32.427Z] [INFO] Using localhost webhook URL: http://localhost:3000/webhook?job_id=53405415-877b-4f3d-a55d-9a4ffa4abc86 (Note: This won't be accessible from the internet)
+[2025-05-05T11:27:32.428Z] [INFO] Sending request to Artificial Studio API
+[2025-05-05T11:27:33.119Z] [INFO] Received response from Artificial Studio with job ID: 6818a0a41981aeeee0a3b20d
+[2025-05-05T11:27:33.120Z] [INFO] Started background polling for job 53405415-877b-4f3d-a55d-9a4ffa4abc86
+[2025-05-05T11:27:43.133Z] [INFO] Polling attempt 1 for job 53405415-877b-4f3d-a55d-9a4ffa4abc86
+[2025-05-05T11:27:43.781Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:27:53.795Z] [INFO] Polling attempt 2 for job 53405415-877b-4f3d-a55d-9a4ffa4abc86
+[2025-05-05T11:27:54.294Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:28:04.297Z] [INFO] Polling attempt 3 for job 53405415-877b-4f3d-a55d-9a4ffa4abc86
+[2025-05-05T11:28:04.692Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:28:14.698Z] [INFO] Polling attempt 4 for job 53405415-877b-4f3d-a55d-9a4ffa4abc86
+[2025-05-05T11:28:15.159Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:28:25.164Z] [INFO] Polling attempt 5 for job 53405415-877b-4f3d-a55d-9a4ffa4abc86
+[2025-05-05T11:28:25.669Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:48:12.593Z] [INFO] Server application starting
+[2025-05-05T11:48:12.603Z] [INFO] Server running at http://localhost:3000
+[2025-05-05T11:48:12.605Z] [INFO] Attempting to start Cloudflare Tunnel
+[2025-05-05T11:48:13.129Z] [INFO] Cloudflared is installed: cloudflared version 2025.4.2 (built 2025-04-30-1407 UTC)
+[2025-05-05T11:48:13.432Z] [ERROR] Error starting Cloudflare Tunnel: Command failed: cloudflared tunnel list
+2025-05-05T11:48:13Z ERR Cannot determine default origin certificate path. No file cert.pem in [~/.cloudflared ~/.cloudflare-warp ~/cloudflare-warp]. You need to specify the origin certificate path by specifying the origincert option in the configuration file, or set TUNNEL_ORIGIN_CERT environment variable originCertPath=
+Error locating origin cert: client didn't specify origincert path
+
+[2025-05-05T11:48:17.284Z] [INFO] GET /images called
+[2025-05-05T11:48:17.285Z] [INFO] GET /descriptions called
+[2025-05-05T11:48:17.286Z] [INFO] Fetching images from Cloudinary
+[2025-05-05T11:48:17.391Z] [INFO] Loaded descriptions file with 3 entries
+[2025-05-05T11:48:18.268Z] [INFO] Successfully fetched 3 images
+[2025-05-05T11:48:25.802Z] [INFO] POST /upload called
+[2025-05-05T11:48:25.803Z] [INFO] Upload request: color=User Photo, garmentType=Photo, folder=VirtualTryOn_UserPhotos, files=1
+[2025-05-05T11:48:26.437Z] [INFO] Uploading image to Cloudinary: folder=VirtualTryOn_UserPhotos, publicId=vton_image_1746445706437
+[2025-05-05T11:48:27.514Z] [INFO] Image uploaded successfully: VirtualTryOn_UserPhotos/vton_image_1746445706437
+[2025-05-05T11:48:27.515Z] [INFO] All 1 images uploaded successfully
+[2025-05-05T11:48:27.515Z] [INFO] Upload process completed successfully
+[2025-05-05T11:48:42.506Z] [INFO] POST /tryon called
+[2025-05-05T11:48:42.507Z] [INFO] Try-on request received: category=upper_body, has_api_key=true, has_human=true, has_garment=true
+[2025-05-05T11:48:42.508Z] [INFO] Created new job with ID: 4f5d8dcf-0508-4391-89f4-2b0e78b9900b
+[2025-05-05T11:48:42.509Z] [ERROR] Try-on failed: Public URL not available
+[2025-05-05T11:52:06.821Z] [INFO] Server application starting
+[2025-05-05T11:52:06.832Z] [INFO] Server running at http://localhost:3000
+[2025-05-05T11:52:09.476Z] [INFO] GET /images called
+[2025-05-05T11:52:09.478Z] [INFO] Fetching images from Cloudinary
+[2025-05-05T11:52:09.480Z] [INFO] GET /descriptions called
+[2025-05-05T11:52:09.580Z] [INFO] Loaded descriptions file with 3 entries
+[2025-05-05T11:52:10.633Z] [INFO] Successfully fetched 3 images
+[2025-05-05T11:52:16.882Z] [INFO] POST /upload called
+[2025-05-05T11:52:16.883Z] [INFO] Upload request: color=User Photo, garmentType=Photo, folder=VirtualTryOn_UserPhotos, files=1
+[2025-05-05T11:52:17.650Z] [INFO] Uploading image to Cloudinary: folder=VirtualTryOn_UserPhotos, publicId=vton_image_1746445937650
+[2025-05-05T11:52:18.710Z] [INFO] Image uploaded successfully: VirtualTryOn_UserPhotos/vton_image_1746445937650
+[2025-05-05T11:52:18.712Z] [INFO] All 1 images uploaded successfully
+[2025-05-05T11:52:18.713Z] [INFO] Upload process completed successfully
+[2025-05-05T11:52:22.111Z] [INFO] POST /tryon called
+[2025-05-05T11:52:22.112Z] [INFO] Try-on request received: category=upper_body, has_api_key=true, has_human=true, has_garment=true
+[2025-05-05T11:52:22.114Z] [INFO] Created new job with ID: bb2482c9-5cfc-47d0-a727-2b80a7f2bd7c
+[2025-05-05T11:52:22.115Z] [INFO] Sending request to Artificial Studio API without webhook
+[2025-05-05T11:52:22.752Z] [INFO] Received response from Artificial Studio with job ID: 6818a6761981aeeee0a3f7d6
+[2025-05-05T11:52:22.754Z] [INFO] Started polling for job bb2482c9-5cfc-47d0-a727-2b80a7f2bd7c
+[2025-05-05T11:52:32.764Z] [INFO] Polling attempt 1 for job bb2482c9-5cfc-47d0-a727-2b80a7f2bd7c
+[2025-05-05T11:52:33.198Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:52:43.211Z] [INFO] Polling attempt 2 for job bb2482c9-5cfc-47d0-a727-2b80a7f2bd7c
+[2025-05-05T11:52:43.611Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:52:53.614Z] [INFO] Polling attempt 3 for job bb2482c9-5cfc-47d0-a727-2b80a7f2bd7c
+[2025-05-05T11:52:54.234Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:53:04.236Z] [INFO] Polling attempt 4 for job bb2482c9-5cfc-47d0-a727-2b80a7f2bd7c
+[2025-05-05T11:53:04.722Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:53:14.735Z] [INFO] Polling attempt 5 for job bb2482c9-5cfc-47d0-a727-2b80a7f2bd7c
+[2025-05-05T11:53:15.120Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:53:25.122Z] [INFO] Polling attempt 6 for job bb2482c9-5cfc-47d0-a727-2b80a7f2bd7c
+[2025-05-05T11:53:25.611Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:53:35.619Z] [INFO] Polling attempt 7 for job bb2482c9-5cfc-47d0-a727-2b80a7f2bd7c
+[2025-05-05T11:53:36.259Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:53:37.090Z] [INFO] GET /descriptions called
+[2025-05-05T11:53:37.090Z] [INFO] GET /images called
+[2025-05-05T11:53:37.092Z] [INFO] Fetching images from Cloudinary
+[2025-05-05T11:53:37.092Z] [INFO] Loaded descriptions file with 3 entries
+[2025-05-05T11:53:38.166Z] [INFO] Successfully fetched 3 images
+[2025-05-05T11:53:45.086Z] [INFO] POST /upload called
+[2025-05-05T11:53:45.087Z] [INFO] Upload request: color=User Photo, garmentType=Photo, folder=VirtualTryOn_UserPhotos, files=1
+[2025-05-05T11:53:45.681Z] [INFO] Uploading image to Cloudinary: folder=VirtualTryOn_UserPhotos, publicId=vton_image_1746446025681
+[2025-05-05T11:53:46.261Z] [INFO] Polling attempt 8 for job bb2482c9-5cfc-47d0-a727-2b80a7f2bd7c
+[2025-05-05T11:53:46.621Z] [INFO] Image uploaded successfully: VirtualTryOn_UserPhotos/vton_image_1746446025681
+[2025-05-05T11:53:46.622Z] [INFO] All 1 images uploaded successfully
+[2025-05-05T11:53:46.623Z] [INFO] Upload process completed successfully
+[2025-05-05T11:53:46.687Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:53:50.367Z] [INFO] GET /images called
+[2025-05-05T11:53:50.368Z] [INFO] GET /descriptions called
+[2025-05-05T11:53:50.369Z] [INFO] Fetching images from Cloudinary
+[2025-05-05T11:53:50.371Z] [INFO] Loaded descriptions file with 3 entries
+[2025-05-05T11:53:50.746Z] [INFO] Successfully fetched 3 images
+[2025-05-05T11:53:56.701Z] [INFO] Polling attempt 9 for job bb2482c9-5cfc-47d0-a727-2b80a7f2bd7c
+[2025-05-05T11:53:57.088Z] [INFO] POST /upload called
+[2025-05-05T11:53:57.089Z] [INFO] Upload request: color=User Photo, garmentType=Photo, folder=VirtualTryOn_UserPhotos, files=1
+[2025-05-05T11:53:57.125Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:53:57.789Z] [INFO] Uploading image to Cloudinary: folder=VirtualTryOn_UserPhotos, publicId=vton_image_1746446037789
+[2025-05-05T11:53:58.925Z] [INFO] Image uploaded successfully: VirtualTryOn_UserPhotos/vton_image_1746446037789
+[2025-05-05T11:53:58.926Z] [INFO] All 1 images uploaded successfully
+[2025-05-05T11:53:58.927Z] [INFO] Upload process completed successfully
+[2025-05-05T11:54:02.769Z] [INFO] POST /tryon called
+[2025-05-05T11:54:02.770Z] [INFO] Try-on request received: category=upper_body, has_api_key=true, has_human=true, has_garment=true
+[2025-05-05T11:54:02.772Z] [INFO] Created new job with ID: 74228de9-af4e-442b-9c4a-f5472975804d
+[2025-05-05T11:54:02.773Z] [INFO] Sending request to Artificial Studio API without webhook
+[2025-05-05T11:54:03.542Z] [INFO] Received response from Artificial Studio with job ID: 6818a6db1981aeeee0a3fd2e
+[2025-05-05T11:54:03.543Z] [INFO] Started polling for job 74228de9-af4e-442b-9c4a-f5472975804d
+[2025-05-05T11:54:07.127Z] [INFO] Polling attempt 10 for job bb2482c9-5cfc-47d0-a727-2b80a7f2bd7c
+[2025-05-05T11:54:07.352Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:54:13.558Z] [INFO] Polling attempt 1 for job 74228de9-af4e-442b-9c4a-f5472975804d
+[2025-05-05T11:54:14.022Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:54:17.357Z] [INFO] Polling attempt 11 for job bb2482c9-5cfc-47d0-a727-2b80a7f2bd7c
+[2025-05-05T11:54:17.597Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:54:24.025Z] [INFO] Polling attempt 2 for job 74228de9-af4e-442b-9c4a-f5472975804d
+[2025-05-05T11:54:27.382Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:54:27.613Z] [INFO] Polling attempt 12 for job bb2482c9-5cfc-47d0-a727-2b80a7f2bd7c
+[2025-05-05T11:54:28.908Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:54:37.398Z] [INFO] Polling attempt 3 for job 74228de9-af4e-442b-9c4a-f5472975804d
+[2025-05-05T11:54:38.045Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:54:38.921Z] [INFO] Polling attempt 13 for job bb2482c9-5cfc-47d0-a727-2b80a7f2bd7c
+[2025-05-05T11:54:39.261Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:54:48.058Z] [INFO] Polling attempt 4 for job 74228de9-af4e-442b-9c4a-f5472975804d
+[2025-05-05T11:54:48.539Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:54:49.276Z] [INFO] Polling attempt 14 for job bb2482c9-5cfc-47d0-a727-2b80a7f2bd7c
+[2025-05-05T11:54:49.521Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:54:58.552Z] [INFO] Polling attempt 5 for job 74228de9-af4e-442b-9c4a-f5472975804d
+[2025-05-05T11:54:59.000Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:54:59.531Z] [INFO] Polling attempt 15 for job bb2482c9-5cfc-47d0-a727-2b80a7f2bd7c
+[2025-05-05T11:54:59.753Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:55:09.016Z] [INFO] Polling attempt 6 for job 74228de9-af4e-442b-9c4a-f5472975804d
+[2025-05-05T11:55:09.762Z] [INFO] Polling attempt 16 for job bb2482c9-5cfc-47d0-a727-2b80a7f2bd7c
+[2025-05-05T11:55:09.780Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:55:10.221Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:55:19.791Z] [INFO] Polling attempt 7 for job 74228de9-af4e-442b-9c4a-f5472975804d
+[2025-05-05T11:55:20.225Z] [INFO] Polling attempt 17 for job bb2482c9-5cfc-47d0-a727-2b80a7f2bd7c
+[2025-05-05T11:55:20.535Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:55:20.972Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:55:30.548Z] [INFO] Polling attempt 8 for job 74228de9-af4e-442b-9c4a-f5472975804d
+[2025-05-05T11:55:30.957Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:55:30.985Z] [INFO] Polling attempt 18 for job bb2482c9-5cfc-47d0-a727-2b80a7f2bd7c
+[2025-05-05T11:55:31.221Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:55:40.963Z] [INFO] Polling attempt 9 for job 74228de9-af4e-442b-9c4a-f5472975804d
+[2025-05-05T11:55:41.230Z] [INFO] Polling attempt 19 for job bb2482c9-5cfc-47d0-a727-2b80a7f2bd7c
+[2025-05-05T11:55:41.411Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:55:41.596Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:55:51.417Z] [INFO] Polling attempt 10 for job 74228de9-af4e-442b-9c4a-f5472975804d
+[2025-05-05T11:55:51.602Z] [INFO] Polling attempt 20 for job bb2482c9-5cfc-47d0-a727-2b80a7f2bd7c
+[2025-05-05T11:55:51.817Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:55:51.999Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:56:01.819Z] [INFO] Polling attempt 11 for job 74228de9-af4e-442b-9c4a-f5472975804d
+[2025-05-05T11:56:02.007Z] [INFO] Polling attempt 21 for job bb2482c9-5cfc-47d0-a727-2b80a7f2bd7c
+[2025-05-05T11:56:02.438Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:56:02.450Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:56:12.442Z] [INFO] Polling attempt 22 for job bb2482c9-5cfc-47d0-a727-2b80a7f2bd7c
+[2025-05-05T11:56:12.457Z] [INFO] Polling attempt 12 for job 74228de9-af4e-442b-9c4a-f5472975804d
+[2025-05-05T11:56:13.050Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:56:13.053Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:56:23.060Z] [INFO] Polling attempt 23 for job bb2482c9-5cfc-47d0-a727-2b80a7f2bd7c
+[2025-05-05T11:56:23.060Z] [INFO] Polling attempt 13 for job 74228de9-af4e-442b-9c4a-f5472975804d
+[2025-05-05T11:56:23.469Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:56:23.575Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:56:33.485Z] [INFO] Polling attempt 14 for job 74228de9-af4e-442b-9c4a-f5472975804d
+[2025-05-05T11:56:33.579Z] [INFO] Polling attempt 24 for job bb2482c9-5cfc-47d0-a727-2b80a7f2bd7c
+[2025-05-05T11:56:33.890Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:56:34.022Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:56:43.901Z] [INFO] Polling attempt 15 for job 74228de9-af4e-442b-9c4a-f5472975804d
+[2025-05-05T11:56:44.028Z] [INFO] Polling attempt 25 for job bb2482c9-5cfc-47d0-a727-2b80a7f2bd7c
+[2025-05-05T11:56:44.527Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:56:44.555Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:56:54.536Z] [INFO] Polling attempt 26 for job bb2482c9-5cfc-47d0-a727-2b80a7f2bd7c
+[2025-05-05T11:56:54.567Z] [INFO] Polling attempt 16 for job 74228de9-af4e-442b-9c4a-f5472975804d
+[2025-05-05T11:56:54.927Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:56:54.937Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:57:04.937Z] [INFO] Polling attempt 27 for job bb2482c9-5cfc-47d0-a727-2b80a7f2bd7c
+[2025-05-05T11:57:04.940Z] [INFO] Polling attempt 17 for job 74228de9-af4e-442b-9c4a-f5472975804d
+[2025-05-05T11:57:05.373Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:57:05.385Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:57:15.383Z] [INFO] Polling attempt 28 for job bb2482c9-5cfc-47d0-a727-2b80a7f2bd7c
+[2025-05-05T11:57:15.386Z] [INFO] Polling attempt 18 for job 74228de9-af4e-442b-9c4a-f5472975804d
+[2025-05-05T11:57:16.015Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:57:16.015Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:57:26.022Z] [INFO] Polling attempt 19 for job 74228de9-af4e-442b-9c4a-f5472975804d
+[2025-05-05T11:57:26.022Z] [INFO] Polling attempt 29 for job bb2482c9-5cfc-47d0-a727-2b80a7f2bd7c
+[2025-05-05T11:57:26.533Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:57:26.546Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:57:36.544Z] [INFO] Polling attempt 20 for job 74228de9-af4e-442b-9c4a-f5472975804d
+[2025-05-05T11:57:36.547Z] [INFO] Polling attempt 30 for job bb2482c9-5cfc-47d0-a727-2b80a7f2bd7c
+[2025-05-05T11:57:37.017Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:57:37.034Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:57:47.028Z] [WARN] Polling timeout for job bb2482c9-5cfc-47d0-a727-2b80a7f2bd7c after 30 attempts
+[2025-05-05T11:57:47.043Z] [INFO] Polling attempt 21 for job 74228de9-af4e-442b-9c4a-f5472975804d
+[2025-05-05T11:57:47.460Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:57:57.467Z] [INFO] Polling attempt 22 for job 74228de9-af4e-442b-9c4a-f5472975804d
+[2025-05-05T11:57:58.077Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:58:08.084Z] [INFO] Polling attempt 23 for job 74228de9-af4e-442b-9c4a-f5472975804d
+[2025-05-05T11:58:08.516Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:58:18.523Z] [INFO] Polling attempt 24 for job 74228de9-af4e-442b-9c4a-f5472975804d
+[2025-05-05T11:58:18.957Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:58:28.961Z] [INFO] Polling attempt 25 for job 74228de9-af4e-442b-9c4a-f5472975804d
+[2025-05-05T11:58:30.470Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:58:40.483Z] [INFO] Polling attempt 26 for job 74228de9-af4e-442b-9c4a-f5472975804d
+[2025-05-05T11:58:40.887Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:58:50.897Z] [INFO] Polling attempt 27 for job 74228de9-af4e-442b-9c4a-f5472975804d
+[2025-05-05T11:58:51.650Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:59:01.665Z] [INFO] Polling attempt 28 for job 74228de9-af4e-442b-9c4a-f5472975804d
+[2025-05-05T11:59:02.127Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:59:12.130Z] [INFO] Polling attempt 29 for job 74228de9-af4e-442b-9c4a-f5472975804d
+[2025-05-05T11:59:12.556Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:59:22.568Z] [INFO] Polling attempt 30 for job 74228de9-af4e-442b-9c4a-f5472975804d
+[2025-05-05T11:59:22.990Z] [WARN] Failed to poll job status: 404
+[2025-05-05T11:59:33.005Z] [WARN] Polling timeout for job 74228de9-af4e-442b-9c4a-f5472975804d after 30 attempts
+[2025-05-05T12:01:19.786Z] [INFO] GET /images called
+[2025-05-05T12:01:19.786Z] [INFO] GET /descriptions called
+[2025-05-05T12:01:19.787Z] [INFO] Fetching images from Cloudinary
+[2025-05-05T12:01:19.791Z] [INFO] Loaded descriptions file with 3 entries
+[2025-05-05T12:01:21.475Z] [INFO] Successfully fetched 3 images
+[2025-05-05T12:01:28.178Z] [INFO] POST /upload called
+[2025-05-05T12:01:28.179Z] [INFO] Upload request: color=User Photo, garmentType=Photo, folder=VirtualTryOn_UserPhotos, files=1
+[2025-05-05T12:01:28.854Z] [INFO] Uploading image to Cloudinary: folder=VirtualTryOn_UserPhotos, publicId=vton_image_1746446488854
+[2025-05-05T12:01:29.837Z] [INFO] Image uploaded successfully: VirtualTryOn_UserPhotos/vton_image_1746446488854
+[2025-05-05T12:01:29.838Z] [INFO] All 1 images uploaded successfully
+[2025-05-05T12:01:29.839Z] [INFO] Upload process completed successfully
+[2025-05-05T12:01:34.279Z] [INFO] POST /tryon called
+[2025-05-05T12:01:34.280Z] [INFO] Try-on request received: category=upper_body, has_api_key=true, has_human=true, has_garment=true
+[2025-05-05T12:01:34.281Z] [INFO] Created new job with ID: 125cd613-2dba-4bda-acb6-d5e298c53ab2
+[2025-05-05T12:01:34.282Z] [INFO] Sending request to Artificial Studio API without webhook
+[2025-05-05T12:01:34.669Z] [INFO] Received response from Artificial Studio with job ID: 6818a89e1981aeeee0a40128
+[2025-05-05T12:01:34.670Z] [INFO] Started polling for job 125cd613-2dba-4bda-acb6-d5e298c53ab2
+[2025-05-05T12:01:44.680Z] [INFO] Polling attempt 1 for job 125cd613-2dba-4bda-acb6-d5e298c53ab2
+[2025-05-05T12:01:45.099Z] [WARN] Failed to poll job status: 404
+[2025-05-05T12:01:55.111Z] [INFO] Polling attempt 2 for job 125cd613-2dba-4bda-acb6-d5e298c53ab2
+[2025-05-05T12:01:55.768Z] [WARN] Failed to poll job status: 404
+[2025-05-05T12:02:05.778Z] [INFO] Polling attempt 3 for job 125cd613-2dba-4bda-acb6-d5e298c53ab2
+[2025-05-05T12:02:06.538Z] [WARN] Failed to poll job status: 404
+[2025-05-05T12:02:16.547Z] [INFO] Polling attempt 4 for job 125cd613-2dba-4bda-acb6-d5e298c53ab2
+[2025-05-05T12:02:17.004Z] [WARN] Failed to poll job status: 404
+[2025-05-05T12:02:27.008Z] [INFO] Polling attempt 5 for job 125cd613-2dba-4bda-acb6-d5e298c53ab2
+[2025-05-05T12:02:27.580Z] [WARN] Failed to poll job status: 404
+[2025-05-05T12:02:37.595Z] [INFO] Polling attempt 6 for job 125cd613-2dba-4bda-acb6-d5e298c53ab2
+[2025-05-05T12:02:38.160Z] [WARN] Failed to poll job status: 404
+[2025-05-05T12:02:48.168Z] [INFO] Polling attempt 7 for job 125cd613-2dba-4bda-acb6-d5e298c53ab2
+[2025-05-05T12:02:48.818Z] [WARN] Failed to poll job status: 404
+[2025-05-05T12:02:58.821Z] [INFO] Polling attempt 8 for job 125cd613-2dba-4bda-acb6-d5e298c53ab2
+[2025-05-05T12:02:59.379Z] [WARN] Failed to poll job status: 404
+[2025-05-05T12:03:09.382Z] [INFO] Polling attempt 9 for job 125cd613-2dba-4bda-acb6-d5e298c53ab2
+[2025-05-05T12:03:12.280Z] [WARN] Failed to poll job status: 404
+[2025-05-05T12:03:22.289Z] [INFO] Polling attempt 10 for job 125cd613-2dba-4bda-acb6-d5e298c53ab2
+[2025-05-05T12:03:26.506Z] [WARN] Failed to poll job status: 404
+[2025-05-05T12:03:36.509Z] [INFO] Polling attempt 11 for job 125cd613-2dba-4bda-acb6-d5e298c53ab2
+[2025-05-05T12:03:45.580Z] [WARN] Failed to poll job status: 404
+[2025-05-05T12:03:55.585Z] [INFO] Polling attempt 12 for job 125cd613-2dba-4bda-acb6-d5e298c53ab2
+[2025-05-05T12:03:56.656Z] [WARN] Failed to poll job status: 404
+[2025-05-05T12:04:06.667Z] [INFO] Polling attempt 13 for job 125cd613-2dba-4bda-acb6-d5e298c53ab2
+[2025-05-05T12:04:07.189Z] [WARN] Failed to poll job status: 404
+[2025-05-05T12:04:17.198Z] [INFO] Polling attempt 14 for job 125cd613-2dba-4bda-acb6-d5e298c53ab2
+[2025-05-05T12:04:17.672Z] [WARN] Failed to poll job status: 404
+[2025-05-05T12:04:27.686Z] [INFO] Polling attempt 15 for job 125cd613-2dba-4bda-acb6-d5e298c53ab2
+[2025-05-05T12:04:28.387Z] [WARN] Failed to poll job status: 404
+[2025-05-05T12:04:38.401Z] [INFO] Polling attempt 16 for job 125cd613-2dba-4bda-acb6-d5e298c53ab2
+[2025-05-05T12:04:38.847Z] [WARN] Failed to poll job status: 404
+[2025-05-05T12:04:48.858Z] [INFO] Polling attempt 17 for job 125cd613-2dba-4bda-acb6-d5e298c53ab2
+[2025-05-05T12:04:49.280Z] [WARN] Failed to poll job status: 404
+[2025-05-05T12:04:59.288Z] [INFO] Polling attempt 18 for job 125cd613-2dba-4bda-acb6-d5e298c53ab2
+[2025-05-05T12:04:59.966Z] [WARN] Failed to poll job status: 404
+[2025-05-05T12:05:09.981Z] [INFO] Polling attempt 19 for job 125cd613-2dba-4bda-acb6-d5e298c53ab2
+[2025-05-05T12:05:12.247Z] [WARN] Failed to poll job status: 404
+[2025-05-05T12:05:22.261Z] [INFO] Polling attempt 20 for job 125cd613-2dba-4bda-acb6-d5e298c53ab2
+[2025-05-05T12:05:22.722Z] [WARN] Failed to poll job status: 404
+[2025-05-05T12:05:32.728Z] [INFO] Polling attempt 21 for job 125cd613-2dba-4bda-acb6-d5e298c53ab2
+[2025-05-05T12:05:33.183Z] [WARN] Failed to poll job status: 404
+[2025-05-05T12:05:43.200Z] [INFO] Polling attempt 22 for job 125cd613-2dba-4bda-acb6-d5e298c53ab2
+[2025-05-05T12:05:43.724Z] [WARN] Failed to poll job status: 404
+[2025-05-05T12:05:53.727Z] [INFO] Polling attempt 23 for job 125cd613-2dba-4bda-acb6-d5e298c53ab2
+[2025-05-05T12:05:54.234Z] [WARN] Failed to poll job status: 404
+[2025-05-05T12:06:04.242Z] [INFO] Polling attempt 24 for job 125cd613-2dba-4bda-acb6-d5e298c53ab2
+[2025-05-05T12:06:04.725Z] [WARN] Failed to poll job status: 404
+[2025-05-05T12:06:14.735Z] [INFO] Polling attempt 25 for job 125cd613-2dba-4bda-acb6-d5e298c53ab2
+[2025-05-05T12:06:15.201Z] [WARN] Failed to poll job status: 404
+[2025-05-05T12:06:25.218Z] [INFO] Polling attempt 26 for job 125cd613-2dba-4bda-acb6-d5e298c53ab2
+[2025-05-05T12:06:25.674Z] [WARN] Failed to poll job status: 404
+[2025-05-05T12:06:35.689Z] [INFO] Polling attempt 27 for job 125cd613-2dba-4bda-acb6-d5e298c53ab2
+[2025-05-05T12:06:36.425Z] [WARN] Failed to poll job status: 404
+[2025-05-05T12:06:46.442Z] [INFO] Polling attempt 28 for job 125cd613-2dba-4bda-acb6-d5e298c53ab2
+[2025-05-05T12:06:46.869Z] [WARN] Failed to poll job status: 404
+[2025-05-05T12:06:56.880Z] [INFO] Polling attempt 29 for job 125cd613-2dba-4bda-acb6-d5e298c53ab2
+[2025-05-05T12:06:57.765Z] [WARN] Failed to poll job status: 404
+[2025-05-05T12:07:07.775Z] [INFO] Polling attempt 30 for job 125cd613-2dba-4bda-acb6-d5e298c53ab2
+[2025-05-05T12:07:08.438Z] [WARN] Failed to poll job status: 404
+[2025-05-05T12:07:18.451Z] [WARN] Polling timeout for job 125cd613-2dba-4bda-acb6-d5e298c53ab2 after 30 attempts
+[2025-05-05T12:08:45.651Z] [INFO] GET /images called
+[2025-05-05T12:08:45.651Z] [INFO] GET /descriptions called
+[2025-05-05T12:08:45.653Z] [INFO] Fetching images from Cloudinary
+[2025-05-05T12:08:45.661Z] [ERROR] Error fetching images: getaddrinfo ENOTFOUND api.cloudinary.com
+[2025-05-05T12:08:45.663Z] [INFO] Loaded descriptions file with 3 entries
+[2025-05-05T12:08:47.027Z] [INFO] GET /images called
+[2025-05-05T12:08:47.028Z] [INFO] GET /descriptions called
+[2025-05-05T12:08:47.029Z] [INFO] Fetching images from Cloudinary
+[2025-05-05T12:08:47.031Z] [ERROR] Error fetching images: getaddrinfo ENOTFOUND api.cloudinary.com
+[2025-05-05T12:08:47.031Z] [INFO] Loaded descriptions file with 3 entries
+[2025-05-05T12:08:53.806Z] [INFO] Server application starting
+[2025-05-05T12:08:53.816Z] [INFO] Server running at http://localhost:3000
+[2025-05-05T12:08:55.557Z] [INFO] GET /images called
+[2025-05-05T12:08:55.558Z] [INFO] GET /descriptions called
+[2025-05-05T12:08:55.559Z] [INFO] Fetching images from Cloudinary
+[2025-05-05T12:08:55.694Z] [INFO] Loaded descriptions file with 3 entries
+[2025-05-05T12:08:55.699Z] [ERROR] Error fetching images: getaddrinfo ENOTFOUND api.cloudinary.com
+[2025-05-05T12:09:21.671Z] [INFO] Server application starting
+[2025-05-05T12:09:21.681Z] [INFO] Server running at http://localhost:3000
+[2025-05-05T12:09:26.019Z] [INFO] GET /images called
+[2025-05-05T12:09:26.021Z] [INFO] GET /descriptions called
+[2025-05-05T12:09:26.023Z] [INFO] Fetching images from Cloudinary
+[2025-05-05T12:09:26.024Z] [INFO] Loaded descriptions file with 3 entries
+[2025-05-05T12:09:26.211Z] [ERROR] Error fetching images: getaddrinfo ENOTFOUND api.cloudinary.com
+[2025-05-05T12:30:09.203Z] [INFO] GET /images called
+[2025-05-05T12:30:09.204Z] [INFO] GET /descriptions called
+[2025-05-05T12:30:09.205Z] [INFO] Fetching images from Cloudinary
+[2025-05-05T12:30:09.210Z] [INFO] Loaded descriptions file with 3 entries
+[2025-05-05T12:30:10.691Z] [INFO] GET /images called
+[2025-05-05T12:30:10.692Z] [INFO] Fetching images from Cloudinary
+[2025-05-05T12:30:10.786Z] [INFO] Successfully fetched 3 images
+[2025-05-05T12:30:10.828Z] [INFO] GET /descriptions called
+[2025-05-05T12:30:10.836Z] [INFO] Loaded descriptions file with 3 entries
+[2025-05-05T12:30:11.723Z] [INFO] Successfully fetched 3 images
+[2025-05-05T12:30:18.626Z] [INFO] POST /upload called
+[2025-05-05T12:30:18.627Z] [INFO] Upload request: color=User Photo, garmentType=Photo, folder=VirtualTryOn_UserPhotos, files=1
+[2025-05-05T12:30:20.820Z] [INFO] Uploading image to Cloudinary: folder=VirtualTryOn_UserPhotos, publicId=vton_image_1746448220820
+[2025-05-05T12:30:21.921Z] [INFO] Image uploaded successfully: VirtualTryOn_UserPhotos/vton_image_1746448220820
+[2025-05-05T12:30:21.922Z] [INFO] All 1 images uploaded successfully
+[2025-05-05T12:30:21.922Z] [INFO] Upload process completed successfully
+[2025-05-05T12:30:27.325Z] [INFO] POST /tryon called
+[2025-05-05T12:30:27.326Z] [INFO] Try-on request received: category=upper_body, has_api_key=true, has_human=true, has_garment=true
+[2025-05-05T12:30:27.328Z] [INFO] Created new job with ID: 4581046e-5fd3-420a-be43-476994442094
+[2025-05-05T12:30:27.329Z] [INFO] Sending request to Artificial Studio API without webhook
+[2025-05-05T12:30:27.949Z] [INFO] Received response from Artificial Studio with job ID: 6818af631981aeeee0a52106
+[2025-05-05T12:30:27.950Z] [INFO] Started polling for job 4581046e-5fd3-420a-be43-476994442094
+[2025-05-05T12:30:37.960Z] [INFO] Polling attempt 1 for job 4581046e-5fd3-420a-be43-476994442094
+[2025-05-05T12:30:38.436Z] [WARN] Failed to poll job status: 404
+[2025-05-05T12:30:48.448Z] [INFO] Polling attempt 2 for job 4581046e-5fd3-420a-be43-476994442094
+[2025-05-05T12:30:48.976Z] [WARN] Failed to poll job status: 404
+[2025-05-05T12:30:58.991Z] [INFO] Polling attempt 3 for job 4581046e-5fd3-420a-be43-476994442094
+[2025-05-05T12:31:01.249Z] [WARN] Failed to poll job status: 404
+[2025-05-05T12:31:11.253Z] [INFO] Polling attempt 4 for job 4581046e-5fd3-420a-be43-476994442094
+[2025-05-05T12:31:22.242Z] [ERROR] Error polling job status: request to https://api.artificialstudio.ai/api/generations/6818af631981aeeee0a52106 failed, reason: read ECONNRESET
