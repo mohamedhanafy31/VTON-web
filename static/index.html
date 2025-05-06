@@ -6,10 +6,19 @@
     <title>Garment Image Upload to Cloudinary</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/index.css">
+    <style>
+      .header-logo {
+        display: block;
+        margin: 0 auto 20px auto; /* Centered, with space below */
+        max-height: 100px; /* Adjusted from 70px to match tryon.html */
+        width: auto;
+      }
+    </style>
 </head>
 <body>
     <div class="container">
-        <h1>Upload Garment Images to Cloudinary</h1>
+        <img src="MetaVrLogo.jpg" alt="MetaVR Logo" class="header-logo">
+        <h1>Garment Image Management</h1>
         
         <div class="upload-container">
             <input type="file" id="imageInput" accept="image/*" multiple>
@@ -201,7 +210,7 @@
                 });
                 
                 if (!response.ok) {
-                    const responseData = await response.json();
+                    const responseData = await response.json().catch(() => ({ error: 'Upload failed' })); // Graceful error parsing
                     logClientAction('upload_failed', { status: response.status, error: responseData.error }, 'error');
                     throw new Error(responseData.error || 'Upload failed');
                 }
@@ -228,7 +237,7 @@
             } catch (error) {
                 logClientAction('upload_error', { message: error.message }, 'error');
                 console.error('Upload error:', error);
-                alert('Failed to upload images');
+                alert('Failed to process images. Please try again.');
             } finally {
                 uploadButton.disabled = false;
                 spinner.classList.remove('active');
@@ -246,7 +255,7 @@
                 });
                 
                 if (!response.ok) {
-                    const errorData = await response.json();
+                    const errorData = await response.json().catch(() => ({ error: 'Delete failed' })); // Graceful error parsing
                     logClientAction('delete_failed', { publicId, status: response.status, error: errorData.error }, 'error');
                     throw new Error(errorData.error || `Delete failed with status: ${response.status}`);
                 }
@@ -267,7 +276,7 @@
             } catch (error) {
                 logClientAction('delete_error', { publicId, message: error.message }, 'error');
                 console.error('Delete error:', error);
-                alert('Failed to delete image: ' + error.message);
+                alert('Failed to delete image. Please try again.');
             } finally {
                 spinner.classList.remove('active');
             }

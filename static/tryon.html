@@ -661,6 +661,13 @@
       justify-content: flex-start;
       margin-top: 20px;
     }
+
+    .header-logo {
+      display: block;
+      margin: 0 auto 15px auto;
+      max-height: 100px;
+      width: auto;
+    }
   </style>
 </head>
 <body>
@@ -676,6 +683,7 @@
   
   <div class="container">
     <header>
+      <img src="MetaVrLogo.jpg" alt="MetaVR Logo" class="header-logo">
       <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
         <i class="fas fa-moon"></i>
       </button>
@@ -787,10 +795,11 @@
           </div>
         </div>
         <input type="hidden" id="apiKeyInput" value="dd240ad8f2e64de35e0b25ecddf1b42c2a7e637d">
-        <div class="btn-group" style="justify-content: flex-start; margin-top: 20px;">
+        <div class="btn-group" style="justify-content: center; margin-top: 20px;">
           <button id="tryOnBtn" class="btn btn-success">Try On Now <i class="fas fa-wand-magic-sparkles"></i></button>
         </div>
-        <div id="spinner" class="spinner"></div>
+        <p id="trialInfo" style="text-align: center; margin-top: 10px; color: var(--text-light);"></p>
+        <div id="spinner" class="spinner" style="display: none;"></div>
         <div class="progress-bar-container" id="progressBarContainer" style="display: none;">
           <div class="progress-bar" id="progressBar"></div>
         </div>
@@ -823,6 +832,7 @@
     let apiKey = '';
     let cameraStream = null;
     let facingMode = 'user';
+    let numTrials = 0;
 
     const pages = document.querySelectorAll('.page');
     const steps = document.querySelectorAll('.progress-step');
@@ -858,6 +868,7 @@
     const outputIdElement = document.getElementById('outputId');
     const themeToggle = document.getElementById('themeToggle');
     const shareBtn = document.getElementById('shareBtn');
+    const trialInfoElement = document.getElementById('trialInfo');
     const BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
         ? 'http://localhost:3000' 
         : window.location.origin;
@@ -900,9 +911,44 @@
         setTimeout(() => initCamera(), 500);
       } else if (pageNum === 3) {
         steps[1].classList.add('completed');
+        fetchAndUpdateTrialCount();
       }
 
       currentPage = pageNum;
+    }
+
+    async function fetchAndUpdateTrialCount() {
+      try {
+        const response = await fetch('trails.json');
+        if (!response.ok) {
+          throw new Error('Could not load trial information.');
+        }
+        const data = await response.json();
+        numTrials = parseInt(data.num_trials, 10);
+
+        if (isNaN(numTrials)) {
+          numTrials = 0;
+          throw new Error('Trial information is invalid.');
+        }
+
+        updateTrialDisplay();
+
+      } catch (error) {
+        console.error('Error fetching trial count:', error);
+        trialInfoElement.textContent = 'Could not load trial information. Please try again.';
+        tryOnBtn.disabled = true;
+        numTrials = 0;
+      }
+    }
+
+    function updateTrialDisplay() {
+      if (numTrials > 0) {
+        trialInfoElement.textContent = `You have ${numTrials} trial${numTrials === 1 ? '' : 's'} remaining.`;
+        tryOnBtn.disabled = false;
+      } else {
+        trialInfoElement.textContent = 'You have reached your trial limit.';
+        tryOnBtn.disabled = true;
+      }
     }
 
     function showToast(message, type = 'info', duration = 4000) {
@@ -911,18 +957,16 @@
       const toastIcon = document.getElementById('toastIcon');
       const toastClose = document.getElementById('toastClose');
 
-      // Clear any existing timeout
       if (window.toastTimeout) {
         clearTimeout(window.toastTimeout);
       }
 
-      // Set icon based on type
       let iconClass = 'fa-info-circle';
       if (type === 'success') {
         iconClass = 'fa-check-circle';
       } else if (type === 'error') {
         iconClass = 'fa-exclamation-circle';
-        duration = 6000; // Longer duration for errors
+        duration = 6000;
       } else if (type === 'warning') {
         iconClass = 'fa-exclamation-triangle';
       }
@@ -931,7 +975,6 @@
       toastMessage.textContent = message;
       toastIcon.className = `fas ${iconClass}`;
 
-      // Close toast when close button is clicked
       toastClose.onclick = () => {
         toast.className = 'toast';
         if (window.toastTimeout) {
@@ -939,7 +982,6 @@
         }
       };
 
-      // Auto-hide toast after duration
       window.toastTimeout = setTimeout(() => {
         toast.className = 'toast';
       }, duration);
@@ -952,7 +994,6 @@
         element.classList.remove('animate-pulse');
       }, 2000);
       
-      // Add a dismiss button to error messages
       const dismissBtn = document.createElement('button');
       dismissBtn.className = 'btn btn-sm btn-outline';
       dismissBtn.style.marginTop = '10px';
@@ -961,7 +1002,6 @@
         element.classList.remove('visible');
       };
       
-      // Only add the dismiss button if it doesn't already exist
       if (!element.querySelector('button')) {
         element.appendChild(dismissBtn);
       }
@@ -1027,7 +1067,6 @@
             toPage2Btn.disabled = false;
             showToast(`Great choice! ${desc.color} ${desc.garmentType} selected.`, 'success');
             
-            // Draw attention to the Next button
             toPage2Btn.classList.add('highlight');
             setTimeout(() => {
               toPage2Btn.classList.remove('highlight');
@@ -1190,13 +1229,13 @@
         formData.append('garmentType', 'Photo');
         formData.append('folder', 'VirtualTryOn_UserPhotos');
 
-        showToast('Saving your photo...', 'info');
+        showToast('Processing your photo...', 'info');
         const response = await fetch(`${BASE_URL}/upload`, {
           method: 'POST',
           body: formData
         });
 
-        if (!response.ok) throw new Error('We couldn\'t save your photo. Please try again.');
+        if (!response.ok) throw new Error('We couldn\'t process your photo. Please try again.');
 
         const result = await response.json();
 
@@ -1209,7 +1248,6 @@
           toPage3Btn.disabled = false;
           showToast('Perfect! Your photo is ready for the try-on.', 'success');
           
-          // Highlight the next button
           toPage3Btn.classList.add('highlight');
           setTimeout(() => {
             toPage3Btn.classList.remove('highlight');
@@ -1231,6 +1269,13 @@
       }
       
       apiKey = apiKeyInput.value.trim();
+      
+      if (numTrials <= 0) {
+        showToast('You have reached your trial limit. Please upgrade for more tries.', 'error');
+        tryOnBtn.disabled = true;
+        trialInfoElement.textContent = 'You have reached your trial limit.';
+        return;
+      }
       
       spinner.style.display = 'block';
       resultImage.style.display = 'none';
@@ -1257,7 +1302,8 @@
 
         if (!response.ok) {
           const errorText = await response.text();
-          throw new Error(`We couldn't process your request. ${errorText}`);
+          console.error('Try-on API error:', errorText);
+          throw new Error('An error occurred during the try-on process. Please check your inputs or try again later.');
         }
 
         const result = await response.json();
@@ -1265,10 +1311,15 @@
 
         showToast('Your try-on is being generated! We\'ll show you the result shortly.', 'success');
         startProgressSimulation(result.job_id);
+
+        numTrials--;
+        updateTrialDisplay();
+
       } catch (error) {
         console.error('Error during try-on:', error);
         showError(errorMessage, `${error.message} Our team has been notified. Please try again in a moment.`);
         resetTryOnState();
+        fetchAndUpdateTrialCount();
       }
     }
 
@@ -1307,7 +1358,7 @@
         } catch (error) {
           console.error('Error checking job status:', error);
           clearInterval(interval);
-          showError(errorMessage, `Job status check failed: ${error.message}`);
+          showError(errorMessage, 'Failed to get try-on status. Please try again.');
           resetTryOnState();
         }
       };
@@ -1355,7 +1406,6 @@
 
       showToast('Your virtual try-on is ready! How does it look?', 'success', 6000);
       
-      // Add helpful animation to draw attention to sharing/download options
       const btnGroup = document.getElementById('resultContainer').querySelector('.btn-group');
       btnGroup.classList.add('highlight');
       setTimeout(() => {
@@ -1379,7 +1429,6 @@
     });
 
     document.addEventListener('DOMContentLoaded', () => {
-      // Check if browser supports the required features
       const supportsRequiredFeatures = 'mediaDevices' in navigator && 
                                       typeof HTMLCanvasElement !== 'undefined' &&
                                       'toBlob' in HTMLCanvasElement.prototype;
@@ -1390,7 +1439,6 @@
       
       loadGarments();
 
-      // Add tooltips to buttons and controls
       const addTooltip = (element, text) => {
         const tooltip = document.createElement('span');
         tooltip.className = 'tooltip-text';
@@ -1403,7 +1451,6 @@
       addTooltip(switchCameraBtn, 'Switch camera');
       addTooltip(document.getElementById('themeToggle'), 'Toggle dark/light mode');
       
-      // Add help icons with tooltips
       const addHelpIcon = (element, text) => {
         const helpIcon = document.createElement('i');
         helpIcon.className = 'fas fa-question-circle help-icon tooltip';
@@ -1473,6 +1520,7 @@
         showPage(1);
         loadGarments();
         showToast('Started over', 'success');
+        fetchAndUpdateTrialCount();
       });
 
       document.getElementById('uploadImageBtn').addEventListener('click', async (event) => {
@@ -1492,7 +1540,7 @@
         }
         
         uploadSpinner.style.display = 'block';
-        showToast('Uploading image...');
+        showToast('Processing uploaded image...');
         
         try {
           const formData = new FormData();
@@ -1507,7 +1555,7 @@
           });
           
           if (!response.ok) {
-            throw new Error('Failed to upload image');
+            throw new Error('Failed to process uploaded image.');
           }
           
           const result = await response.json();
@@ -1519,13 +1567,13 @@
             garmentTypeElement.textContent = selectedGarment.type;
             garmentColorElement.textContent = selectedGarment.color;
             toPage3Btn.disabled = false;
-            showToast('Image uploaded successfully', 'success');
+            showToast('Image processed successfully.', 'success');
           } else {
-            throw new Error('No image returned from upload');
+            throw new Error('There was an issue with the uploaded image.');
           }
         } catch (error) {
           console.error('Error uploading image:', error);
-          showError(cameraError, `Failed to upload image: ${error.message}`);
+          showError(cameraError, `Failed to process uploaded image. Please try again.`);
         } finally {
           uploadSpinner.style.display = 'none';
         }
