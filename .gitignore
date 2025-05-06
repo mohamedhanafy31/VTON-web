@@ -1,5 +1,6 @@
 .env
 venv/
+vevn/
 node_modules/
 requirements.txt
 static.zip
