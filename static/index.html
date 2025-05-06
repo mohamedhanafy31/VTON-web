@@ -11,12 +11,6 @@
     <div class="container">
         <h1>Upload Garment Images to Cloudinary</h1>
         
-        <!-- Add public URL notice -->
-        <div id="publicUrlNotice" class="public-url-notice" style="display: none; margin-bottom: 20px; background-color: rgba(0,0,0,0.05); padding: 10px; border-radius: 8px; text-align: center;">
-            <p style="margin-bottom: 10px;">You're viewing this on localhost. A public URL is also available:</p>
-            <a id="publicUrlLink" href="#" target="_blank" style="word-break: break-all; color: #4f46e5; font-weight: 500;">Loading public URL...</a>
-        </div>
-        
         <div class="upload-container">
             <input type="file" id="imageInput" accept="image/*" multiple>
             <select id="colorSelect">
@@ -321,37 +315,8 @@
         // Load images when the page loads
         window.onload = function() {
             fetchImages();
-            
-            // Check for public URL if we're on localhost
-            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-                checkPublicUrl();
-            }
+            logClientAction('page_loaded');
         };
-        
-        // Function to check and display the public URL
-        async function checkPublicUrl() {
-            try {
-                const response = await fetch(`${API_URL}/public-url`);
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.publicUrl) {
-                        const publicUrlNotice = document.getElementById('publicUrlNotice');
-                        const publicUrlLink = document.getElementById('publicUrlLink');
-                        
-                        publicUrlLink.href = data.publicUrl + window.location.pathname;
-                        publicUrlLink.textContent = data.publicUrl + window.location.pathname;
-                        publicUrlNotice.style.display = 'block';
-                        
-                        logClientAction('public_url_displayed', { url: data.publicUrl });
-                    }
-                }
-            } catch (error) {
-                console.error('Error fetching public URL:', error);
-            }
-        }
-        
-        // Log page load event
-        logClientAction('page_loaded');
     </script>
 </body>
 </html>
