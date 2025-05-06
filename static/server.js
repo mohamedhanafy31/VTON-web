@@ -17,11 +17,14 @@ const port = 3000;
 // In-memory storage for job results from Artificial Studio API
 const jobResults = {};
 
+// Log environment variables for debugging
+console.log('NGROK_AUTHTOKEN:', process.env.NGROK_AUTHTOKEN ? 'Loaded' : 'Not loaded');
+
 // Configure Cloudinary
 cloudinary.config({ 
     cloud_name: 'dj3ewvbqm', 
     api_key: '182963992493551', 
-    api_secret: "Jw9FTSGXX2VxuEaxKA-l8E2Kqag"
+    api_secret: 'Jw9FTSGXX2VxuEaxKA-l8E2Kqag'
 });
 
 // Configure Multer for file uploads
@@ -59,11 +62,15 @@ async function startNgrok() {
   try {
     ngrokUrl = await ngrok.connect({
       addr: port,
-      authtoken: process.env.NGROK_AUTHTOKEN // Optional, set in .env
+      authtoken: process.env.NGROK_AUTHTOKEN || undefined // Use .env or global config
     });
     console.log('Ngrok URL:', ngrokUrl);
   } catch (error) {
     console.error('Error starting ngrok:', error);
+    console.error('Error details:', JSON.stringify(error, null, 2));
+    // Fallback to public server URL
+    ngrokUrl = 'https://metavrai.shop';
+    console.log('Falling back to public URL:', ngrokUrl);
   }
 }
 
@@ -218,9 +225,9 @@ app.post('/tryon', async (req, res) => {
     const job_id = uuidv4();
     jobResults[job_id] = { status: "pending", api_job_id: null, api_key };
     
-    // Use ngrok URL for webhook
+    // Use ngrok URL or fallback to public server URL
     if (!ngrokUrl) {
-      return res.status(500).json({ error: 'Ngrok URL not available' });
+      return res.status(500).json({ error: 'Public URL not available' });
     }
     const webhook_url = `${ngrokUrl}/webhook?job_id=${job_id}`;
     
@@ -295,7 +302,6 @@ async function startPollingForResults(job_id, api_job_id, api_key) {
       return;
     }
 
-    // Skip polling if the job is already marked as completed (e.g., webhook worked)
     if (jobResults[job_id]?.status === "completed") {
       console.log(`Job ${job_id} already completed, stopping polling`);
       return;
@@ -318,10 +324,7 @@ async function startPollingForResults(job_id, api_job_id, api_key) {
         console.log(`Polled status for job ${job_id}:`, data);
 
         if (data.status === "success" || data.status === "succeeded") {
-          // Extract the output URL
           const outputUrl = data.output;
-          
-          // Extract ID from output URL if present
           let output_id = data.id;
           if (!output_id && data.output) {
             const match = data.output.match(/files\.artificialstudio\.ai\/([0-9a-f-]+)/);
@@ -330,14 +333,13 @@ async function startPollingForResults(job_id, api_job_id, api_key) {
             }
           }
           
-          // Update our job record
           jobResults[job_id] = {
             status: "completed",
             result: data,
             api_job_id,
             api_key,
             output_id,
-            output: outputUrl,  // Store the direct output URL
+            output: outputUrl,
             timestamp: new Date().toISOString()
           };
           console.log(`Job ${job_id} completed via polling, output URL: ${outputUrl}`);
@@ -364,11 +366,9 @@ async function startPollingForResults(job_id, api_job_id, api_key) {
       console.error(`Error polling job status: ${error.message}`);
     }
 
-    // Schedule next check
     setTimeout(pollJob, checkInterval);
   };
 
-  // Start polling
   setTimeout(pollJob, checkInterval);
 }
 
@@ -384,10 +384,8 @@ app.post('/webhook', async (req, res) => {
   try {
     console.log(`Received webhook for job ${job_id}:`, req.body);
     
-    // Handle webhook data from Artificial Studio
     const webhookData = req.body;
     
-    // Extract the output URL from the webhook response
     let outputUrl = null;
     if (webhookData && webhookData.output) {
       outputUrl = webhookData.output;
@@ -396,7 +394,6 @@ app.post('/webhook', async (req, res) => {
       console.warn(`No output URL found in webhook for job ${job_id}`);
     }
     
-    // Extract ID from output URL if present
     let output_id = webhookData.id;
     if (!output_id && webhookData.output) {
       const match = webhookData.output.match(/files\.artificialstudio\.ai\/([0-9a-f-]+)/);
@@ -406,12 +403,10 @@ app.post('/webhook', async (req, res) => {
     }
     
     if (jobResults[job_id]) {
-      // Keep the original API key and API job ID if they're not in the webhook data
       const api_key = jobResults[job_id].api_key;
       const existing_api_job_id = jobResults[job_id].api_job_id;
       const api_job_id = webhookData.id || existing_api_job_id;
       
-      // Update the job with the webhook data
       jobResults[job_id] = {
         status: webhookData.status === "success" || webhookData.status === "succeeded" ? "completed" : webhookData.status,
         result: webhookData,
@@ -424,7 +419,6 @@ app.post('/webhook', async (req, res) => {
       
       console.log(`Updated job ${job_id} status to ${jobResults[job_id].status}`);
     } else {
-      // If job not found in our database, still store the result
       console.warn(`Received webhook for unknown job_id: ${job_id}, creating new entry`);
       jobResults[job_id] = {
         status: webhookData.status === "success" || webhookData.status === "succeeded" ? "completed" : webhookData.status,
@@ -452,13 +446,10 @@ app.post('/process-webhook-json', async (req, res) => {
       return res.status(400).json({ error: 'Invalid webhook data' });
     }
     
-    // Generate a random job_id if none exists
     const job_id = uuidv4();
     
-    // Extract the output URL
     const outputUrl = webhookData.output;
     
-    // Extract ID from output URL if present
     let output_id = webhookData.id;
     if (!output_id && webhookData.output) {
       const match = webhookData.output.match(/files\.artificialstudio\.ai\/([0-9a-f-]+)/);
@@ -467,7 +458,6 @@ app.post('/process-webhook-json', async (req, res) => {
       }
     }
     
-    // Create a job result entry
     jobResults[job_id] = {
       status: webhookData.status === "success" || webhookData.status === "succeeded" ? "completed" : webhookData.status,
       result: webhookData,
@@ -519,23 +509,13 @@ async function getImageCount() {
   }
 }
 
-// Endpoint to get public URL for clients on localhost
+// Endpoint to get public URL for clients
 app.get('/public-url', (req, res) => {
   console.log('GET /public-url called');
   if (ngrokUrl) {
     res.json({ publicUrl: ngrokUrl });
   } else {
-    res.json({ publicUrl: null, message: 'No public URL available' });
-  }
-});
-
-// Endpoint to get ngrok URL
-app.get('/ngrok-url', (req, res) => {
-  console.log('GET /ngrok-url called');
-  if (ngrokUrl) {
-    res.json({ url: ngrokUrl });
-  } else {
-    res.status(500).json({ error: 'Ngrok URL not available' });
+    res.json({ publicUrl: 'https://metavrai.shop', message: 'Using server public URL' });
   }
 });
 
@@ -644,14 +624,12 @@ app.post('/manual-webhook', async (req, res) => {
     
     console.log(`Processing manual webhook for job ${job_id}:`, webhook_payload);
     
-    // Extract the output URL
     let outputUrl = null;
     if (webhook_payload && webhook_payload.output) {
       outputUrl = webhook_payload.output;
       console.log(`Output URL found for job ${job_id}: ${outputUrl}`);
     }
     
-    // Extract ID from output URL if present
     let output_id = webhook_payload.id;
     if (!output_id && webhook_payload.output) {
       const match = webhook_payload.output.match(/files\.artificialstudio\.ai\/([0-9a-f-]+)/);
@@ -661,7 +639,6 @@ app.post('/manual-webhook', async (req, res) => {
     }
     
     if (jobResults[job_id]) {
-      // Keep the original API key and API job ID
       const api_key = jobResults[job_id].api_key;
       const existing_api_job_id = jobResults[job_id].api_job_id;
       const api_job_id = webhook_payload.id || existing_api_job_id;
@@ -683,7 +660,6 @@ app.post('/manual-webhook', async (req, res) => {
         output_url: outputUrl
       });
     } else {
-      // If job not found, create a new one with the webhook data
       const new_job_id = uuidv4();
       jobResults[new_job_id] = {
         status: webhook_payload.status === "success" || webhook_payload.status === "succeeded" ? "completed" : webhook_payload.status,

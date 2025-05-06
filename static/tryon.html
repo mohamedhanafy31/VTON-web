@@ -4,584 +4,323 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Virtual Try-On Experience</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
   <style>
     :root {
-      --primary: #6366f1;
-      --primary-light: #818cf8;
-      --primary-dark: #4f46e5;
-      --secondary: #f43f5e;
-      --background: #f9fafb;
-      --surface: #ffffff;
-      --text: #1f2937;
-      --text-light: #6b7280;
-      --success: #10b981;
-      --warning: #f59e0b;
-      --error: #ef4444;
-      --info: #3b82f6;
-      --border-radius: 12px;
-      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-      --transition-normal: all 0.3s ease;
-      --transition-slow: all 0.5s ease;
-      --z-notification: 1000;
-      --z-modal: 900;
-      --z-overlay: 800;
+      --primary-color: #007bff;
+      --success-color: #28a745;
+      --warning-color: #ffc107;
+      --danger-color: #dc3545;
+      --bg-color: #f8f9fa;
+      --card-bg: #ffffff;
+      --text-color: #333333;
+      --text-light: #666666;
+      --border-radius: 8px;
+      --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      --transition: all 0.3s ease;
     }
-    
+
     [data-theme="dark"] {
-      --primary: #818cf8;
-      --primary-light: #9ea5f9;
-      --primary-dark: #4f46e5;
-      --secondary: #f87171;
-      --background: #111827;
-      --surface: #1f2937;
-      --surface-lighter: #374151;
-      --text: #f9fafb;
-      --text-light: #d1d5db;
-      --success: #34d399;
-      --warning: #fbbf24;
-      --error: #f87171;
-      --info: #60a5fa;
-      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
-      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.15);
+      --primary-color: #66b0ff;
+      --success-color: #4cd964;
+      --warning-color: #ffca2c;
+      --danger-color: #f14668;
+      --bg-color: #1a1a1a;
+      --card-bg: #2c2c2c;
+      --text-color: #e0e0e0;
+      --text-light: #a0a0a0;
+      --shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
     }
-    
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    
+
     body {
-      font-family: 'Poppins', sans-serif;
-      background-color: var(--background);
-      color: var(--text);
-      min-height: 100vh;
-      transition: var(--transition-normal);
-      position: relative;
-      overflow-x: hidden;
+      font-family: 'Arial', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      margin: 0;
+      padding: 20px;
+      line-height: 1.6;
+      transition: var(--transition);
     }
-    
+
     .container {
       max-width: 1200px;
-      width: 100%;
       margin: 0 auto;
-      padding: 20px;
     }
-    
+
     header {
       text-align: center;
       margin-bottom: 40px;
-      position: relative;
-      padding-top: 20px;
-    }
-    
-    h1 {
-      font-weight: 700;
-      font-size: 2.5rem;
-      background: linear-gradient(45deg, var(--primary-dark), var(--primary-light));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 12px;
-      position: relative;
-      display: inline-block;
     }
 
-    @media (max-width: 768px) {
-      h1 {
-        font-size: 1.8rem;
-      }
-    }
-    
-    .subtitle {
-      color: var(--text-light);
-      font-size: 1.1rem;
-      margin-bottom: 35px;
-      max-width: 600px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-    
     .theme-toggle {
       position: absolute;
-      top: 10px;
-      right: 10px;
+      top: 20px;
+      right: 20px;
       background: none;
       border: none;
-      color: var(--text);
-      font-size: 1.4rem;
+      font-size: 1.5rem;
+      color: var(--text-color);
       cursor: pointer;
-      padding: 10px;
-      border-radius: 50%;
-      transition: var(--transition-normal);
-      z-index: 5;
-    }
-    
-    .theme-toggle:hover {
-      background-color: rgba(0, 0, 0, 0.1);
-      transform: rotate(15deg);
+      transition: var(--transition);
     }
 
-    [data-theme="dark"] .theme-toggle:hover {
-      background-color: rgba(255, 255, 255, 0.1);
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
     }
-    
-    /* Progress Stepper */
+
+    .subtitle {
+      font-size: 1.2rem;
+      color: var(--text-light);
+    }
+
     .progress-stepper {
       display: flex;
-      justify-content: space-between;
-      max-width: 600px;
-      margin: 0 auto 40px;
-      position: relative;
+      justify-content: center;
+      margin-top: 30px;
     }
-    
-    .progress-stepper::before {
-      content: "";
-      position: absolute;
-      top: 20px;
-      left: 55px;
-      right: 55px;
-      height: 4px;
-      background-color: var(--text-light);
-      z-index: 1;
-      opacity: 0.3;
-      border-radius: 4px;
-      transition: var(--transition-normal);
-    }
-    
-    .progress-stepper::after {
-      content: "";
-      position: absolute;
-      top: 20px;
-      left: 55px;
-      height: 4px;
-      background: linear-gradient(90deg, var(--primary), var(--primary-light));
-      z-index: 2;
-      border-radius: 4px;
-      transition: width 0.5s ease-in-out;
-      width: 0%;
-    }
-    
-    .progress-stepper[data-progress="1"]::after {
-      width: 0%;
-    }
-    
-    .progress-stepper[data-progress="2"]::after {
-      width: 50%;
-    }
-    
-    .progress-stepper[data-progress="3"]::after {
-      width: 100%;
-    }
-    
+
     .progress-step {
       display: flex;
       flex-direction: column;
       align-items: center;
+      width: 120px;
       position: relative;
-      z-index: 3;
-      transition: var(--transition-normal);
+      transition: var(--transition);
     }
-    
+
+    .progress-step:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      top: 20px;
+      left: 100%;
+      width: 60px;
+      height: 4px;
+      background-color: #ddd;
+      transition: var(--transition);
+    }
+
+    .progress-step.active .step-circle,
+    .progress-step.completed .step-circle {
+      background-color: var(--primary-color);
+      color: white;
+    }
+
+    .progress-step.completed::after {
+      background-color: var(--primary-color);
+    }
+
     .step-circle {
-      width: 44px;
-      height: 44px;
+      width: 40px;
+      height: 40px;
+      background-color: #ddd;
       border-radius: 50%;
-      background-color: var(--surface);
-      border: 3px solid var(--text-light);
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 10px;
-      font-weight: 600;
-      font-size: 1.1rem;
-      transition: all 0.4s ease;
-      position: relative;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      font-weight: bold;
+      margin-bottom: 8px;
+      transition: var(--transition);
     }
-    
+
     .step-label {
       font-size: 0.9rem;
-      color: var(--text-light);
-      transition: all 0.4s ease;
-      font-weight: 500;
       text-align: center;
-      max-width: 120px;
-    }
-    
-    .progress-step.active .step-circle {
-      background-color: var(--primary);
-      border-color: var(--primary-dark);
-      color: white;
-      transform: scale(1.1);
-      box-shadow: 0 0 15px var(--primary-light);
-    }
-    
-    .progress-step.active .step-label {
-      color: var(--primary);
-      font-weight: 600;
-    }
-    
-    .progress-step.completed .step-circle {
-      background-color: var(--success);
-      border-color: var(--success);
-      color: white;
     }
 
-    .progress-step.completed .step-circle::after {
-      content: "✓";
-      position: absolute;
-      font-size: 1.2rem;
-    }
-
-    .progress-step.completed .step-label {
-      color: var(--success);
-    }
-    
     .page {
       display: none;
-      opacity: 0;
-      transform: translateY(30px);
-      transition: opacity 0.5s ease, transform 0.5s ease;
     }
-    
+
     .page.active {
       display: block;
-      opacity: 1;
-      transform: translateY(0);
-      animation: fadeIn 0.5s ease-out;
     }
 
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(30px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-    
     .card {
-      background-color: var(--surface);
+      background-color: var(--card-bg);
+      padding: 30px;
       border-radius: var(--border-radius);
       box-shadow: var(--shadow);
-      padding: 30px;
-      margin-bottom: 25px;
-      transition: var(--transition-normal);
-      position: relative;
-      overflow: hidden;
+      margin-bottom: 20px;
     }
 
-    .card:hover {
-      box-shadow: var(--shadow-lg);
-      transform: translateY(-3px);
-    }
-
-    .card h2 {
+    h2 {
+      font-size: 1.8rem;
       margin-bottom: 15px;
-      font-weight: 600;
       display: flex;
       align-items: center;
       gap: 10px;
-      color: var(--primary-dark);
     }
 
-    .card h2 i {
-      font-size: 1.4rem;
-      color: var(--primary);
-    }
-    
-    .card p {
+    p {
       color: var(--text-light);
       margin-bottom: 20px;
-      line-height: 1.5;
     }
 
-    /* Buttons */
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      background-color: var(--primary);
-      color: white;
-      padding: 12px 24px;
-      border-radius: var(--border-radius);
-      border: none;
-      font-size: 1rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    .garment-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 20px;
+    }
+
+    .garment-item {
       position: relative;
+      border-radius: var(--border-radius);
       overflow: hidden;
-    }
-    
-    .btn:hover {
-      background-color: var(--primary-dark);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-    }
-    
-    .btn:active {
-      transform: translateY(0);
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      transition: var(--transition);
     }
 
-    .btn::after {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 5px;
-      height: 5px;
-      background: rgba(255, 255, 255, 0.5);
-      opacity: 0;
-      border-radius: 100%;
-      transform: scale(1, 1) translate(-50%);
-      transform-origin: 50% 50%;
+    .garment-item:hover {
+      transform: translateY(-5px);
     }
 
-    .btn:focus:not(:active)::after {
-      animation: ripple 1s ease-out;
+    .garment-item img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
     }
 
-    @keyframes ripple {
-      0% {
-        transform: scale(0, 0);
-        opacity: 0.5;
-      }
-      20% {
-        transform: scale(25, 25);
-        opacity: 0.3;
-      }
-      100% {
-        opacity: 0;
-        transform: scale(40, 40);
-      }
-    }
-    
-    .btn:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-      transform: none;
-      background-color: var(--text-light);
-      box-shadow: none;
+    .garment-info {
+      padding: 10px;
+      background-color: var(--card-bg);
     }
 
-    .btn-icon {
-      width: 42px;
-      height: 42px;
-      padding: 0;
+    .garment-type {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .garment-color {
       display: flex;
       align-items: center;
-      justify-content: center;
-      border-radius: 50%;
+      gap: 5px;
+      color: var(--text-light);
     }
 
-    .btn-icon i {
+    .garment-color-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .garment-item.selected .garment-check {
+      display: flex;
+    }
+
+    .garment-check {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background-color: var(--success-color);
+      color: white;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: none;
+      align-items: center;
+      justify-content: center;
       font-size: 1.2rem;
     }
-    
-    .btn-secondary {
-      background-color: var(--secondary);
-    }
-    
-    .btn-secondary:hover {
-      background-color: #e11d48;
-    }
-    
-    .btn-success {
-      background-color: var(--success);
-    }
-    
-    .btn-success:hover {
-      background-color: #059669;
-    }
-    
-    .btn-outline {
-      background-color: transparent;
-      border: 2px solid var(--primary);
-      color: var(--primary);
-    }
-    
-    .btn-outline:hover {
-      background-color: var(--primary);
-      color: white;
+
+    .error-message {
+      color: var(--danger-color);
+      margin-top: 15px;
+      display: none;
     }
 
-    .btn-info {
-      background-color: var(--info);
-    }
-
-    .btn-info:hover {
-      background-color: #2563eb;
-    }
-
-    .btn-warning {
-      background-color: var(--warning);
-    }
-
-    .btn-warning:hover {
-      background-color: #d97706;
-    }
-
-    .btn-error {
-      background-color: var(--error);
-    }
-
-    .btn-error:hover {
-      background-color: #dc2626;
-    }
-    
-    .btn-sm {
-      padding: 8px 16px;
-      font-size: 0.85rem;
+    .error-message.visible {
+      display: block;
     }
 
     .btn-group {
       display: flex;
       gap: 10px;
-      flex-wrap: wrap;
+      justify-content: flex-end;
+      margin-top: 20px;
     }
 
-    /* Garment Grid */
-    .garment-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 25px;
-      margin-top: 25px;
-    }
-    
-    .garment-item {
-      position: relative;
+    .btn {
+      padding: 10px 20px;
+      border: none;
       border-radius: var(--border-radius);
-      overflow: hidden;
-      cursor: pointer;
-      box-shadow: var(--shadow);
-      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-      background-color: var(--surface);
-    }
-    
-    .garment-item:hover {
-      transform: translateY(-5px) scale(1.02);
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
-    }
-    
-    .garment-item.selected {
-      border: 3px solid var(--primary);
-      transform: translateY(-5px) scale(1.05);
-      box-shadow: 0 0 0 3px var(--primary-light), 0 10px 20px rgba(0, 0, 0, 0.15);
-    }
-
-    .garment-item.selected .garment-check {
-      opacity: 1;
-      transform: scale(1);
-    }
-    
-    .garment-item img {
-      width: 100%;
-      height: 220px;
-      object-fit: cover;
-      transition: transform 0.5s ease;
-    }
-
-    .garment-item:hover img {
-      transform: scale(1.1);
-    }
-    
-    .garment-info {
-      padding: 15px;
-      background-color: var(--surface);
-      border-top: 1px solid rgba(0,0,0,0.05);
-      position: relative;
-    }
-    
-    .garment-type {
-      font-weight: 600;
+      background-color: var(--primary-color);
+      color: white;
       font-size: 1rem;
-      margin-bottom: 5px;
-    }
-    
-    .garment-color {
-      color: var(--text-light);
-      font-size: 0.9rem;
+      cursor: pointer;
+      transition: var(--transition);
       display: flex;
       align-items: center;
       gap: 5px;
     }
 
-    .garment-color-dot {
-      display: inline-block;
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      background-color: currentColor;
+    .btn:hover {
+      background-color: #0056b3;
     }
 
-    .garment-check {
-      position: absolute;
-      top: 15px;
-      right: 15px;
-      background-color: var(--primary);
-      color: white;
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 0;
-      transform: scale(0.5);
-      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-      z-index: 5;
+    .btn:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
     }
-    
-    /* Camera Container */
+
+    .btn.btn-outline {
+      background-color: transparent;
+      border: 1px solid var(--primary-color);
+      color: var(--primary-color);
+    }
+
+    .btn.btn-outline:hover {
+      background-color: var(--primary-color);
+      color: white;
+    }
+
+    .btn.btn-success {
+      background-color: var(--success-color);
+    }
+
+    .btn.btn-success:hover {
+      background-color: #218838;
+    }
+
+    .btn.btn-warning {
+      background-color: var(--warning-color);
+      color: var(--text-color);
+    }
+
+    .btn.btn-warning:hover {
+      background-color: #e0a800;
+    }
+
     .camera-container {
       position: relative;
       width: 100%;
-      max-width: 600px;
+      max-width: 640px;
       margin: 0 auto;
-      overflow: hidden;
       border-radius: var(--border-radius);
+      overflow: hidden;
       box-shadow: var(--shadow);
-      aspect-ratio: 4/3;
     }
 
-    .camera-loading {
+    video {
+      width: 100%;
+      height: auto;
+      background-color: #000;
+    }
+
+    .camera-overlay {
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background-color: rgba(0,0,0,0.7);
-      color: white;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      z-index: 10;
+      border: 2px solid var(--primary-color);
+      border-radius: var(--border-radius);
+      box-sizing: border-box;
+      opacity: 0.5;
     }
 
-    .camera-loading p {
-      margin-top: 15px;
-      color: white;
-    }
-    
-    #video {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transform: scaleX(-1);
-    }
-    
     .flash {
       position: absolute;
       top: 0;
@@ -590,478 +329,223 @@
       height: 100%;
       background-color: white;
       opacity: 0;
-      pointer-events: none;
-      z-index: 6;
+      transition: opacity 0.3s ease;
     }
 
     .flash.active {
-      animation: flashEffect 0.3s ease;
+      opacity: 0.8;
     }
 
-    @keyframes flashEffect {
-      0% { opacity: 0; }
-      50% { opacity: 0.8; }
-      100% { opacity: 0; }
-    }
-    
     .timer {
       position: absolute;
       top: 50%;
       left: 50%;
-      transform: translate(-50%, -50%) scale(0);
-      font-size: 8rem;
-      color: white;
-      text-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
-      opacity: 0;
-      transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-      z-index: 5;
-    }
-    
-    .timer.active {
-      opacity: 1;
-      transform: translate(-50%, -50%) scale(1);
-      animation: pulse 1s infinite;
+      transform: translate(-50%, -50%);
+      font-size: 3rem;
+      color: var(--primary-color);
+      background-color: rgba(0, 0, 0, 0.7);
+      padding: 10px 20px;
+      border-radius: var(--border-radius);
+      display: none;
     }
 
-    @keyframes pulse {
-      0% { transform: translate(-50%, -50%) scale(1); }
-      50% { transform: translate(-50%, -50%) scale(1.1); }
-      100% { transform: translate(-50%, -50%) scale(1); }
-    }
-    
-    .camera-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      border: 3px solid var(--primary);
-      border-radius: var(--border-radius);
-      pointer-events: none;
-      z-index: 4;
-      box-shadow: inset 0 0 20px rgba(0,0,0,0.2);
+    .timer.active {
+      display: block;
     }
 
     .camera-instructions {
       position: absolute;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background-color: rgba(0,0,0,0.7);
+      bottom: 10px;
+      left: 10px;
+      right: 10px;
+      background-color: rgba(0, 0, 0, 0.7);
       color: white;
-      padding: 10px 20px;
-      border-radius: 20px;
+      padding: 10px;
+      border-radius: var(--border-radius);
       font-size: 0.9rem;
-      z-index: 5;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .camera-instructions i {
-      animation: bounceY 2s infinite;
-    }
-
-    @keyframes bounceY {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-5px); }
-    }
-
-    .camera-controls {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 15px;
-      margin-top: 25px;
-    }
-
-    .camera-control-btn {
-      width: 70px;
-      height: 70px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.3s ease;
-      background-color: var(--surface);
-      box-shadow: var(--shadow);
-      border: none;
-      cursor: pointer;
-      color: var(--text);
-    }
-
-    .camera-control-btn:hover {
-      transform: scale(1.1);
-    }
-
-    .camera-control-btn.primary {
-      background-color: var(--primary);
-      color: white;
-      font-size: 1.8rem;
-    }
-
-    .camera-control-btn.primary:hover {
-      background-color: var(--primary-dark);
-    }
-
-    .camera-control-btn.secondary {
-      width: 50px;
-      height: 50px;
-      font-size: 1.2rem;
-      background-color: var(--surface);
-      color: var(--text);
-    }
-    
-    /* Preview Container */
-    .preview-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 30px;
-      margin: 30px 0;
-    }
-    
-    @media (min-width: 768px) {
-      .preview-container {
-        flex-direction: row;
-        justify-content: center;
-        align-items: flex-start;
-      }
-    }
-    
-    .preview-card {
-      width: 100%;
-      max-width: 300px;
-      border-radius: var(--border-radius);
-      overflow: hidden;
-      box-shadow: var(--shadow);
-      background-color: var(--surface);
-      transition: var(--transition-normal);
-    }
-
-    .preview-card:hover {
-      transform: translateY(-5px);
-      box-shadow: var(--shadow-lg);
-    }
-
-    .preview-header {
-      padding: 15px;
-      text-align: center;
-      border-bottom: 1px solid rgba(0,0,0,0.05);
-      font-weight: 600;
-      color: var(--primary-dark);
-      background-color: rgba(0,0,0,0.02);
-    }
-
-    .preview-body {
-      padding: 15px;
-      position: relative;
-    }
-    
-    .preview-image {
-      width: 100%;
-      aspect-ratio: 3/4;
-      object-fit: cover;
-      border-radius: calc(var(--border-radius) - 5px);
-      transition: transform 0.3s ease;
-    }
-
-    .preview-card:hover .preview-image {
-      transform: scale(1.03);
-    }
-
-    .preview-details {
-      margin-top: 15px;
-      font-size: 0.9rem;
-      color: var(--text-light);
-    }
-
-    .preview-detail-item {
-      display: flex;
-      justify-content: space-between;
-      padding: 5px 0;
-      border-bottom: 1px dashed rgba(0,0,0,0.1);
-    }
-
-    .preview-detail-item:last-child {
-      border-bottom: none;
-    }
-
-    /* Form Elements */
-    .form-group {
-      margin-bottom: 20px;
-    }
-
-    .form-label {
-      display: block;
-      margin-bottom: 8px;
-      font-weight: 500;
-      color: var(--text);
-    }
-
-    .form-control {
-      width: 100%;
-      padding: 12px 15px;
-      border: 2px solid rgba(0,0,0,0.1);
-      border-radius: var(--border-radius);
-      font-family: 'Poppins', sans-serif;
-      font-size: 1rem;
-      transition: var(--transition-normal);
-      background-color: var(--surface);
-      color: var(--text);
-    }
-
-    .form-control:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
-    }
-
-    .form-text {
-      font-size: 0.85rem;
-      margin-top: 5px;
-      color: var(--text-light);
-    }
-
-    .form-error {
-      color: var(--error);
-      font-size: 0.85rem;
-      margin-top: 5px;
-      font-weight: 500;
-    }
-
-    /* API Key Management */
-    .api-key-section {
-      background-color: rgba(0,0,0,0.02);
-      border-radius: var(--border-radius);
-      padding: 20px;
-      margin: 25px 0;
-      border: 1px solid rgba(0,0,0,0.05);
-    }
-
-    [data-theme="dark"] .api-key-section {
-      background-color: rgba(255,255,255,0.05);
-      border-color: rgba(255,255,255,0.1);
-    }
-
-    .api-key-heading {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 15px;
-      font-weight: 600;
-    }
-
-    .api-key-heading i {
-      color: var(--primary);
-    }
-
-    .api-key-input {
-      width: 100%;
-      padding: 12px 15px;
-      border: 2px solid rgba(0,0,0,0.1);
-      border-radius: var(--border-radius);
-      margin-top: 5px;
-      font-family: monospace;
-      letter-spacing: 1px;
-      font-size: 1rem;
-      transition: var(--transition-normal);
-      background-color: var(--surface);
-      color: var(--text);
-    }
-
-    .api-key-input:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
-    }
-    
-    .api-key-note {
-      font-size: 0.85rem;
-      color: var(--text-light);
-      margin-top: 8px;
       display: flex;
       align-items: center;
       gap: 5px;
     }
 
-    .api-key-actions {
+    .camera-loading {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
       display: flex;
+      flex-direction: column;
       align-items: center;
+      justify-content: center;
+      color: white;
+    }
+
+    .camera-controls {
+      display: flex;
+      justify-content: center;
       gap: 10px;
+      margin-top: 20px;
+    }
+
+    .camera-control-btn {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .camera-control-btn.primary {
+      background-color: var(--primary-color);
+      color: white;
+    }
+
+    .camera-control-btn.primary:hover {
+      background-color: #0056b3;
+    }
+
+    .camera-control-btn.secondary {
+      background-color: var(--text-light);
+      color: white;
+    }
+
+    .camera-control-btn.secondary:hover {
+      background-color: #555;
+    }
+
+    .preview-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+    }
+
+    .preview-card {
+      flex: 1;
+      min-width: 300px;
+      background-color: var(--card-bg);
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+    }
+
+    .preview-header {
+      background-color: var(--primary-color);
+      color: white;
+      padding: 10px;
+      text-align: center;
+      font-weight: bold;
+      border-top-left-radius: var(--border-radius);
+      border-top-right-radius: var(--border-radius);
+    }
+
+    .preview-body {
+      padding: 15px;
+    }
+
+    .preview-image {
+      width: 100%;
+      height: 300px;
+      object-fit: cover;
+      border-radius: var(--border-radius);
+    }
+
+    .preview-details {
       margin-top: 15px;
     }
 
-    .api-key-toggle {
+    .preview-detail-item {
       display: flex;
-      align-items: center;
-      cursor: pointer;
-      user-select: none;
-      gap: 8px;
-      color: var(--text-light);
-      font-size: 0.85rem;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      font-size: 0.9rem;
     }
 
-    .toggle-switch {
-      position: relative;
-      width: 36px;
-      height: 20px;
-      border-radius: 10px;
-      background-color: rgba(0,0,0,0.2);
-      transition: var(--transition-normal);
+    .preview-detail-item span:first-child {
+      font-weight: bold;
     }
 
-    .toggle-switch::after {
-      content: '';
-      position: absolute;
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      background-color: white;
-      top: 2px;
-      left: 2px;
-      transition: var(--transition-normal);
-    }
-
-    .remember-api-key:checked + .toggle-switch {
-      background-color: var(--primary);
-    }
-
-    .remember-api-key:checked + .toggle-switch::after {
-      transform: translateX(16px);
-    }
-
-    .remember-api-key {
-      position: absolute;
-      opacity: 0;
-      pointer-events: none;
-    }
-    
-    /* Progress and Loading Indicators */
-    .spinner {
-      width: 40px;
-      height: 40px;
-      border: 4px solid rgba(0, 0, 0, 0.1);
-      border-radius: 50%;
-      border-left-color: var(--primary);
-      animation: spin 1s linear infinite;
-      margin: 20px auto;
-      display: none;
-    }
-
-    [data-theme="dark"] .spinner {
-      border: 4px solid rgba(255, 255, 255, 0.1);
-      border-left-color: var(--primary);
-    }
-    
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    
     .progress-bar-container {
       width: 100%;
-      height: 8px;
-      background-color: rgba(0,0,0,0.1);
-      border-radius: 4px;
+      height: 10px;
+      background-color: #ddd;
+      border-radius: var(--border-radius);
       overflow: hidden;
-      margin: 20px 0;
-      position: relative;
-    }
-
-    [data-theme="dark"] .progress-bar-container {
-      background-color: rgba(255,255,255,0.1);
+      margin-top: 20px;
     }
 
     .progress-bar {
       height: 100%;
-      background: linear-gradient(90deg, var(--primary), var(--primary-light));
-      border-radius: 4px;
+      background-color: var(--primary-color);
+      width: 0;
       transition: width 0.3s ease;
-      width: 0%;
     }
 
     .progress-bar.indeterminate {
-      width: 50%;
-      animation: indeterminateAnimation 1.5s infinite ease-in-out;
+      background: linear-gradient(to right, var(--primary-color) 30%, transparent 70%);
+      animation: indeterminate 1.5s linear infinite;
     }
 
-    @keyframes indeterminateAnimation {
-      0% { transform: translateX(-100%); }
-      100% { transform: translateX(200%); }
+    @keyframes indeterminate {
+      0% { background-position: 0% 0; }
+      100% { background-position: 200% 0; }
     }
 
-    /* Toast Notifications */
-    .toast {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%) translateY(100%);
-      background-color: var(--surface);
-      padding: 12px 24px;
-      border-radius: var(--border-radius);
-      box-shadow: var(--shadow-lg);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      z-index: var(--z-notification);
-      opacity: 0;
-      transition: transform 0.3s ease, opacity 0.3s ease;
-      max-width: 90%;
-    }
-
-    .toast.show {
-      transform: translateX(-50%) translateY(0);
-      opacity: 1;
-    }
-
-    .toast-success {
-      border-left: 4px solid var(--success);
-    }
-
-    .toast-error {
-      border-left: 4px solid var(--error);
-    }
-
-    .toast i {
-      font-size: 1.2rem;
-    }
-
-    .toast-success i {
-      color: var(--success);
-    }
-
-    .toast-error i {
-      color: var(--error);
-    }
-
-    .error-message {
-      color: var(--error);
-      font-size: 0.9rem;
-      margin-top: 15px;
-      text-align: center;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-
-    .error-message.visible {
-      opacity: 1;
-    }
-
-    /* Result Container */
-    .result-container h3 {
-      font-weight: 600;
+    .result-container {
       margin-top: 20px;
-      margin-bottom: 15px;
-      color: var(--primary-dark);
       text-align: center;
     }
 
     .output-id {
       color: var(--text-light);
       font-size: 0.9rem;
-      text-align: center;
-      margin-top: 15px;
+      margin-top: 10px;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: var(--card-bg);
+      color: var(--text-color);
+      padding: 15px;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+    }
+
+    .toast-success {
+      border-left: 4px solid var(--success-color);
+    }
+
+    .toast-error {
+      border-left: 4px solid var(--danger-color);
+    }
+
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid var(--primary-color);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
   </style>
 </head>
@@ -1131,7 +615,6 @@
           <button id="captureBtn" class="camera-control-btn primary"><i class="fas fa-camera"></i></button>
           <button id="switchCamera" class="camera-control-btn secondary"><i class="fas fa-sync"></i></button>
         </div>
-        <!-- Alternative image upload option -->
         <div id="alternativeUpload" style="display: none; margin-top: 20px; padding-top: 20px; border-top: 1px dashed #ddd;">
           <h3 style="font-size: 1.1rem; margin-bottom: 15px;">Alternative: Upload an Image</h3>
           <p style="margin-bottom: 15px; color: var(--text-light);">If your camera isn't working, you can upload an image instead:</p>
@@ -1184,7 +667,6 @@
             </div>
           </div>
         </div>
-        <!-- API key is hard-coded, not visible to users -->
         <input type="hidden" id="apiKeyInput" value="dd240ad8f2e64de35e0b25ecddf1b42c2a7e637d">
         <div class="btn-group" style="justify-content: center; margin-top: 25px;">
           <button id="tryOnBtn" class="btn btn-success">Try On Now <i class="fas fa-wand-magic-sparkles"></i></button>
@@ -1222,7 +704,6 @@
     let apiKey = '';
     let cameraStream = null;
     let facingMode = 'user';
-    let NGROK_URL = '';
 
     const pages = document.querySelectorAll('.page');
     const steps = document.querySelectorAll('.progress-step');
@@ -1261,6 +742,24 @@
     const BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
         ? 'http://localhost:3000' 
         : window.location.origin;
+
+    async function fetchNgrokUrl() {
+      try {
+        const response = await fetch(`${BASE_URL}/public-url`);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch public URL: ${response.statusText}`);
+        }
+        const data = await response.json();
+        if (data.publicUrl) {
+          return data.publicUrl;
+        } else {
+          throw new Error('No public URL available');
+        }
+      } catch (error) {
+        console.error('Failed to fetch public URL:', error);
+        throw error;
+      }
+    }
 
     function showPage(pageNum) {
       if (currentPage === 2 && pageNum !== 2) {
@@ -1306,18 +805,7 @@
       element.classList.add('visible');
       setTimeout(() => {
         element.classList.remove('visible');
-      }, 10000); // Keep error visible longer (10 seconds)
-    }
-
-    async function fetchNgrokUrl() {
-      try {
-        const res = await fetch('/ngrok-url');
-        const data = await res.json();
-        NGROK_URL = data.url;
-        console.log('Fetched ngrok URL:', NGROK_URL);
-      } catch (err) {
-        console.error('Failed to fetch ngrok URL:', err);
-      }
+      }, 10000);
     }
 
     async function loadGarments() {
@@ -1407,13 +895,11 @@
           cameraStream.getTracks().forEach(track => track.stop());
         }
         
-        // First check if mediaDevices is supported
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
           document.getElementById('alternativeUpload').style.display = 'block';
           throw new Error('Camera access is not supported in your browser. Please try using Chrome, Firefox, or Safari or upload an image manually.');
         }
 
-        // Request permission with detailed constraints
         cameraStream = await navigator.mediaDevices.getUserMedia({
           video: { 
             facingMode,
@@ -1423,10 +909,8 @@
           audio: false
         }).catch(err => {
           console.error('Camera permission error:', err);
-          // Show alternative upload when permission is denied
           document.getElementById('alternativeUpload').style.display = 'block';
           
-          // Provide more detailed error messages based on the error
           if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
             throw new Error('Camera access was denied. Please allow camera access in your browser settings and try again, or use the upload option below.');
           } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
@@ -1434,7 +918,6 @@
           } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
             throw new Error('Your camera is in use by another application. Please close other apps that might be using your camera and try again, or use the upload option below.');
           } else if (err.name === 'OverconstrainedError') {
-            // Try again with less strict constraints
             return navigator.mediaDevices.getUserMedia({
               video: true,
               audio: false
@@ -1457,7 +940,6 @@
         console.error('Error accessing camera:', error);
         cameraLoading.style.display = 'none';
         
-        // Display detailed error message to help users troubleshoot
         let errorMessage = error.message || 'Unable to access camera. Please grant permission and try again.';
         errorMessage += '<br><br>Troubleshooting tips:';
         errorMessage += '<br>• Make sure your browser has permission to access your camera';
@@ -1468,7 +950,6 @@
         cameraError.innerHTML = errorMessage;
         showError(cameraError, errorMessage);
         
-        // Add a retry button
         const retryBtn = document.createElement('button');
         retryBtn.className = 'btn';
         retryBtn.style.marginTop = '15px';
@@ -1559,12 +1040,10 @@
     }
 
     async function tryOnGarment(event) {
-      // Prevent the default form submission behavior which causes page reload
       if (event) {
         event.preventDefault();
       }
       
-      // API key is now hard-coded, no need to validate it
       apiKey = apiKeyInput.value.trim();
       
       spinner.style.display = 'block';
@@ -1577,9 +1056,7 @@
 
       showToast('Starting try-on process...');
       try {
-        // Fetch the ngrok URL before making the try-on request
-        await fetchNgrokUrl();
-        
+        const publicUrl = await fetchNgrokUrl();
         const response = await fetch(`${BASE_URL}/tryon`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -1604,7 +1081,7 @@
         startProgressSimulation(result.job_id);
       } catch (error) {
         console.error('Error during try-on:', error);
-        showError(errorMessage, error.message);
+        showError(errorMessage, `Try-on failed: ${error.message}`);
         resetTryOnState();
       }
     }
@@ -1644,7 +1121,7 @@
         } catch (error) {
           console.error('Error checking job status:', error);
           clearInterval(interval);
-          showError(errorMessage, error.message);
+          showError(errorMessage, `Job status check failed: ${error.message}`);
           resetTryOnState();
         }
       };
@@ -1708,10 +1185,7 @@
       showToast(`Switched to ${isDarkMode ? 'dark' : 'light'} mode`, 'success');
     });
 
-    document.addEventListener('DOMContentLoaded', async () => {
-      // Fetch the ngrok URL when the page loads
-      await fetchNgrokUrl();
-      
+    document.addEventListener('DOMContentLoaded', () => {
       loadGarments();
 
       toPage2Btn.addEventListener('click', (event) => {
@@ -1771,7 +1245,6 @@
         showToast('Started over', 'success');
       });
 
-      // Handle manual image upload
       document.getElementById('uploadImageBtn').addEventListener('click', async (event) => {
         event.preventDefault();
         const fileInput = document.getElementById('manualImageUpload');
@@ -1828,7 +1301,6 @@
         }
       });
 
-      // Handle diagnostic button
       document.getElementById('runDiagnosticBtn').addEventListener('click', async (event) => {
         event.preventDefault();
         const diagnosticResult = document.getElementById('diagnosticResult');
@@ -1839,7 +1311,6 @@
         diagnosticBtn.textContent = 'Running diagnostic...';
         
         try {
-          // Collect browser and device information
           const capabilities = {
             userAgent: navigator.userAgent,
             platform: navigator.platform,
@@ -1857,7 +1328,6 @@
             hasGetUserMedia: !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)
           };
           
-          // Test for permissions API
           if (navigator.permissions) {
             try {
               const result = await navigator.permissions.query({ name: 'camera' });
@@ -1869,7 +1339,6 @@
             capabilities.cameraPermission = 'Permissions API not supported';
           }
           
-          // Test for enumerateDevices
           if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
             try {
               const devices = await navigator.mediaDevices.enumerateDevices();
@@ -1883,7 +1352,6 @@
             capabilities.videoDevices = 'EnumerateDevices not supported';
           }
           
-          // Send diagnostic info to server
           const response = await fetch(`${BASE_URL}/diagnostic`, {
             method: 'POST',
             headers: {
@@ -1898,7 +1366,6 @@
           
           const data = await response.json();
           
-          // Format results
           const formattedOutput = `
 Browser Info:
 - User Agent: ${capabilities.userAgent}
@@ -1910,42 +1377,35 @@ Device Capabilities:
 - Screen Size: ${capabilities.screenWidth}x${capabilities.screenHeight} (Pixel Ratio: ${capabilities.devicePixelRatio})
 - Touch Screen: ${capabilities.hasTouchScreen ? 'Yes' : 'No'}
 - Online: ${capabilities.onLine ? 'Yes' : 'No'}
-- Secure Context (HTTPS): ${capabilities.secure ? 'Yes' : 'No'}
+- Secure Connection (HTTPS): ${capabilities.secure ? 'Yes' : 'No'}
+- Cookies Enabled: ${capabilities.cookiesEnabled ? 'Yes' : 'No'}
+- Do Not Track: ${capabilities.doNotTrack || 'Not specified'}
 
-Camera Support:
-- MediaDevices API: ${capabilities.hasMediaDevices ? 'Supported' : 'Not Supported'}
-- getUserMedia: ${capabilities.hasGetUserMedia ? 'Supported' : 'Not Supported'}
-- Camera Permission: ${capabilities.cameraPermission || 'Unknown'}
-- Video Devices: ${capabilities.videoDevices || 'Unknown'}
-- Device Labels Available: ${capabilities.videoDeviceLabels ? 'Yes' : 'No'}
+Camera Capabilities:
+- MediaDevices API: ${capabilities.hasMediaDevices ? 'Supported' : 'Not supported'}
+- getUserMedia: ${capabilities.hasGetUserMedia ? 'Supported' : 'Not supported'}
+- Camera Permission: ${capabilities.cameraPermission}
+- Video Input Devices: ${capabilities.videoDevices}
+- Device Labels Available: ${capabilities.videoDeviceLabels ? 'Yes' : 'No (requires permission)'}
 
-API Key: Using pre-configured key - no user input required
-
-Recommendations:
-${data.recommendations ? data.recommendations.map(rec => '- ' + rec).join('\n') : 'No recommendations available'}
-`;
+Server Response:
+- Success: ${data.success}
+- Message: ${data.message}
+- Recommendations:
+  ${data.recommendations.map(rec => `  - ${rec}`).join('\n')}
+          `;
           
-          diagnosticOutput.textContent = formattedOutput;
+          diagnosticOutput.textContent = formattedOutput.trim();
           diagnosticResult.style.display = 'block';
-          
-          // If we have specific camera issues, display more targeted advice
-          if (!capabilities.secure && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-            showError(cameraError, 'Camera access requires HTTPS in most browsers. Please access this site using HTTPS.');
-          } else if (!capabilities.hasMediaDevices || !capabilities.hasGetUserMedia) {
-            showError(cameraError, 'Your browser does not support accessing the camera. Please try a modern browser like Chrome, Firefox, or Safari.');
-          } else if (capabilities.cameraPermission === 'denied') {
-            showError(cameraError, 'Camera access has been denied. Please reset camera permissions for this site in your browser settings.');
-          } else if (capabilities.videoDevices === 0) {
-            showError(cameraError, 'No camera devices were detected on your device.');
-          }
-          
+          showToast('Diagnostic complete', 'success');
         } catch (error) {
-          console.error('Diagnostic error:', error);
-          diagnosticOutput.textContent = `Error running diagnostic: ${error.message}`;
+          console.error('Error running diagnostic:', error);
+          diagnosticOutput.textContent = `Error: ${error.message}`;
           diagnosticResult.style.display = 'block';
+          showToast('Diagnostic failed', 'error');
         } finally {
           diagnosticBtn.disabled = false;
-          diagnosticBtn.innerHTML = '<i class="fas fa-stethoscope"></i> Run Camera Diagnostic';
+          diagnosticBtn.textContent = 'Run Camera Diagnostic';
         }
       });
     });
