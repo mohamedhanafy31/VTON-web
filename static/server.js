@@ -11,8 +11,7 @@ import admin from 'firebase-admin';
 
 // Load the service account key directly from the file
 import serviceAccount from './serviceAccountKey.json' with { type: 'json' };
-// Load descriptions from local JSON file
-import descriptionsDataFromFile from './descriptions.json' with { type: 'json' };
+console.log('Service account loaded:', serviceAccount.project_id); // Debug log
 
 // Initialize Firebase Admin SDK
 if (!admin.apps.length) {
@@ -87,26 +86,25 @@ app.get('/trials', async (req, res) => {
   console.log('GET /trials called');
   try {
     const trialDoc = await db.collection('trails').doc('info').get();
-    let responseData;
-    const defaultDbFieldValue = 10; 
+    let responsePayload;
+    const defaultDbValue = 10;
 
     if (trialDoc.exists) {
       const dataFromDb = trialDoc.data();
       if (dataFromDb && typeof dataFromDb.num_trails === 'number') {
-        responseData = { num_trials: dataFromDb.num_trails };
-        console.log('Trials data read from Firestore (num_trails):', dataFromDb.num_trails);
+        responsePayload = { num_trials: dataFromDb.num_trails };
+        console.log('Trials data read from Firestore (num_trails):', dataFromDb.num_trails, 'Sending as num_trials:', responsePayload.num_trials);
       } else {
         console.warn('num_trails in Firestore is missing or not a number, re-initializing.');
-        await db.collection('trails').doc('info').set({ num_trails: defaultDbFieldValue });
-        responseData = { num_trials: defaultDbFieldValue };
+        await db.collection('trails').doc('info').set({ num_trails: defaultDbValue });
+        responsePayload = { num_trials: defaultDbValue };
       }
     } else {
-      await db.collection('trails').doc('info').set({ num_trails: defaultDbFieldValue });
-      responseData = { num_trials: defaultDbFieldValue };
-      console.log('Initialized trials in Firestore with num_trails:', defaultDbFieldValue);
+      await db.collection('trails').doc('info').set({ num_trails: defaultDbValue });
+      responsePayload = { num_trials: defaultDbValue };
+      console.log('Initialized trials in Firestore with num_trails:', defaultDbValue, 'Sending as num_trials:', responsePayload.num_trials);
     }
-    console.log('Sending trials data to client (num_trials):', responseData.num_trials);
-    res.json(responseData);
+    res.json(responsePayload);
   } catch (error) {
     console.error('Error reading trials from Firestore:', error);
     res.status(500).json({ error: 'Failed to fetch trials', details: error.message });
@@ -119,11 +117,11 @@ app.post('/update-trials', async (req, res) => {
   try {
     const { num_trials } = req.body;
     if (typeof num_trials !== 'number' || num_trials < 0) {
-      console.warn('Invalid trial count received (num_trials):', num_trials);
+      console.warn('Invalid trial count received (client sent num_trials):', num_trials);
       return res.status(400).json({ error: 'Invalid trial count' });
     }
     await db.collection('trails').doc('info').set({ num_trails: num_trials });
-    console.log('Trials updated successfully in Firestore (num_trails):', num_trials);
+    console.log('Trials updated successfully in Firestore (stored as num_trails):', num_trials);
     res.json({ success: true });
   } catch (error) {
     console.error('Error updating trials in Firestore:', error);
@@ -168,12 +166,14 @@ app.post('/upload', upload.array('images'), async (req, res) => {
     const uploadedImages = await Promise.all(uploadPromises);
     console.log('Uploaded images:', uploadedImages);
 
-    // Removed Firestore interaction for descriptions
-    // If descriptions.json needs to be updated, that logic would go here,
-    // but it's complex with static imports and fs.writeFile.
-    // For now, descriptions are read-only from the file at server start.
     if (!folder || folder === 'VirtualTryOn_Images') {
-      console.log('Descriptions are now sourced from local descriptions.json and are not updated here.');
+      const descriptionsRef = db.collection('descriptions').doc('garments');
+      let descriptions = (await descriptionsRef.get()).data() || {};
+      uploadedImages.forEach(image => {
+        descriptions[image.public_id] = { color, garmentType };
+      });
+      await descriptionsRef.set(descriptions);
+      console.log('Updated descriptions in Firestore');
     }
 
     res.json({ images: uploadedImages });
@@ -207,16 +207,17 @@ app.get('/images', async (req, res) => {
   }
 });
 
-// Get descriptions from local JSON file
+// Get descriptions from Firestore
 app.get('/descriptions', async (req, res) => {
-  console.log('GET /descriptions called (from local file)');
+  console.log('GET /descriptions called');
   try {
-    // The data is already loaded from descriptionsDataFromFile
-    // The structure of descriptions.json is assumed to be the descriptions object itself
-    console.log('Descriptions read from local file:', Object.keys(descriptionsDataFromFile).length);
-    res.json({ descriptions: descriptionsDataFromFile });
+    const descriptionsRef = db.collection('descriptions').doc('garments');
+    const doc = await descriptionsRef.get();
+    const descriptions = doc.exists ? doc.data() : {};
+    console.log('Descriptions read from Firestore:', Object.keys(descriptions).length);
+    res.json({ descriptions });
   } catch (error) {
-    console.error('Error serving descriptions from local file:', error);
+    console.error('Error fetching descriptions from Firestore:', error);
     res.status(500).json({ error: 'Failed to fetch descriptions', details: error.message });
   }
 });
@@ -236,9 +237,14 @@ app.delete('/delete/:publicId', async (req, res) => {
       return res.status(400).json({ success: false, error: 'Deletion failed: Image not found' });
     }
 
-    // Removed Firestore interaction for descriptions
-    // Logic to update local descriptions.json upon deletion would go here if needed.
-    console.log('Descriptions are now sourced from local descriptions.json and are not updated here.');
+    const descriptionsRef = db.collection('descriptions').doc('garments');
+    const doc = await descriptionsRef.get();
+    let descriptions = doc.exists ? doc.data() : {};
+    if (descriptions[fullPublicId]) {
+      delete descriptions[fullPublicId];
+      await descriptionsRef.set(descriptions);
+      console.log('Updated descriptions in Firestore after deletion');
+    }
 
     res.json({ success: true });
   } catch (error) {
@@ -263,7 +269,7 @@ app.post('/tryon', async (req, res) => {
         console.warn('num_trails in Firestore is missing or not a number for tryon check. Assuming 0 trials.');
       }
     } else {
-      console.warn('Trials document not found in Firestore for tryon check. Assuming 0 trials.');
+      console.warn('Trials document not found in Firestore for tryon check. Assuming 0 trials, will be init by /trials.');
     }
 
     if (current_db_trials <= 0) {
