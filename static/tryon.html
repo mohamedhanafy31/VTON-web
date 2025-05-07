@@ -1315,6 +1315,19 @@
         numTrials--;
         updateTrialDisplay();
 
+        try {
+          const updateResponse = await fetch(`${BASE_URL}/update-trials`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ num_trials: numTrials })
+          });
+          if (!updateResponse.ok) {
+            console.error('Failed to update trial count on server. Status:', updateResponse.status);
+          }
+        } catch (serverError) {
+          console.error('Error sending trial count update to server:', serverError);
+        }
+
       } catch (error) {
         console.error('Error during try-on:', error);
         showError(errorMessage, `${error.message} Our team has been notified. Please try again in a moment.`);
