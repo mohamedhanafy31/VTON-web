@@ -11,6 +11,8 @@ import admin from 'firebase-admin';
 
 // Load the service account key directly from the file
 import serviceAccount from './serviceAccountKey.json' with { type: 'json' };
+// Load descriptions from local JSON file
+import descriptionsDataFromFile from './descriptions.json' with { type: 'json' };
 
 // Initialize Firebase Admin SDK
 if (!admin.apps.length) {
@@ -166,14 +168,12 @@ app.post('/upload', upload.array('images'), async (req, res) => {
     const uploadedImages = await Promise.all(uploadPromises);
     console.log('Uploaded images:', uploadedImages);
 
+    // Removed Firestore interaction for descriptions
+    // If descriptions.json needs to be updated, that logic would go here,
+    // but it's complex with static imports and fs.writeFile.
+    // For now, descriptions are read-only from the file at server start.
     if (!folder || folder === 'VirtualTryOn_Images') {
-      const descriptionsRef = db.collection('descriptions').doc('garments');
-      let descriptions = (await descriptionsRef.get()).data() || {};
-      uploadedImages.forEach(image => {
-        descriptions[image.public_id] = { color, garmentType };
-      });
-      await descriptionsRef.set(descriptions);
-      console.log('Updated descriptions in Firestore');
+      console.log('Descriptions are now sourced from local descriptions.json and are not updated here.');
     }
 
     res.json({ images: uploadedImages });
@@ -207,17 +207,16 @@ app.get('/images', async (req, res) => {
   }
 });
 
-// Get descriptions from Firestore
+// Get descriptions from local JSON file
 app.get('/descriptions', async (req, res) => {
-  console.log('GET /descriptions called');
+  console.log('GET /descriptions called (from local file)');
   try {
-    const descriptionsRef = db.collection('descriptions').doc('garments');
-    const doc = await descriptionsRef.get();
-    const descriptions = doc.exists ? doc.data() : {};
-    console.log('Descriptions read from Firestore:', Object.keys(descriptions).length);
-    res.json({ descriptions });
+    // The data is already loaded from descriptionsDataFromFile
+    // The structure of descriptions.json is assumed to be the descriptions object itself
+    console.log('Descriptions read from local file:', Object.keys(descriptionsDataFromFile).length);
+    res.json({ descriptions: descriptionsDataFromFile });
   } catch (error) {
-    console.error('Error fetching descriptions from Firestore:', error);
+    console.error('Error serving descriptions from local file:', error);
     res.status(500).json({ error: 'Failed to fetch descriptions', details: error.message });
   }
 });
@@ -237,14 +236,9 @@ app.delete('/delete/:publicId', async (req, res) => {
       return res.status(400).json({ success: false, error: 'Deletion failed: Image not found' });
     }
 
-    const descriptionsRef = db.collection('descriptions').doc('garments');
-    const doc = await descriptionsRef.get();
-    let descriptions = doc.exists ? doc.data() : {};
-    if (descriptions[fullPublicId]) {
-      delete descriptions[fullPublicId];
-      await descriptionsRef.set(descriptions);
-      console.log('Updated descriptions in Firestore after deletion');
-    }
+    // Removed Firestore interaction for descriptions
+    // Logic to update local descriptions.json upon deletion would go here if needed.
+    console.log('Descriptions are now sourced from local descriptions.json and are not updated here.');
 
     res.json({ success: true });
   } catch (error) {
