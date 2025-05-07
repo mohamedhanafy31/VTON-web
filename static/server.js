@@ -1,3 +1,4 @@
+
 import 'dotenv/config';
 import express from 'express';
 import multer from 'multer';
@@ -78,6 +79,43 @@ async function startNgrok() {
 app.listen(port, async () => {
   console.log(`Server running at http://localhost:${port}`);
   await startNgrok();
+});
+
+// Get trial count
+app.get('/trials', async (req, res) => {
+  console.log('GET /trials called');
+  try {
+    let trialsData;
+    try {
+      const data = await fs.readFile(`${__dirname}/trails.json`, 'utf8');
+      trialsData = JSON.parse(data);
+    } catch (error) {
+      // Initialize trails.json with default value if it doesn't exist
+      trialsData = { num_trials: 10 };
+      await fs.writeFile(`${__dirname}/trails.json`, JSON.stringify(trialsData, null, 2));
+    }
+    res.json(trialsData);
+  } catch (error) {
+    console.error('Error reading trials:', error);
+    res.status(500).json({ error: 'Failed to fetch trials' });
+  }
+});
+
+// Update trial count
+app.post('/update-trials', async (req, res) => {
+  console.log('POST /update-trials called');
+  try {
+    const { num_trials } = req.body;
+    if (typeof num_trials !== 'number' || num_trials < 0) {
+      return res.status(400).json({ error: 'Invalid trial count' });
+    }
+    const trialsData = { num_trials };
+    await fs.writeFile(`${__dirname}/trails.json`, JSON.stringify(trialsData, null, 2));
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error updating trials:', error);
+    res.status(500).json({ error: 'Failed to update trial count' });
+  }
 });
 
 // Define routes
@@ -216,6 +254,12 @@ app.delete('/delete/:publicId', async (req, res) => {
 // Artificial Studio API - Try-on endpoint
 app.post('/tryon', async (req, res) => {
   try {
+    // Check trial count before processing
+    const trialsData = JSON.parse(await fs.readFile(`${__dirname}/trails.json`, 'utf8'));
+    if (trialsData.num_trials <= 0) {
+      return res.status(400).json({ error: 'No trials remaining' });
+    }
+
     const { api_key, human, garment, garment_description, category } = req.body;
     
     if (!api_key || !human || !garment || !category) {

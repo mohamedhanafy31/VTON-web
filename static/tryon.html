@@ -823,7 +823,7 @@
   
   <canvas id="canvas" style="display: none;"></canvas>
   
-  <script>
+<script>
     let selectedGarment = null;
     let userPhotoUrl = null;
     let garments = [];
@@ -919,7 +919,7 @@
 
     async function fetchAndUpdateTrialCount() {
       try {
-        const response = await fetch('trails.json');
+        const response = await fetch(`${BASE_URL}/trials`);
         if (!response.ok) {
           throw new Error('Could not load trial information.');
         }
@@ -932,7 +932,6 @@
         }
 
         updateTrialDisplay();
-
       } catch (error) {
         console.error('Error fetching trial count:', error);
         trialInfoElement.textContent = 'Could not load trial information. Please try again.';
@@ -1311,23 +1310,6 @@
 
         showToast('Your try-on is being generated! We\'ll show you the result shortly.', 'success');
         startProgressSimulation(result.job_id);
-
-        numTrials--;
-        updateTrialDisplay();
-
-        try {
-          const updateResponse = await fetch(`${BASE_URL}/update-trials`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ num_trials: numTrials })
-          });
-          if (!updateResponse.ok) {
-            console.error('Failed to update trial count on server. Status:', updateResponse.status);
-          }
-        } catch (serverError) {
-          console.error('Error sending trial count update to server:', serverError);
-        }
-
       } catch (error) {
         console.error('Error during try-on:', error);
         showError(errorMessage, `${error.message} Our team has been notified. Please try again in a moment.`);
@@ -1390,6 +1372,25 @@
       progressBarContainer.style.display = 'none';
       spinner.style.display = 'none';
       tryOnBtn.disabled = false;
+
+      // Update trial count after receiving image ID
+      numTrials--;
+      updateTrialDisplay();
+
+      try {
+        const updateResponse = await fetch(`${BASE_URL}/update-trials`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ num_trials: numTrials })
+        });
+        if (!updateResponse.ok) {
+          console.error('Failed to update trial count on server. Status:', updateResponse.status);
+          showToast('Warning: Trial count not synced with server. Please try again.', 'warning');
+        }
+      } catch (serverError) {
+        console.error('Error sending trial count update to server:', serverError);
+        showToast('Error: Could not update trial count on server.', 'error');
+      }
 
       const downloadBtn = document.getElementById('downloadBtn');
       downloadBtn.onclick = (event) => {
