@@ -9,5 +9,6 @@ main.py
 package-lock.json
 app.rar
 __pycache__/
+static/serviceAccountKey.json
 
 
