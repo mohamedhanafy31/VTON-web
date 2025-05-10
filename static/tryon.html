@@ -6,9 +6,9 @@
   <title>Virtual Try-On Experience</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="css/tryon.css">
-  </style>
 </head>
 <body>
+  <!-- Toast Notification -->
   <div id="toast" class="toast">
     <div class="toast-icon">
       <i id="toastIcon" class="fas fa-info-circle"></i>
@@ -18,7 +18,41 @@
       <i class="fas fa-times"></i>
     </button>
   </div>
-  
+
+  <!-- User Info Form Overlay -->
+  <div class="overlay" id="formOverlay"></div>
+  <div class="popup-form" id="userInfoForm">
+    <h3>Enter Your Details</h3>
+    <button id="closeFormBtn" class="btn btn-outline" style="position: absolute; top: 10px; right: 10px;">Close</button>
+    <p style="margin-bottom: 15px; color: var(--text-light); text-align: center;">Please provide your contact information to complete this action.</p>
+    <div class="form-group">
+      <label for="userName"><i class="fas fa-user"></i> Name *</label>
+      <input type="text" id="userName" placeholder="Enter your name" required autocomplete="name">
+    </div>
+    <div class="form-group">
+      <label for="userPhone"><i class="fas fa-phone"></i> Phone Number *</label>
+      <input type="tel" id="userPhone" placeholder="Enter your phone number" required autocomplete="tel">
+      <small style="display: block; margin-top: 5px; color: var(--text-light);">Format: +1 234 567 8900 or 2345678900</small>
+    </div>
+    <div class="form-details">
+      <div class="form-detail-row">
+        <span class="detail-label">Store:</span>
+        <span class="detail-value" id="formStoreDetail">Loading...</span>
+      </div>
+      <div class="form-detail-row">
+        <span class="detail-label">Garment:</span>
+        <span class="detail-value" id="formGarmentDetail">Loading...</span>
+      </div>
+    </div>
+    <div class="form-buttons">
+      <button id="submitFormBtn" class="btn btn-success"><i class="fas fa-check"></i> Submit</button>
+    </div>
+    <div class="required-message">
+      <i class="fas fa-info-circle"></i> This information is required to proceed
+    </div>
+  </div>
+
+  <!-- Main Container -->
   <div class="container">
     <header>
       <img src="MetaVrLogo.jpg" alt="MetaVR Logo" class="header-logo">
@@ -27,40 +61,50 @@
       </button>
       <h1>Virtual Try-On Experience</h1>
       <p class="subtitle">Experience the future of shopping with our AI-powered virtual try-on</p>
-      
       <div class="progress-stepper" data-progress="1">
-        <div class="progress-step active" id="step1">
-          <div class="step-circle">1</div>
-          <div class="step-label">Select Garment</div>
-        </div>
-        <div class="progress-step" id="step2">
-          <div class="step-circle">2</div>
-          <div class="step-label">Take Photo</div>
-        </div>
-        <div class="progress-step" id="step3">
-          <div class="step-circle">3</div>
-          <div class="step-label">Try On</div>
-        </div>
+        <div class="step active" data-step="1"><div class="step-circle">1</div><div class="step-text">Store Selection</div></div>
+        <div class="step" data-step="2"><div class="step-circle">2</div><div class="step-text">Select Garment</div></div>
+        <div class="step" data-step="3"><div class="step-circle">3</div><div class="step-text">Upload Image</div></div>
+        <div class="step" data-step="4"><div class="step-circle">4</div><div class="step-text">TryOn Result</div></div>
       </div>
     </header>
-    
+
+    <!-- Step 1: Store Selection -->
     <div id="page1" class="page active">
       <div class="card">
-        <h2><i class="fas fa-tshirt"></i> Step 1: Select a Garment</h2>
-        <p>Browse our collection and choose the garment you'd like to try on virtually.</p>
+        <h2><i class="fas fa-store"></i> Step 1: Select a Store</h2>
+        <p>Choose a store to explore their garment collection</p>
+        <div id="loading-stores">
+          <div class="spinner"></div>
+          <p>Loading available stores...</p>
+        </div>
+        <div id="stores-container" class="store-grid"></div>
+      </div>
+      <div class="navigation btn-group">
+        <button id="toPage2" class="btn" disabled>Next: Select Garment <i class="fas fa-arrow-right"></i></button>
+      </div>
+    </div>
+
+    <!-- Step 2: Garment Selection -->
+    <div id="page2" class="page">
+      <div class="card">
+        <h2><i class="fas fa-tshirt"></i> Step 2: Select a Garment</h2>
+        <p>Browse the collection and choose the garment you'd like to try on virtually.</p>
         <div id="garmentGrid" class="garment-grid">
           <div class="spinner" id="garmentSpinner"></div>
         </div>
         <div id="garmentError" class="error-message"></div>
       </div>
       <div class="navigation btn-group">
-        <button id="toPage2" class="btn" disabled>Next: Take Photo <i class="fas fa-arrow-right"></i></button>
+        <button id="backToPage1" class="btn btn-outline">Back</button>
+        <button id="toPage3" class="btn" disabled>Next: Take Photo <i class="fas fa-arrow-right"></i></button>
       </div>
     </div>
-    
-    <div id="page2" class="page">
+
+    <!-- Step 3: Take Photo -->
+    <div id="page3" class="page">
       <div class="card">
-        <h2><i class="fas fa-camera"></i> Step 2: Take a Photo</h2>
+        <h2><i class="fas fa-camera"></i> Step 3: Take a Photo</h2>
         <p>Position yourself in the frame and click the capture button to take a photo.</p>
         <div class="camera-container">
           <div class="camera-loading" id="cameraLoading">
@@ -86,7 +130,6 @@
           <input type="file" id="manualImageUpload" accept="image/*" style="margin-bottom: 15px;">
           <button id="uploadImageBtn" class="btn">Upload Image</button>
           <div class="spinner" id="uploadSpinner" style="display: none;"></div>
-          
           <div style="margin-top: 20px; padding-top: 10px; border-top: 1px dashed #ddd;">
             <button id="runDiagnosticBtn" class="btn btn-outline" style="margin-top: 10px;">
               <i class="fas fa-stethoscope"></i> Run Camera Diagnostic
@@ -99,14 +142,15 @@
         </div>
       </div>
       <div class="navigation btn-group">
-        <button id="backToPage1" class="btn btn-outline">Back</button>
-        <button id="toPage3" class="btn" disabled>Next: Preview <i class="fas fa-arrow-right"></i></button>
+        <button id="backToPage2" class="btn btn-outline">Back</button>
+        <button id="toPage4" class="btn" disabled>Next: Preview <i class="fas fa-arrow-right"></i></button>
       </div>
     </div>
-    
-    <div id="page3" class="page">
+
+    <!-- Step 4: Preview and Try-On -->
+    <div id="page4" class="page">
       <div class="card">
-        <h2><i class="fas fa-magic"></i> Step 3: Preview and Try-On</h2>
+        <h2><i class="fas fa-magic"></i> Step 4: Preview and Try-On</h2>
         <p>Review your photo and selected garment, then click Try-On to see the magic happen.</p>
         <div class="preview-container">
           <div class="preview-card">
@@ -132,7 +176,6 @@
             </div>
           </div>
         </div>
-        <input type="hidden" id="apiKeyInput" value="dd240ad8f2e64de35e0b25ecddf1b42c2a7e637d">
         <div class="btn-group" style="justify-content: center; margin-top: 20px;">
           <button id="tryOnBtn" class="btn btn-success">Try On Now <i class="fas fa-wand-magic-sparkles"></i></button>
         </div>
@@ -149,930 +192,523 @@
           <div class="btn-group" style="justify-content: flex-start; margin-top: 20px;">
             <button id="downloadBtn" class="btn btn-outline"><i class="fas fa-download"></i> Download Result</button>
             <button id="shareBtn" class="btn btn-outline"><i class="fas fa-share"></i> Share</button>
+            <button id="buyBtn" class="btn btn-success"><i class="fas fa-shopping-cart"></i> Buy Now</button>
           </div>
         </div>
       </div>
       <div class="navigation btn-group">
-        <button id="backToPage2" class="btn btn-outline">Back</button>
+        <button id="backToPage3" class="btn btn-outline">Back</button>
         <button id="startOver" class="btn btn-warning">Start Over <i class="fas fa-redo"></i></button>
       </div>
     </div>
   </div>
-  
+
   <canvas id="canvas" style="display: none;"></canvas>
-  
+
+  <!-- Firebase Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <script src="backend.js"></script>
+  <!-- Firebase Initialization -->
   <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyA2acnGWc7l7WMuocYwLp46Q-ybZx2mTt0",
+      authDomain: "vton-f7059.firebaseapp.com",
+      projectId: "vton-f7059",
+      storageBucket: "vton-f7059.firebasestorage.app",
+      messagingSenderId: "25358125157",
+      appId: "1:25358125157:web:1ef4e67c9e7ba788a2de8c",
+      measurementId: "G-4FKNGG88PN"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+  
+    // Global Variables
+    let selectedStore = null;
     let selectedGarment = null;
     let userPhotoUrl = null;
-    let garments = [];
-    let currentPage = 1;
-    let isDarkMode = false;
-    let apiKey = '';
-    let cameraStream = null;
-    let facingMode = 'user';
-    let numTrials = 0;
-
-    const pages = document.querySelectorAll('.page');
-    const steps = document.querySelectorAll('.progress-step');
-    const progressStepper = document.querySelector('.progress-stepper');
-    const video = document.getElementById('video');
-    const canvas = document.getElementById('canvas');
-    const garmentGrid = document.getElementById('garmentGrid');
-    const garmentSpinner = document.getElementById('garmentSpinner');
-    const garmentError = document.getElementById('garmentError');
-    const toPage2Btn = document.getElementById('toPage2');
-    const toPage3Btn = document.getElementById('toPage3');
-    const backToPage1Btn = document.getElementById('backToPage1');
-    const backToPage2Btn = document.getElementById('backToPage2');
-    const captureBtn = document.getElementById('captureBtn');
-    const switchCameraBtn = document.getElementById('switchCamera');
-    const timerElement = document.getElementById('timer');
-    const flashElement = document.getElementById('flash');
-    const cameraLoading = document.getElementById('cameraLoading');
-    const cameraError = document.getElementById('cameraError');
-    const userPhotoElement = document.getElementById('userPhoto');
-    const selectedGarmentElement = document.getElementById('selectedGarment');
-    const garmentTypeElement = document.getElementById('garmentType');
-    const garmentColorElement = document.getElementById('garmentColor');
-    const tryOnBtn = document.getElementById('tryOnBtn');
-    const apiKeyInput = document.getElementById('apiKeyInput');
-    const resultImage = document.getElementById('resultImage');
-    const resultContainer = document.getElementById('resultContainer');
-    const spinner = document.getElementById('spinner');
-    const errorMessage = document.getElementById('errorMessage');
-    const progressBarContainer = document.getElementById('progressBarContainer');
-    const progressBar = document.getElementById('progressBar');
-    const startOverBtn = document.getElementById('startOver');
-    const outputIdElement = document.getElementById('outputId');
-    const themeToggle = document.getElementById('themeToggle');
-    const shareBtn = document.getElementById('shareBtn');
-    const trialInfoElement = document.getElementById('trialInfo');
-    const BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-        ? 'http://localhost:3000' 
-        : window.location.origin;
-
-    async function fetchNgrokUrl() {
-      try {
-        console.log('Fetching public URL from:', `${BASE_URL}/public-url`);
-        const response = await fetch(`${BASE_URL}/public-url`);
-        if (!response.ok) {
-          throw new Error(`Failed to fetch public URL: ${response.status} ${response.statusText}`);
-        }
-        const data = await response.json();
-        if (data.publicUrl) {
-          console.log('Public URL received:', data.publicUrl);
-          return data.publicUrl;
-        } else {
-          throw new Error('No public URL available');
-        }
-      } catch (error) {
-        console.error('Failed to fetch public URL:', error);
-        throw error;
-      }
-    }
-
-    function showPage(pageNum) {
-      if (currentPage === 2 && pageNum !== 2) {
-        stopCamera();
-      }
-
-      pages.forEach(page => page.classList.remove('active'));
+    let jobId = null;
+    let orderId = null; // Store orderId
+    let isFormSubmitted = false;
+  
+    // Page Switching Function
+    function switchPage(from, to) {
+      document.getElementById(from).classList.remove('active');
+      document.getElementById(to).classList.add('active');
+      const stepper = document.querySelector('.progress-stepper');
+      const steps = stepper.querySelectorAll('.step');
       steps.forEach(step => step.classList.remove('active'));
-
-      const newPage = document.getElementById(`page${pageNum}`);
-      const newStep = document.getElementById(`step${pageNum}`);
-      newPage.classList.add('active');
-      newStep.classList.add('active');
-
-      progressStepper.setAttribute('data-progress', pageNum);
-
-      if (pageNum === 2) {
-        steps[0].classList.add('completed');
-        setTimeout(() => initCamera(), 500);
-      } else if (pageNum === 3) {
-        steps[1].classList.add('completed');
-        fetchAndUpdateTrialCount();
-      }
-
-      currentPage = pageNum;
+      stepper.querySelector(`.step[data-step="${to.slice(-1)}"]`).classList.add('active');
+      stepper.setAttribute('data-progress', to.slice(-1));
     }
-
-    async function fetchAndUpdateTrialCount() {
-      try {
-        console.log('Fetching trial count from:', `${BASE_URL}/trials`);
-        const response = await fetch(`${BASE_URL}/trials`);
-        if (!response.ok) {
-          const errorText = await response.text().catch(() => 'No response body');
-          throw new Error(`Could not load trial information: ${response.status} ${response.statusText}. Details: ${errorText}`);
-        }
-        const data = await response.json();
-        console.log('Trial count data received:', data);
-        numTrials = parseInt(data.num_trials, 10);
-
-        if (isNaN(numTrials)) {
-          numTrials = 0;
-          throw new Error('Trial information is invalid.');
-        }
-
-        updateTrialDisplay();
-      } catch (error) {
-        console.error('Error fetching trial count:', error);
-        trialInfoElement.innerHTML = 'Could not load trial information. <button class="btn btn-sm btn-outline" id="retryTrials">Retry</button>';
-        tryOnBtn.disabled = true;
-        numTrials = 0;
-        const retryBtn = document.getElementById('retryTrials');
-        if (retryBtn) {
-          retryBtn.addEventListener('click', () => {
-            trialInfoElement.innerHTML = 'Loading trials...';
-            fetchAndUpdateTrialCount();
-          });
-        }
-        showToast('Failed to load trial information. Please try again.', 'error');
-      }
-    }
-
-    function updateTrialDisplay() {
-      if (numTrials > 0) {
-        trialInfoElement.textContent = `You have ${numTrials} trial${numTrials === 1 ? '' : 's'} remaining.`;
-        tryOnBtn.disabled = false;
-      } else {
-        trialInfoElement.textContent = 'You have reached your trial limit.';
-        tryOnBtn.disabled = true;
-      }
-    }
-
-    function showToast(message, type = 'info', duration = 4000) {
-      const toast = document.getElementById('toast');
-      const toastMessage = document.getElementById('toastMessage');
-      const toastIcon = document.getElementById('toastIcon');
-      const toastClose = document.getElementById('toastClose');
-
-      if (window.toastTimeout) {
-        clearTimeout/window.toastTimeout;
-      }
-
-      let iconClass = 'fa-info-circle';
-      if (type === 'success') {
-        iconClass = 'fa-check-circle';
-      } else if (type === 'error') {
-        iconClass = 'fa-exclamation-circle';
-        duration = 6000;
-      } else if (type === 'warning') {
-        iconClass = 'fa-exclamation-triangle';
-      }
-
-      toast.className = `toast show toast-${type}`;
-      toastMessage.textContent = message;
-      toastIcon.className = `fas ${iconClass}`;
-
-      toastClose.onclick = () => {
-        toast.className = 'toast';
-        if (window.toastTimeout) {
-          clearTimeout(window.toastTimeout);
-        }
-      };
-
-      window.toastTimeout = setTimeout(() => {
-        toast.className = 'toast';
-      }, duration);
-    }
-
-    function showError(element, message) {
-      element.innerHTML = message;
-      element.classList.add('visible', 'animate-pulse');
-      setTimeout(() => {
-        element.classList.remove('animate-pulse');
-      }, 2000);
-      
-      const dismissBtn = document.createElement('button');
-      dismissBtn.className = 'btn btn-sm btn-outline';
-      dismissBtn.style.marginTop = '10px';
-      dismissBtn.innerHTML = '<i class="fas fa-times"></i> Dismiss';
-      dismissBtn.onclick = () => {
-        element.classList.remove('visible');
-      };
-      
-      if (!element.querySelector('button')) {
-        element.appendChild(dismissBtn);
-      }
-    }
-
-    async function loadGarments() {
-      garmentSpinner.style.display = 'block';
-      garmentError.textContent = '';
-      try {
-        showToast('Finding the best garments for you...', 'info');
-        const [imagesResponse, descriptionsResponse] = await Promise.all([
-          fetch(`${BASE_URL}/images`),
-          fetch(`${BASE_URL}/descriptions`)
-        ]);
-
-        if (!imagesResponse.ok || !descriptionsResponse.ok) {
-          throw new Error('Unable to load items at this time');
-        }
-
-        const [imagesData, descriptionsData] = await Promise.all([
-          imagesResponse.json(),
-          descriptionsResponse.json()
-        ]);
-
-        if (!imagesData.images || imagesData.images.length === 0) {
-          throw new Error('No items are available at the moment');
-        }
-
-        garments = imagesData.images;
-        const descriptions = descriptionsData.descriptions || {};
-
-        garmentGrid.innerHTML = '';
-
-        garments.forEach(garment => {
-          const desc = descriptions[garment.public_id] || { color: 'Standard', garmentType: 'Item' };
-
-          const garmentElement = document.createElement('div');
-          garmentElement.className = 'garment-item';
-          garmentElement.innerHTML = `
-            <img src="${garment.url}" alt="${desc.garmentType}">
-            <div class="garment-info">
-              <div class="garment-type">${desc.garmentType}</div>
-              <div class="garment-color">
-                <span class="garment-color-dot" style="background-color: ${desc.color.toLowerCase()};"></span>
-                ${desc.color}
-              </div>
-            </div>
-            <div class="garment-check"><i class="fas fa-check"></i></div>
-          `;
-
-          garmentElement.addEventListener('click', () => {
-            document.querySelectorAll('.garment-item').forEach(item => {
-              item.classList.remove('selected');
-            });
-            garmentElement.classList.add('selected', 'highlight');
-            selectedGarment = {
-              url: garment.url,
-              publicId: garment.public_id,
-              type: desc.garmentType,
-              color: desc.color,
-              category: desc.garmentType.toLowerCase().includes('pant') ? 'lower_body' : 'upper_body'
-            };
-            toPage2Btn.disabled = false;
-            showToast(`Great choice! ${desc.color} ${desc.garmentType} selected.`, 'success');
-            
-            toPage2Btn.classList.add('highlight');
-            setTimeout(() => {
-              toPage2Btn.classList.remove('highlight');
-            }, 2000);
-          });
-
-          garmentGrid.appendChild(garmentElement);
-        });
-
-        showToast('Ready to try on! Select an item you like.', 'success');
-      } catch (error) {
-        console.error('Error loading garments:', error);
-        showError(garmentError, `${error.message}. We're working on it! Please try again in a moment.`);
-        const retryBtn = document.createElement('button');
-        retryBtn.className = 'btn btn-outline';
-        retryBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Try Again';
-        retryBtn.addEventListener('click', loadGarments);
-        garmentGrid.innerHTML = '';
-        garmentGrid.appendChild(retryBtn);
-      } finally {
-        garmentSpinner.style.display = 'none';
-      }
-    }
-
-    async function initCamera() {
-      try {
-        cameraLoading.style.display = 'flex';
-        showToast('Getting your camera ready...', 'info');
-        if (cameraStream) {
-          cameraStream.getTracks().forEach(track => track.stop());
-        }
-        
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-          document.getElementById('alternativeUpload').style.display = 'block';
-          throw new Error('Your browser doesn\'t support camera access. Try using Chrome or Safari, or upload a photo instead.');
-        }
-
-        cameraStream = await navigator.mediaDevices.getUserMedia({
-          video: { 
-            facingMode,
-            width: { ideal: 1280 },
-            height: { ideal: 720 }
-          },
-          audio: false
-        }).catch(err => {
-          console.error('Camera permission error:', err);
-          document.getElementById('alternativeUpload').style.display = 'block';
-          
-          if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
-            throw new Error('We need permission to use your camera. Please click "Allow" when prompted by your browser, or upload a photo instead.');
-          } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
-            throw new Error('We couldn\'t find a camera on your device. Please check your camera connection or upload a photo instead.');
-          } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
-            throw new Error('Your camera seems to be in use by another app. Please close other camera apps and try again, or upload a photo instead.');
-          } else if (err.name === 'OverconstrainedError') {
-            return navigator.mediaDevices.getUserMedia({
-              video: murine,
-              audio: false
-            });
-          } else {
-            throw new Error(`Camera issue: ${err.message || err.name || 'Unknown error'}. Try uploading a photo instead.`);
-          }
-        });
-        
-        video.srcObject = cameraStream;
-        video.onloadedmetadata = () => {
-          video.play().catch(err => {
-            console.warn('Video play error:', err);
-            showError(cameraError, 'Unable to start your camera. Try refreshing the page or using a different browser.');
-          });
-          cameraLoading.style.display = 'none';
-          showToast('Camera ready! Position yourself and click the capture button.', 'success');
+  
+    // Display Stores
+    function displayStores(stores) {
+      const container = document.getElementById('stores-container');
+      const loading = document.getElementById('loading-stores');
+      loading.style.display = 'none';
+      container.innerHTML = '';
+      stores.forEach(store => {
+        const card = document.createElement('div');
+        card.className = 'store-card';
+        card.innerHTML = `
+          <div class="store-logo-container">
+            <img src="${store.logo_link || 'default-logo.png'}" alt="${store.store_name}">
+          </div>
+          <h3>${store.store_name}</h3>
+          <p>${store.specialization}</p>
+        `;
+        const img = card.querySelector('img');
+        img.onload = () => {
+          card.classList.add('loaded');
+          console.log(`Store logo loaded for ${store.store_name}`);
         };
-      } catch (error) {
-        console.error('Error accessing camera:', error);
-        cameraLoading.style.display = 'none';
-        
-        let errorMessage = error.message || 'Unable to access camera.';
-        errorMessage += '<div style="margin-top:15px;font-weight:bold;">Quick fixes:</div>';
-        errorMessage += '<ul style="list-style-type:disc;padding-left:20px;margin-top:5px;">';
-        errorMessage += '<li>Make sure your browser has permission to access your camera</li>';
-        errorMessage += '<li>Try using Chrome or Safari for best results</li>';
-        errorMessage += '<li>Close other apps that might be using your camera</li>';
-        errorMessage += '</ul>';
-        
-        cameraError.innerHTML = errorMessage;
-        showError(cameraError, errorMessage);
-        
-        const retryBtn = document.createElement('button');
-        retryBtn.className = 'btn';
-        retryBtn.style.marginTop = '15px';
-        retryBtn.innerHTML = '<i class="fas fa-camera"></i> Try Camera Again';
-        retryBtn.onclick = initCamera;
-        
-        const uploadBtn = document.createElement('button');
-        uploadBtn.className = 'btn btn-outline';
-        uploadBtn.style.marginTop = '15px';
-        uploadBtn.style.marginLeft = '10px';
-        uploadBtn.innerHTML = '<i class="fas fa-upload"></i> Upload a Photo Instead';
-        uploadBtn.onclick = () => {
-          document.getElementById('alternativeUpload').style.display = 'block';
-          document.getElementById('alternativeUpload').scrollIntoView({ behavior: 'smooth' });
+        img.onerror = () => {
+          card.classList.add('loaded');
+          console.log(`Store logo failed to load for ${store.store_name}`);
         };
-        
-        if (!cameraError.querySelector('button')) {
-          cameraError.appendChild(retryBtn);
-          cameraError.appendChild(uploadBtn);
-        }
-        
-        stopCamera();
-      }
+        card.addEventListener('click', () => {
+          selectedStore = store;
+          document.getElementById('toPage2').disabled = false;
+          document.querySelectorAll('.store-card').forEach(c => c.classList.remove('selected'));
+          card.classList.add('selected');
+        });
+        container.appendChild(card);
+      });
     }
-
-    function stopCamera() {
-      if (cameraStream) {
-        cameraStream.getTracks().forEach(track => track.stop());
-        cameraStream = null;
-      }
+  
+    // Display Garments
+    function displayGarments(garments) {
+      const grid = document.getElementById('garmentGrid');
+      const spinner = document.getElementById('garmentSpinner');
+      spinner.style.display = 'none';
+      grid.innerHTML = '';
+      garments.forEach(garment => {
+        const item = document.createElement('div');
+        item.className = 'garment-item';
+        item.innerHTML = `
+          <img src="${garment.url || 'default-garment.png'}" alt="${garment.name}">
+          <div class="garment-check"><i class="fas fa-check"></i></div>
+          <h4>${garment.name}</h4>
+          <p>Color: ${garment.color || 'N/A'}</p>
+          <p>Type: ${garment.type || 'N/A'}</p>
+        `;
+        const img = item.querySelector('img');
+        img.onload = () => {
+          item.classList.add('loaded');
+          console.log(`Garment image loaded for ${garment.name}`);
+        };
+        img.onerror = () => {
+          item.classList.add('loaded');
+          console.log(`Garment image failed to load for ${garment.name}`);
+        };
+        item.addEventListener('click', () => {
+          selectedGarment = garment;
+          document.getElementById('toPage3').disabled = false;
+          document.querySelectorAll('.garment-item').forEach(i => i.classList.remove('selected'));
+          item.classList.add('selected');
+        });
+        grid.appendChild(item);
+      });
     }
-
+  
+    // Setup Camera
+    function setupCamera() {
+      const video = document.getElementById('video');
+      const loading = document.getElementById('cameraLoading');
+      navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => {
+          video.srcObject = stream;
+          video.play();
+          loading.style.display = 'none';
+        })
+        .catch(error => {
+          console.error('Camera error:', error);
+          loading.style.display = 'none';
+          document.getElementById('alternativeUpload').style.display = 'block';
+          document.getElementById('cameraError').textContent = 'Unable to access camera. Please upload an image instead.';
+        });
+    }
+  
+    // Start Countdown for Photo Capture
     function startCountdown() {
       let count = 3;
-      timerElement.textContent = count;
-      timerElement.classList.add('active');
-      captureBtn.disabled = true;
-
+      const timer = document.getElementById('timer');
+      timer.style.display = 'block';
       const interval = setInterval(() => {
+        timer.textContent = count;
         count--;
-        if (count < 1) {
+        if (count < 0) {
           clearInterval(interval);
-          timerElement.classList.remove('active');
-          flashElement.classList.add('active');
-          setTimeout(() => flashElement.classList.remove('active'), 300);
+          timer.style.display = 'none';
           capturePhoto();
-        } else {
-          timerElement.textContent = count;
         }
       }, 1000);
     }
-
-    async function capturePhoto() {
-      try {
-        showToast('Taking your photo...', 'info');
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        const context = canvas.getContext('2d');
-        context.scale(-1, 1);
-        context.drawImage(video, -canvas.width, 0, canvas.width, canvas.height);
-
-        if (canvas.width < 100 || canvas.height < 100) {
-          throw new Error('The captured image is too small. Please check your camera.');
-        }
-
-        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.9));
-        const file = new File([blob], `user-photo-${Date.now()}.jpg`, { type: 'image/jpeg' });
-
+  
+    // Capture Photo
+    function capturePhoto() {
+      const video = document.getElementById('video');
+      const canvas = document.getElementById('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      canvas.getContext('2d').drawImage(video, 0, 0);
+      canvas.toBlob(blob => {
         const formData = new FormData();
-        formData.append('images', file);
-        formData.append('color', 'User Photo');
-        formData.append('garmentType', 'Photo');
-        formData.append('folder', 'VirtualTryOn_UserPhotos');
-
-        showToast('Processing your photo...', 'info');
-        const response = await fetch(`${BASE_URL}/upload`, {
+        formData.append('images', blob, 'user_photo.jpg');
+        formData.append('folder', 'user_photos');
+        formData.append('isUserPhoto', 'true');
+        fetch('/upload', {
           method: 'POST',
           body: formData
-        });
-
-        if (!response.ok) throw new Error('We couldn\'t process your photo. Please try again.');
-
-        const result = await response.json();
-
-        if (result.images && result.images.length > 0) {
-          userPhotoUrl = result.images[0].url;
-          userPhotoElement.src = userPhotoUrl;
-          selectedGarmentElement.src = selectedGarment.url;
-          garmentTypeElement.textContent = selectedGarment.type;
-          garmentColorElement.textContent = selectedGarment.color;
-          toPage3Btn.disabled = false;
-          showToast('Perfect! Your photo is ready for the try-on.', 'success');
-          
-          toPage3Btn.classList.add('highlight');
-          setTimeout(() => {
-            toPage3Btn.classList.remove('highlight');
-          }, 2000);
-        } else {
-          throw new Error('There was a problem with your photo. Please try again.');
-        }
-      } catch (error) {
-        console.error('Error capturing photo:', error);
-        showError(cameraError, `${error.message} Please ensure good lighting and that you're fully visible in the frame.`);
-      } finally {
-        captureBtn.disabled = false;
-      }
-    }
-
-    async function tryOnGarment(event) {
-      if (event) {
-        event.preventDefault();
-      }
-      
-      apiKey = apiKeyInput.value.trim();
-      
-      if (numTrials <= 0) {
-        showToast('You have reached your trial limit. Please upgrade for more tries.', 'error');
-        tryOnBtn.disabled = true;
-        trialInfoElement.textContent = 'You have reached your trial limit.';
-        return;
-      }
-      
-      spinner.style.display = 'block';
-      resultImage.style.display = 'none';
-      resultContainer.style.display = 'none';
-      errorMessage.textContent = '';
-      tryOnBtn.disabled = true;
-      progressBarContainer.style.display = 'block';
-      progressBar.classList.add('indeterminate');
-
-      showToast('Creating your virtual try-on... This may take a moment.', 'info');
-      try {
-        const publicUrl = await fetchNgrokUrl();
-        console.log('Sending try-on request to:', `${BASE_URL}/tryon`);
-        const response = await fetch(`${BASE_URL}/tryon`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            api_key: apiKey,
-            human: userPhotoUrl,
-            garment: selectedGarment.url,
-            garment_description: `${selectedGarment.color} ${selectedGarment.type}`,
-            category: selectedGarment.category
+        })
+          .then(response => response.json())
+          .then(result => {
+            if (result.images && result.images.length > 0) {
+              userPhotoUrl = result.images[0].url;
+              document.getElementById('toPage4').disabled = false;
+            } else {
+              throw new Error('Upload failed');
+            }
           })
-        });
-
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error('Try-on API error:', errorText);
-          throw new Error(`An error occurred during the try-on process: ${response.status} ${response.statusText}. Details: ${errorText}`);
-        }
-
-        const result = await response.json();
-        console.log('Try-on response:', result);
-        if (!result.job_id) throw new Error('There was an issue with the try-on process. Please try again.');
-
-        showToast('Your try-on is being generated! We\'ll show you the result shortly.', 'success');
-        startProgressSimulation(result.job_id);
-      } catch (error) {
-        console.error('Error during try-on:', error);
-        showError(errorMessage, `${error.message} Our team has been notified. Please try again in a moment.`);
-        resetTryOnState();
-        fetchAndUpdateTrialCount();
-      }
+          .catch(error => {
+            console.error('Upload error:', error);
+            document.getElementById('cameraError').textContent = 'Failed to upload photo.';
+          });
+      }, 'image/jpeg');
     }
-
-    function startProgressSimulation(jobId) {
-      let progress = 0;
+  
+    // Poll for Results and Update Display
+    function pollForResults() {
+      if (!jobId || !isFormSubmitted) return;
+  
       const interval = setInterval(() => {
-        progress += Math.random() * 10;
-        if (progress >= 100) progress = 99;
-        progressBar.style.width = `${progress}%`;
-      }, 1000);
-
-      checkJobStatus(jobId, interval);
+        fetch(`/get-result/${jobId}`)
+          .then(response => response.json())
+          .then(data => {
+            if (data.status === 'completed' && isFormSubmitted) {
+              clearInterval(interval);
+              const resultImage = document.getElementById('resultImage');
+              if (resultImage) {
+                resultImage.src = data.output;
+                document.getElementById('resultContainer').style.display = 'block';
+                document.getElementById('outputId').textContent = `Output ID: ${data.output_id || 'N/A'}`;
+              } else {
+                console.error('resultImage element not found');
+              }
+            }
+          })
+          .catch(error => console.error('Error polling result:', error));
+      }, 10000); // Poll every 10 seconds
     }
-
-    async function checkJobStatus(jobId, interval) {
-      const maxWaitTime = 600000;
-      const startTime = Date.now();
-
-      const check = async () => {
-        try {
-          console.log('Checking job status for jobId:', jobId);
-          const response = await fetch(`${BASE_URL}/get-result/${jobId}`);
-          if (!response.ok) {
-            console.warn('Job status check failed:', response.status, response.statusText);
+  
+    // Initialize Stores
+    fetchStores()
+      .then(stores => {
+        if (stores.length === 0) {
+          document.getElementById('loading-stores').innerHTML = '<p>No stores available at this time.</p>';
+        } else {
+          displayStores(stores);
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching stores:', error.message);
+        document.getElementById('loading-stores').innerHTML = '<p>Unable to load stores: ' + error.message + '</p>';
+      });
+  
+    // Event Listeners
+    document.addEventListener('DOMContentLoaded', () => {
+      // Navigation Event Listeners
+      const toPage2Btn = document.getElementById('toPage2');
+      if (toPage2Btn) {
+        toPage2Btn.addEventListener('click', () => {
+          switchPage('page1', 'page2');
+          document.getElementById('garmentSpinner').style.display = 'block';
+          fetchGarmentsForStore(selectedStore.id)
+            .then(garments => {
+              if (garments.length === 0) {
+                document.getElementById('garmentGrid').innerHTML = '<p>No garments available for this store.</p>';
+                document.getElementById('garmentSpinner').style.display = 'none';
+              } else {
+                displayGarments(garments);
+              }
+            })
+            .catch(error => {
+              console.error('Error fetching garments:', error.message);
+              document.getElementById('garmentError').textContent = 'Error loading garments: ' + error.message;
+              document.getElementById('garmentSpinner').style.display = 'none';
+            });
+        });
+      }
+  
+      const backToPage1Btn = document.getElementById('backToPage1');
+      if (backToPage1Btn) {
+        backToPage1Btn.addEventListener('click', () => switchPage('page2', 'page1'));
+      }
+  
+      const toPage3Btn = document.getElementById('toPage3');
+      if (toPage3Btn) {
+        toPage3Btn.addEventListener('click', () => {
+          switchPage('page2', 'page3');
+          setupCamera();
+        });
+      }
+  
+      const backToPage2Btn = document.getElementById('backToPage2');
+      if (backToPage2Btn) {
+        backToPage2Btn.addEventListener('click', () => switchPage('page3', 'page2'));
+      }
+  
+      const captureBtn = document.getElementById('captureBtn');
+      if (captureBtn) {
+        captureBtn.addEventListener('click', startCountdown);
+      }
+  
+      const toPage4Btn = document.getElementById('toPage4');
+      if (toPage4Btn) {
+        toPage4Btn.addEventListener('click', () => {
+          switchPage('page3', 'page4');
+          document.getElementById('userPhoto').src = userPhotoUrl;
+          document.getElementById('selectedGarment').src = selectedGarment.url;
+          document.getElementById('garmentType').textContent = selectedGarment.type || 'N/A';
+          document.getElementById('garmentColor').textContent = selectedGarment.color || 'N/A';
+        });
+      }
+  
+      const backToPage3Btn = document.getElementById('backToPage3');
+      if (backToPage3Btn) {
+        backToPage3Btn.addEventListener('click', () => switchPage('page4', 'page3'));
+      }
+  
+      const startOverBtn = document.getElementById('startOver');
+      if (startOverBtn) {
+        startOverBtn.addEventListener('click', () => {
+          selectedStore = null;
+          selectedGarment = null;
+          userPhotoUrl = null;
+          jobId = null;
+          orderId = null; // Reset orderId
+          isFormSubmitted = false;
+          document.getElementById('toPage2').disabled = true;
+          document.getElementById('toPage3').disabled = true;
+          document.getElementById('toPage4').disabled = true;
+          switchPage('page4', 'page1');
+          fetchStores()
+            .then(stores => {
+              if (stores.length === 0) {
+                document.getElementById('loading-stores').innerHTML = '<p>No stores available at this time.</p>';
+              } else {
+                displayStores(stores);
+              }
+            })
+            .catch(error => {
+              console.error('Error fetching stores:', error.message);
+              document.getElementById('loading-stores').innerHTML = '<p>Unable to load stores: ' + error.message + '</p>';
+            });
+        });
+      }
+  
+      // Try On Button
+      const tryOnBtn = document.getElementById('tryOnBtn');
+      if (tryOnBtn) {
+        tryOnBtn.addEventListener('click', () => {
+          if (!userPhotoUrl || !selectedGarment) {
+            alert('Please upload a photo and select a garment first.');
             return;
           }
-
-          const data = await response.json();
-          console.log('Job status response:', data);
-          if (data.status === 'completed' || data.status === 'succeeded' || data.status === 'success') {
-            clearInterval(interval);
-            progressBar.style.width = '100%';
-            setTimeout(() => handleCompletedResult(data), 500);
-          } else if (data.status === 'failed') {
-            throw new Error(data.result.error || 'Job failed');
-          } else if (Date.now() - startTime > maxWaitTime) {
-            throw new Error('Request timed out');
+  
+          const overlay = document.querySelector('.overlay');
+          const form = document.querySelector('.popup-form');
+          if (overlay && form) {
+            overlay.classList.add('show');
+            form.classList.add('show');
+            document.getElementById('formStoreDetail').textContent = selectedStore ? selectedStore.store_name : 'N/A';
+            document.getElementById('formGarmentDetail').textContent = selectedGarment ? selectedGarment.name : 'N/A';
           } else {
-            setTimeout(check, 3000);
+            console.error('Overlay or form element not found');
           }
-        } catch (error) {
-          console.error('Error checking job status:', error);
-          clearInterval(interval);
-          showError(errorMessage, 'Failed to get try-on status. Please try again.');
-          resetTryOnState();
-        }
-      };
-
-      setTimeout(check, 3000);
-    }
-
-    async function handleCompletedResult(data) {
-      const url = data.output || data.result.output;
-      const outputId = data.output_id || data.id || 'N/A';
-
-      resultImage.src = url;
-      resultImage.style.display = 'block';
-      resultContainer.style.display = 'block';
-      outputIdElement.textContent = `Image ID: ${outputId}`;
-      progressBarContainer.style.display = 'none';
-      spinner.style.display = 'none';
-      tryOnBtn.disabled = false;
-
-      // Update trial count after receiving image ID
-      numTrials--;
-      updateTrialDisplay();
-
-      try {
-        console.log('Updating trial count to:', numTrials);
-        const updateResponse = await fetch(`${BASE_URL}/update-trials`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ num_trials: numTrials })
         });
-        if (!updateResponse.ok) {
-          const errorText = await updateResponse.text().catch(() => 'No response body');
-          console.error('Failed to update trial count on server. Status:', updateResponse.status, 'Details:', errorText);
-          showToast('Warning: Trial count not synced with server. Please try again.', 'warning');
-        } else {
-          console.log('Trial count updated successfully on server');
-        }
-      } catch (serverError) {
-        console.error('Error sending trial count update to server:', serverError);
-        showToast('Error: Could not update trial count on server.', 'error');
+      } else {
+        console.error('tryOnBtn element not found');
       }
-
-      const downloadBtn = document.getElementById('downloadBtn');
-      downloadBtn.onclick = (event) => {
-        event.preventDefault();
-        showToast('Downloading your try-on image...', 'info');
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `virtual-tryon-${Date.now()}.jpg`;
-        link.click();
-        showToast('Your image has been downloaded!', 'success');
-      };
-
-      shareBtn.onclick = async (event) => {
-        event.preventDefault();
-        try {
-          await navigator.share({
-            title: 'My Virtual Try-On',
-            text: 'Check out how I look in this virtual try-on!',
-            url: url
-          });
-          showToast('Thanks for sharing!', 'success');
-        } catch (error) {
-          console.error('Error sharing:', error);
-          showToast('We couldn\'t share your image. You can download it instead.', 'error');
-        }
-      };
-
-      showToast('Your virtual try-on is ready! How does it look?', 'success', 6000);
-      
-      const btnGroup = document.getElementById('resultContainer').querySelector('.btn-group');
-      btnGroup.classList.add('highlight');
-      setTimeout(() => {
-        btnGroup.classList.remove('highlight');
-      }, 2000);
-    }
-
-    function resetTryOnState() {
-      spinner.style.display = 'none';
-      progressBarContainer.style.display = 'none';
-      tryOnBtn.disabled = false;
-      progressBar.style.width = '0%';
-      progressBar.classList.remove('indeterminate');
-    }
-
-    themeToggle.addEventListener('click', () => {
-      isDarkMode = !isDarkMode;
-      document.documentElement.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
-      themeToggle.innerHTML = `<i class="fas fa-${isDarkMode ? 'sun' : 'moon'}"></i>`;
-      showToast(`Switched to ${isDarkMode ? 'dark' : 'light'} mode`, 'success');
-    });
-
-    document.addEventListener('DOMContentLoaded', () => {
-      const supportsRequiredFeatures = 'mediaDevices' in navigator && 
-                                      typeof HTMLCanvasElement !== 'undefined' &&
-                                      'toBlob' in HTMLCanvasElement.prototype;
-      
-      if (!supportsRequiredFeatures) {
-        showToast('Your browser may not support all features. For the best experience, use Chrome, Firefox, or Safari.', 'warning', 8000);
+  
+      // Close Form Button
+      const closeFormBtn = document.getElementById('closeFormBtn');
+      if (closeFormBtn) {
+        closeFormBtn.addEventListener('click', () => {
+          const form = document.querySelector('.popup-form');
+          const overlay = document.querySelector('.overlay');
+          if (form && overlay) {
+            form.classList.remove('show');
+            overlay.classList.remove('show');
+          } else {
+            console.error('Form or overlay element not found');
+          }
+        });
+      } else {
+        console.error('closeFormBtn element not found');
       }
-      
-      console.log('Application loaded with BASE_URL:', BASE_URL);
-      loadGarments();
-
-      const addTooltip = (element, text) => {
-        const tooltip = document.createElement('span');
-        tooltip.className = 'tooltip-text';
-        tooltip.textContent = text;
-        element.classList.add('tooltip');
-        element.appendChild(tooltip);
-      };
-      
-      addTooltip(captureBtn, 'Take a photo');
-      addTooltip(switchCameraBtn, 'Switch camera');
-      addTooltip(document.getElementById('themeToggle'), 'Toggle dark/light mode');
-      
-      const addHelpIcon = (element, text) => {
-        const helpIcon = document.createElement('i');
-        helpIcon.className = 'fas fa-question-circle help-icon tooltip';
-        const tooltip = document.createElement('span');
-        tooltip.className = 'tooltip-text';
-        tooltip.textContent = text;
-        helpIcon.appendChild(tooltip);
-        element.appendChild(helpIcon);
-      };
-      
-      addHelpIcon(document.querySelector('#page1 h2'), 'Browse and select a garment to virtually try on');
-      addHelpIcon(document.querySelector('#page2 h2'), 'Make sure you\'re in good lighting and fully visible');
-      addHelpIcon(document.querySelector('#page3 h2'), 'Our AI will create a realistic try-on image for you');
-
-      toPage2Btn.addEventListener('click', (event) => {
-        event.preventDefault();
-        if (!selectedGarment) {
-          showError(garmentError, 'Please select a garment first');
-          return;
-        }
-        showPage(2);
-      });
-
-      toPage3Btn.addEventListener('click', (event) => {
-        event.preventDefault();
-        if (!userPhotoUrl) {
-          showError(cameraError, 'Please capture a photo first');
-          return;
-        }
-        showPage(3);
-      });
-
-      backToPage1Btn.addEventListener('click', (event) => {
-        event.preventDefault();
-        showPage(1);
-      });
-      
-      backToPage2Btn.addEventListener('click', (event) => {
-        event.preventDefault();
-        showPage(2);
-      });
-
-      captureBtn.addEventListener('click', (event) => {
-        event.preventDefault();
-        startCountdown();
-      });
-      
-      switchCameraBtn.addEventListener('click', (event) => {
-        event.preventDefault();
-        facingMode = facingMode === 'user' ? 'environment' : 'user';
-        initCamera();
-      });
-
-      tryOnBtn.addEventListener('click', tryOnGarment);
-
-      startOverBtn.addEventListener('click', (event) => {
-        event.preventDefault();
-        selectedGarment = null;
-        userPhotoUrl = null;
-        toPage2Btn.disabled = true;
-        toPage3Btn.disabled = true;
-        resultImage.style.display = 'none';
-        resultContainer.style.display = 'none';
-        outputIdElement.textContent = '';
-        errorMessage.textContent = '';
-        steps.forEach(s => s.classList.remove('completed'));
-        showPage(1);
-        loadGarments();
-        showToast('Started over', 'success');
-        fetchAndUpdateTrialCount();
-      });
-
-      document.getElementById('uploadImageBtn').addEventListener('click', async (event) => {
-        event.preventDefault();
-        const fileInput = document.getElementById('manualImageUpload');
-        const uploadSpinner = document.getElementById('uploadSpinner');
-        
-        if (!fileInput.files || !fileInput.files.length) {
-          showError(cameraError, 'Please select an image to upload');
-          return;
-        }
-        
-        const file = fileInput.files[0];
-        if (!file.type.startsWith('image/')) {
-          showError(cameraError, 'Please select a valid image file');
-          return;
-        }
-        
-        uploadSpinner.style.display = 'block';
-        showToast('Processing uploaded image...');
-        
-        try {
-          const formData = new FormData();
-          formData.append('images', file);
-          formData.append('color', 'User Photo');
-          formData.append('garmentType', 'Photo');
-          formData.append('folder', 'VirtualTryOn_UserPhotos');
-          
-          console.log('Uploading image to:', `${BASE_URL}/upload`);
-          const response = await fetch(`${BASE_URL}/upload`, {
-            method: 'POST',
-            body: formData
-          });
-          
-          if (!response.ok) {
-            const errorText = await response.text().catch(() => 'No response body');
-            throw new Error(`Failed to process uploaded image: ${response.status} ${response.statusText}. Details: ${errorText}`);
+  
+      // Form Submission Handler
+      const submitFormBtn = document.getElementById('submitFormBtn');
+      if (submitFormBtn) {
+        submitFormBtn.addEventListener('click', async () => {
+          if (submitFormBtn.disabled) {
+            console.log('Form submission already in progress');
+            return;
           }
-          
-          const result = await response.json();
-          console.log('Upload response:', result);
-          
-          if (result.images && result.images.length > 0) {
-            userPhotoUrl = result.images[0].url;
-            userPhotoElement.src = userPhotoUrl;
-            selectedGarmentElement.src = selectedGarment.url;
-            garmentTypeElement.textContent = selectedGarment.type;
-            garmentColorElement.textContent = selectedGarment.color;
-            toPage3Btn.disabled = false;
-            showToast('Image processed successfully.', 'success');
-          } else {
-            throw new Error('There was an issue with the uploaded image.');
-          }
-        } catch (error) {
-          console.error('Error uploading image:', error);
-          showError(cameraError, `Failed to process uploaded image. Please try again.`);
-        } finally {
-          uploadSpinner.style.display = 'none';
-        }
-      });
-
-      document.getElementById('runDiagnosticBtn').addEventListener('click', async (event) => {
-        event.preventDefault();
-        const diagnosticResult = document.getElementById('diagnosticResult');
-        const diagnosticOutput = document.getElementById('diagnosticOutput');
-        const diagnosticBtn = document.getElementById('runDiagnosticBtn');
-        
-        diagnosticBtn.disabled = true;
-        diagnosticBtn.textContent = 'Running diagnostic...';
-        
-        try {
-          const capabilities = {
-            userAgent: navigator.userAgent,
-            platform: navigator.platform,
-            vendor: navigator.vendor,
-            language: navigator.language,
-            cookiesEnabled: navigator.cookieEnabled,
-            onLine: navigator.onLine,
-            doNotTrack: navigator.doNotTrack,
-            secure: window.location.protocol === 'https:',
-            hasTouchScreen: 'ontouchstart' in window,
-            screenWidth: window.screen.width,
-            screenHeight: window.screen.height,
-            devicePixelRatio: window.devicePixelRatio || 1,
-            hasMediaDevices: !!navigator.mediaDevices,
-            hasGetUserMedia: !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)
-          };
-          
-          if (navigator.permissions) {
-            try {
-              const result = await navigator.permissions.query({ name: 'camera' });
-              capabilities.cameraPermission = result.state;
-            } catch (e) {
-              capabilities.cameraPermission = `Error checking: ${e.message}`;
+  
+          submitFormBtn.disabled = true; // Disable button to prevent multiple submissions
+          const name = document.getElementById('userName').value.trim();
+          const phone = document.getElementById('userPhone').value.trim();
+          const requiredMessage = document.querySelector('.required-message');
+  
+          if (!name || !phone) {
+            if (requiredMessage) {
+              requiredMessage.classList.add('visible');
+              document.querySelectorAll('.form-group input').forEach(input => {
+                if (!input.value.trim()) input.classList.add('error');
+                else input.classList.remove('error');
+              });
             }
-          } else {
-            capabilities.cameraPermission = 'Permissions API not supported';
+            submitFormBtn.disabled = false;
+            return;
           }
-          
-          if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
-            try {
-              const devices = await navigator.mediaDevices.enumerateDevices();
-              const videoDevices = devices.filter(device => device.kind === 'videoinput');
-              capabilities.videoDevices = videoDevices.length;
-              capabilities.videoDeviceLabels = videoDevices.some(device => !!device.label);
-            } catch (e) {
-              capabilities.videoDevices = `Error checking: ${e.message}`;
+  
+          if (requiredMessage) {
+            requiredMessage.classList.remove('visible');
+            document.querySelectorAll('.form-group input').forEach(input => input.classList.remove('error'));
+          }
+  
+          try {
+            // Save order via server endpoint
+            const orderResponse = await fetch('/save-order', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                name,
+                phone,
+                garmentName: selectedGarment.name,
+                storeName: selectedStore ? selectedStore.store_name : 'Unknown'
+              })
+            });
+  
+            const orderData = await orderResponse.json();
+            if (!orderData.success) {
+              throw new Error(orderData.error || 'Failed to save order');
             }
-          } else {
-            capabilities.videoDevices = 'EnumerateDevices not supported';
-          }
-          
-          console.log('Sending diagnostic data to:', `${BASE_URL}/diagnostic`);
-          const response = await fetch(`${BASE_URL}/diagnostic`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              userAgent: navigator.userAgent,
-              capabilities,
-              errors: []
+  
+            // Store orderId from response
+            orderId = orderData.orderId;
+            console.log('Order saved with orderId:', orderId, 'Garment:', selectedGarment.name, 'Store:', selectedStore?.store_name);
+  
+            // Hide form and overlay
+            const form = document.querySelector('.popup-form');
+            const overlay = document.querySelector('.overlay');
+            if (form && overlay) {
+              form.classList.remove('show');
+              overlay.classList.remove('show');
+            }
+  
+            isFormSubmitted = true;
+  
+            // Call Try-On API
+            const payload = {
+              human: userPhotoUrl,
+              garment: selectedGarment.url,
+              garment_description: `${selectedGarment.color || 'N/A'} ${selectedGarment.type || 'N/A'}`,
+              category:  'upper_body',
+              storeName: selectedStore ? selectedStore.store_name : null
+            };
+  
+            console.log('Sending try-on request with payload:', payload);
+  
+            fetch('/tryon', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
             })
-          });
-          
-          if (!response.ok) {
-            const errorText = await response.text().catch(() => 'No response body');
-            throw new Error(`Diagnostic request failed: ${response.status} ${response.statusText}. Details: ${errorText}`);
+              .then(response => response.json())
+              .then(data => {
+                if (data.success) {
+                  jobId = data.job_id;
+                  console.log('Try-on job submitted, jobId:', jobId);
+                  pollForResults();
+                } else {
+                  console.error('Try-on failed:', data.error, data.details);
+                  let errorMessage = data.error || 'Unknown error';
+                  if (errorMessage.includes('Garment image URL is inaccessible')) {
+                    errorMessage = 'The selected garment image is not available. Please try a different garment or contact support.';
+                  }
+                  alert(`Try-on request failed: ${errorMessage}. Please try again.`);
+                }
+              })
+              .catch(error => {
+                console.error('Error calling try-on API:', error);
+                alert('Error submitting try-on request. Please try again.');
+              });
+          } catch (error) {
+            console.error('Error processing order:', error);
+            alert('Error processing your request. Please try again.');
+          } finally {
+            submitFormBtn.disabled = false; // Re-enable button
           }
-          
-          const data = await response.json();
-          console.log('Diagnostic response:', data);
-          
-          const formattedOutput = `
-Browser Info:
-- User Agent: ${capabilities.userAgent}
-- Platform: ${capabilities.platform}
-- Vendor: ${capabilities.vendor}
-- Language: ${capabilities.language}
-
-Device Capabilities:
-- Screen Size: ${capabilities.screenWidth}x${capabilities.screenHeight} (Pixel Ratio: ${capabilities.devicePixelRatio})
-- Touch Screen: ${capabilities.hasTouchScreen ? 'Yes' : 'No'}
-- Online: ${capabilities.onLine ? 'Yes' : 'No'}
-- Secure Connection (HTTPS): ${capabilities.secure ? 'Yes' : 'No'}
-- Cookies Enabled: ${capabilities.cookiesEnabled ? 'Yes' : 'No'}
-- Do Not Track: ${capabilities.doNotTrack || 'Not specified'}
-
-Camera Capabilities:
-- MediaDevices API: ${capabilities.hasMediaDevices ? 'Supported' : 'Not supported'}
-- getUserMedia: ${capabilities.hasGetUserMedia ? 'Supported' : 'Not supported'}
-- Camera Permission: ${capabilities.cameraPermission}
-- Video Input Devices: ${capabilities.videoDevices}
-- Device Labels Available: ${capabilities.videoDeviceLabels ? 'Yes' : 'No (requires permission)'}
-
-Server Response:
-- Success: ${data.success}
-- Message: ${data.message}
-- Recommendations:
-  ${data.recommendations.map(rec => `  - ${rec}`).join('\n')}
-          `;
-          
-          diagnosticOutput.textContent = formattedOutput.trim();
-          diagnosticResult.style.display = 'block';
-          showToast('Diagnostic complete', 'success');
-        } catch (error) {
-          console.error('Error running diagnostic:', error);
-          diagnosticOutput.textContent = `Error: ${error.message}`;
-          diagnosticResult.style.display = 'block';
-          showToast('Diagnostic failed', 'error');
-        } finally {
-          diagnosticBtn.disabled = false;
-          diagnosticBtn.textContent = 'Run Camera Diagnostic';
-        }
-      });
+        });
+      } else {
+        console.error('submitFormBtn element not found');
+      }
+  
+      // Buy Now Button
+      const buyBtn = document.getElementById('buyBtn');
+      if (buyBtn) {
+        buyBtn.addEventListener('click', async () => {
+          if (!orderId) {
+            console.error('No orderId found for Buy Now action');
+            alert('No order found. Please complete the try-on process first.');
+            return;
+          }
+  
+          console.log('Buy Now clicked with orderId:', orderId, 'Garment:', selectedGarment?.name, 'Store:', selectedStore?.store_name);
+  
+          // Confirm with user
+          const confirmPurchase = confirm(
+            `Do you want to mark the order for "${selectedGarment?.name || 'Unknown Garment'}" from "${selectedStore?.store_name || 'Unknown Store'}" as wanted?`
+          );
+          if (!confirmPurchase) {
+            console.log('User cancelled Buy Now action');
+            return;
+          }
+  
+          try {
+            const response = await fetch('/update-order-wanted', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ orderId })
+            });
+  
+            const data = await response.json();
+            if (data.success) {
+              console.log(`Order ${orderId} marked as wanted`);
+              alert('Order marked as wanted successfully!');
+            } else {
+              throw new Error(data.error || 'Failed to mark order as wanted');
+            }
+          } catch (error) {
+            console.error('Error marking order as wanted:', error);
+            alert(`Failed to mark order as wanted: ${error.message}. Please try again.`);
+          }
+        });
+      } else {
+        console.error('buyBtn element not found');
+      }
+  
+      // Theme Toggle
+      const themeToggleBtn = document.getElementById('themeToggle');
+      if (themeToggleBtn) {
+        themeToggleBtn.addEventListener('click', () => {
+          document.body.dataset.theme = document.body.dataset.theme === 'dark' ? 'light' : 'dark';
+        });
+      }
     });
   </script>
 </body>
