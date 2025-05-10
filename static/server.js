@@ -1423,4 +1423,42 @@ app.post('/update-order-wanted', async (req, res) => {
   }
 });
 
-// Other endpoints (/tryon, /upload, etc.) and server startup code remain unchanged
+// Admin Login
+app.post('/admin/login', async (req, res) => {
+  console.log('POST /admin/login called with body:', req.body);
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password are required' });
+    }
+
+    if (!db) {
+      throw new Error('Firestore is unavailable');
+    }
+
+    // Assuming admin credentials are stored in a specific document or collection
+    const adminSnapshot = await db.collection('admin').doc('admin_account').get();
+    if (!adminSnapshot.exists) {
+      return res.status(404).json({ error: 'Admin account not found' });
+    }
+
+    const adminData = adminSnapshot.data();
+    const isMatch = await bcrypt.compare(password, adminData.password);
+
+    if (adminData.email !== email || !isMatch) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    // Set session data for admin
+    req.session.user = {
+      role: 'admin',
+      email: adminData.email
+    };
+    req.session.save();
+
+    res.json({ success: true, token: 'admin-session-auth' });
+  } catch (error) {
+    console.error('Admin login error:', error);
+    res.status(500).json({ error: 'Login failed', details: error.message });
+  }
+});
