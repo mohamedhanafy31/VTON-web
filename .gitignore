@@ -11,4 +11,5 @@ app.rar
 __pycache__/
 static/serviceAccountKey.json
 serviceAccountKey.json
+static/hash.js
 
