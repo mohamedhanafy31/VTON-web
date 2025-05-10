@@ -867,7 +867,7 @@
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
-
+  
     // Global Variables
     let selectedStore = null;
     let selectedGarment = null;
@@ -875,7 +875,45 @@
     let jobId = null;
     let orderId = null;
     let isFormSubmitted = false;
-
+    let trialLimit = 0; // To store the trial limit from the selected store
+    let trialCount = 0; // To track the number of try-on attempts
+  
+    // Fetch Trial Limit from the Selected Store
+    async function fetchTrialLimit(storeId) {
+      try {
+        const doc = await db.collection('information').doc(storeId).get();
+        if (doc.exists) {
+          trialLimit = doc.data().garment_limit || 0;
+          console.log(`Trial limit fetched: ${trialLimit} from information/${storeId}:`, doc.data());
+        } else {
+          console.error(`No document found at information/${storeId}`);
+          trialLimit = 0; // Default to 0 if not found
+        }
+      } catch (error) {
+        console.error(`Error fetching trial limit for ${storeId}:`, error);
+        trialLimit = 0; // Default to 0 on error
+      }
+      updateTrialInfo(); // Update UI after fetching
+    }
+  
+    // Update Trial Info Display
+    function updateTrialInfo() {
+      const trialInfo = document.getElementById('trialInfo');
+      if (trialInfo) {
+        const remainingTrials = trialLimit - trialCount;
+        trialInfo.textContent = `Trials remaining: ${remainingTrials} / ${trialLimit}`;
+        const tryOnBtn = document.getElementById('tryOnBtn');
+        if (remainingTrials <= 0) {
+          tryOnBtn.disabled = true;
+          trialInfo.style.color = 'var(--danger)';
+          trialInfo.textContent += ' (Limit reached)';
+        } else {
+          tryOnBtn.disabled = false;
+          trialInfo.style.color = 'var(--text-light)';
+        }
+      }
+    }
+  
     // Page Switching Function
     function switchPage(from, to) {
       document.getElementById(from).classList.remove('active');
@@ -886,7 +924,7 @@
       stepper.querySelector(`.step[data-step="${to.slice(-1)}"]`).classList.add('active');
       stepper.setAttribute('data-progress', to.slice(-1));
     }
-
+  
     // Display Stores
     function displayStores(stores) {
       const container = document.getElementById('stores-container');
@@ -912,16 +950,17 @@
           card.classList.add('loaded');
           console.log(`Store logo failed to load for ${store.store_name}`);
         };
-        card.addEventListener('click', () => {
+        card.addEventListener('click', async () => {
           selectedStore = store;
           document.getElementById('toPage2').disabled = false;
           document.querySelectorAll('.store-card').forEach(c => c.classList.remove('selected'));
           card.classList.add('selected');
+          await fetchTrialLimit(store.id); // Fetch trial limit for the selected store
         });
         container.appendChild(card);
       });
     }
-
+  
     // Display Garments
     function displayGarments(garments) {
       const grid = document.getElementById('garmentGrid');
@@ -929,6 +968,7 @@
       spinner.style.display = 'none';
       grid.innerHTML = '';
       garments.forEach(garment => {
+        console.log(`Garment ${garment.name} URL:`, garment.url); // Debug log
         const item = document.createElement('div');
         item.className = 'garment-item';
         item.innerHTML = `
@@ -956,7 +996,7 @@
         grid.appendChild(item);
       });
     }
-
+  
     // Setup Camera
     function setupCamera() {
       const video = document.getElementById('video');
@@ -974,7 +1014,7 @@
           document.getElementById('cameraError').textContent = 'Unable to access camera. Please upload an image instead.';
         });
     }
-
+  
     // Start Countdown for Photo Capture
     function startCountdown() {
       let count = 3;
@@ -990,7 +1030,7 @@
         }
       }, 1000);
     }
-
+  
     // Capture Photo
     function capturePhoto() {
       const video = document.getElementById('video');
@@ -1011,6 +1051,7 @@
           .then(result => {
             if (result.images && result.images.length > 0) {
               userPhotoUrl = result.images[0].url;
+              console.log('User photo uploaded:', userPhotoUrl); // Debug log
               document.getElementById('toPage4').disabled = false;
             } else {
               throw new Error('Upload failed');
@@ -1022,11 +1063,11 @@
           });
       }, 'image/jpeg');
     }
-
+  
     // Poll for Results and Update Display
     function pollForResults() {
       if (!jobId) return;
-
+  
       const interval = setInterval(() => {
         fetch(`/get-result/${jobId}`)
           .then(response => response.json())
@@ -1038,12 +1079,32 @@
                 resultImage.src = data.output;
                 document.getElementById('resultContainer').style.display = 'block';
                 document.getElementById('outputId').textContent = `Output ID: ${data.output_id || 'N/A'}`;
-                // Hide progress bar when result is displayed
                 const progressBar = document.getElementById('tryonProgressBar');
                 if (progressBar) {
                   progressBar.style.display = 'none';
                 } else {
                   console.error('tryonProgressBar element not found');
+                }
+  
+                // Decrement garment_limit in Firestore after try-on completion
+                if (selectedStore) {
+                  db.runTransaction(async (transaction) => {
+                    const storeDoc = await transaction.get(db.collection('information').doc(selectedStore.id));
+                    if (!storeDoc.exists) {
+                      throw new Error('Store document does not exist!');
+                    }
+                    const currentLimit = storeDoc.data().garment_limit || 0;
+                    if (currentLimit > 0) {
+                      transaction.update(db.collection('information').doc(selectedStore.id), {
+                        garment_limit: currentLimit - 1
+                      });
+                      console.log(`Decremented garment_limit for ${selectedStore.id} to ${currentLimit - 1}`);
+                      // Refresh trialLimit and UI
+                      await fetchTrialLimit(selectedStore.id);
+                    }
+                  }).catch(error => {
+                    console.error('Transaction failed:', error);
+                  });
                 }
               } else {
                 console.error('resultImage element not found');
@@ -1051,25 +1112,24 @@
             }
           })
           .catch(error => console.error('Error polling result:', error));
-      }, 10000); // Poll every 10 seconds
+      }, 10000);
     }
-
-    // Initialize Stores
-    fetchStores()
-      .then(stores => {
-        if (stores.length === 0) {
-          document.getElementById('loading-stores').innerHTML = '<p>No stores available at this time.</p>';
-        } else {
-          displayStores(stores);
-        }
-      })
-      .catch(error => {
-        console.error('Error fetching stores:', error.message);
-        document.getElementById('loading-stores').innerHTML = '<p>Unable to load stores: ' + error.message + '</p>';
-      });
-
-    // Event Listeners
-    document.addEventListener('DOMContentLoaded', () => {
+  
+    // Initialize Stores and Fetch Trial Limit
+    document.addEventListener('DOMContentLoaded', async () => {
+      fetchStores()
+        .then(stores => {
+          if (stores.length === 0) {
+            document.getElementById('loading-stores').innerHTML = '<p>No stores available at this time.</p>';
+          } else {
+            displayStores(stores);
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching stores:', error.message);
+          document.getElementById('loading-stores').innerHTML = '<p>Unable to load stores: ' + error.message + '</p>';
+        });
+  
       // Navigation Event Listeners
       const toPage2Btn = document.getElementById('toPage2');
       if (toPage2Btn) {
@@ -1092,12 +1152,12 @@
             });
         });
       }
-
+  
       const backToPage1Btn = document.getElementById('backToPage1');
       if (backToPage1Btn) {
         backToPage1Btn.addEventListener('click', () => switchPage('page2', 'page1'));
       }
-
+  
       const toPage3Btn = document.getElementById('toPage3');
       if (toPage3Btn) {
         toPage3Btn.addEventListener('click', () => {
@@ -1105,17 +1165,17 @@
           setupCamera();
         });
       }
-
+  
       const backToPage2Btn = document.getElementById('backToPage2');
       if (backToPage2Btn) {
         backToPage2Btn.addEventListener('click', () => switchPage('page3', 'page2'));
       }
-
+  
       const captureBtn = document.getElementById('captureBtn');
       if (captureBtn) {
         captureBtn.addEventListener('click', startCountdown);
       }
-
+  
       const toPage4Btn = document.getElementById('toPage4');
       if (toPage4Btn) {
         toPage4Btn.addEventListener('click', () => {
@@ -1124,14 +1184,15 @@
           document.getElementById('selectedGarment').src = selectedGarment.url;
           document.getElementById('garmentType').textContent = selectedGarment.type || 'N/A';
           document.getElementById('garmentColor').textContent = selectedGarment.color || 'N/A';
+          updateTrialInfo(); // Update trial info when reaching the try-on page
         });
       }
-
+  
       const backToPage3Btn = document.getElementById('backToPage3');
       if (backToPage3Btn) {
         backToPage3Btn.addEventListener('click', () => switchPage('page4', 'page3'));
       }
-
+  
       const startOverBtn = document.getElementById('startOver');
       if (startOverBtn) {
         startOverBtn.addEventListener('click', () => {
@@ -1141,7 +1202,7 @@
           jobId = null;
           orderId = null;
           isFormSubmitted = false;
-          // Hide progress bar on start over
+          trialCount = 0; // Reset trial count on start over
           const progressBar = document.getElementById('tryonProgressBar');
           if (progressBar) {
             progressBar.style.display = 'none';
@@ -1162,9 +1223,10 @@
               console.error('Error fetching stores:', error.message);
               document.getElementById('loading-stores').innerHTML = '<p>Unable to load stores: ' + error.message + '</p>';
             });
+          updateTrialInfo(); // Update trial info after resetting
         });
       }
-
+  
       // Try On Button
       const tryOnBtn = document.getElementById('tryOnBtn');
       if (tryOnBtn) {
@@ -1174,77 +1236,89 @@
             return;
           }
 
-          // Show progress bar
-          const progressBar = document.getElementById('tryonProgressBar');
-          if (progressBar) {
-            progressBar.style.display = 'block';
-          } else {
-            console.error('tryonProgressBar element not found');
-          }
+          // Verify garment image accessibility
+          fetch(selectedGarment.url, { method: 'HEAD' })
+            .then(garmentImageResponse => {
+              if (!garmentImageResponse.ok) {
+                alert('The selected garment image is not available. Please choose another garment.');
+                return;
+              }
 
-          // Call Try-On API directly
-          const payload = {
-            human: userPhotoUrl,
-            garment: selectedGarment.url,
-            garment_description: `${selectedGarment.color || 'N/A'} ${selectedGarment.type || 'N/A'}`,
-            category: 'upper_body',
-            storeName: selectedStore ? selectedStore.store_name : null
-          };
+              // Increment trial count
+              trialCount++;
+              updateTrialInfo();
 
-          console.log('Sending try-on request with payload:', payload);
-
-          fetch('/tryon', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-          })
-            .then(response => response.json())
-            .then(data => {
-              if (data.success) {
-                jobId = data.job_id;
-                console.log('Try-on job submitted, jobId:', jobId);
-                pollForResults();
+              // Show progress bar
+              const progressBar = document.getElementById('tryonProgressBar');
+              if (progressBar) {
+                progressBar.style.display = 'block';
               } else {
-                console.error('Try-on failed:', data.error, data.details);
-                // Hide progress bar on error
-                const progressBar = document.getElementById('tryonProgressBar');
-                if (progressBar) {
-                  progressBar.style.display = 'none';
-                }
-                let errorMessage = data.error || 'Unknown error';
-                if (errorMessage.includes('Garment image URL is inaccessible')) {
-                  errorMessage = 'The selected garment image is not available. Please try a different garment or contact support.';
-                }
-                alert(`Try-on request failed: ${errorMessage}. Please try again.`);
+                console.error('tryonProgressBar element not found');
+              }
+
+              const payload = {
+                human: userPhotoUrl,
+                garment: selectedGarment.url,
+                garment_description: `${selectedGarment.color || 'N/A'} ${selectedGarment.type || 'N/A'}`,
+                category: 'upper_body',
+                storeName: selectedStore ? selectedStore.store_name : null
+              };
+
+              console.log('Sending try-on request with payload:', payload); // Debug log
+
+              fetch('/tryon', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+              })
+                .then(response => response.json())
+                .then(data => {
+                  if (data.success) {
+                    jobId = data.job_id;
+                    console.log('Try-on job submitted, jobId:', jobId);
+                    pollForResults();
+                  } else {
+                    console.error('Try-on failed:', data.error, data.details);
+                    const progressBar = document.getElementById('tryonProgressBar');
+                    if (progressBar) {
+                      progressBar.style.display = 'none';
+                    }
+                    let errorMessage = data.error || 'Unknown error';
+                    if (errorMessage.includes('Garment image URL is inaccessible')) {
+                      errorMessage = 'The selected garment image is not available. Please try a different garment or contact support.';
+                    }
+                    alert(`Try-on request failed: ${errorMessage}. Please try again.`);
+                  }
+                })
+                .catch(error => {
+                  console.error('Error calling try-on API:', error);
+                  const progressBar = document.getElementById('tryonProgressBar');
+                  if (progressBar) {
+                    progressBar.style.display = 'none';
+                  }
+                  alert('Error submitting try-on request. Please try again.');
+                });
+
+              const overlay = document.querySelector('.overlay');
+              const form = document.querySelector('.popup-form');
+              if (overlay && form) {
+                overlay.classList.add('show');
+                form.classList.add('show');
+                document.getElementById('formStoreDetail').textContent = selectedStore ? selectedStore.store_name : 'N/A';
+                document.getElementById('formGarmentDetail').textContent = selectedGarment ? selectedGarment.name : 'N/A';
+              } else {
+                console.error('Overlay or form element not found');
               }
             })
             .catch(error => {
-              console.error('Error calling try-on API:', error);
-              // Hide progress bar on error
-              const progressBar = document.getElementById('tryonProgressBar');
-              if (progressBar) {
-                progressBar.style.display = 'none';
-              }
-              alert('Error submitting try-on request. Please try again.');
+              console.error('Error checking garment image:', error);
+              alert('Error verifying garment image. Please try again.');
             });
-
-          // Show the form for order details
-          const overlay = document.querySelector('.overlay');
-          const form = document.querySelector('.popup-form');
-          if (overlay && form) {
-            overlay.classList.add('show');
-            form.classList.add('show');
-            document.getElementById('formStoreDetail').textContent = selectedStore ? selectedStore.store_name : 'N/A';
-            document.getElementById('formGarmentDetail').textContent = selectedGarment ? selectedGarment.name : 'N/A';
-          } else {
-            console.error('Overlay or form element not found');
-          }
         });
       } else {
         console.error('tryOnBtn element not found');
       }
-
-      // Close Form Button
+  
       const closeFormBtn = document.getElementById('closeFormBtn');
       if (closeFormBtn) {
         closeFormBtn.addEventListener('click', () => {
@@ -1260,8 +1334,7 @@
       } else {
         console.error('closeFormBtn element not found');
       }
-
-      // Form Submission Handler
+  
       const submitFormBtn = document.getElementById('submitFormBtn');
       if (submitFormBtn) {
         submitFormBtn.addEventListener('click', async () => {
@@ -1269,12 +1342,12 @@
             console.log('Form submission already in progress');
             return;
           }
-
+  
           submitFormBtn.disabled = true;
           const name = document.getElementById('userName').value.trim();
           const phone = document.getElementById('userPhone').value.trim();
           const requiredMessage = document.querySelector('.required-message');
-
+  
           if (!name || !phone) {
             if (requiredMessage) {
               requiredMessage.classList.add('visible');
@@ -1286,14 +1359,13 @@
             submitFormBtn.disabled = false;
             return;
           }
-
+  
           if (requiredMessage) {
             requiredMessage.classList.remove('visible');
             document.querySelectorAll('.form-group input').forEach(input => input.classList.remove('error'));
           }
-
+  
           try {
-            // Save order via server endpoint
             const orderResponse = await fetch('/save-order', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -1304,17 +1376,14 @@
                 storeName: selectedStore ? selectedStore.store_name : 'Unknown'
               })
             });
-
+  
             const orderData = await orderResponse.json();
             if (!orderData.success) {
               throw new Error(orderData.error || 'Failed to save order');
             }
-
-            // Store orderId from response
+  
             orderId = orderData.orderId;
             console.log('Order saved with orderId:', orderId, 'Garment:', selectedGarment.name, 'Store:', selectedStore?.store_name);
-
-            // Set isFormSubmitted to true to allow result display
             isFormSubmitted = true;
           } catch (error) {
             console.error('Error processing order:', error);
@@ -1322,12 +1391,12 @@
           } finally {
             submitFormBtn.disabled = false;
           }
-        });
+        })
+        ;
       } else {
         console.error('submitFormBtn element not found');
       }
-
-      // Buy Now Button
+  
       const buyBtn = document.getElementById('buyBtn');
       if (buyBtn) {
         buyBtn.addEventListener('click', async () => {
@@ -1336,10 +1405,9 @@
             alert('No order found. Please complete the try-on process first.');
             return;
           }
-
+  
           console.log('Buy Now clicked with orderId:', orderId, 'Garment:', selectedGarment?.name, 'Store:', selectedStore?.store_name);
-
-          // Confirm with user
+  
           const confirmPurchase = confirm(
             `Do you want to mark the order for "${selectedGarment?.name || 'Unknown Garment'}" from "${selectedStore?.store_name || 'Unknown Store'}" as wanted?`
           );
@@ -1347,14 +1415,14 @@
             console.log('User cancelled Buy Now action');
             return;
           }
-
+  
           try {
             const response = await fetch('/update-order-wanted', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ orderId })
             });
-
+  
             const data = await response.json();
             if (data.success) {
               console.log(`Order ${orderId} marked as wanted`);
@@ -1370,8 +1438,7 @@
       } else {
         console.error('buyBtn element not found');
       }
-
-      // Theme Toggle
+  
       const themeToggleBtn = document.getElementById('themeToggle');
       if (themeToggleBtn) {
         themeToggleBtn.addEventListener('click', () => {
