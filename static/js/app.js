@@ -1,170 +1,170 @@
 /**
  * Main Application
- * Manages app initialization and state coordination
+ * Central entry point and state manager for the Virtual Try-On application
  */
+import FirebaseService from './services/firebase-service.js';
+import AuthService from './services/auth-service.js';
+import StoreService from './services/store-service.js';
+import GarmentService from './services/garment-service.js';
+import TryOnService from './services/tryon-service.js';
+import UIController from './controllers/ui-controller.js';
+import CameraController from './controllers/camera-controller.js';
+import FormController from './controllers/form-controller.js';
 
-// Global application state
-const AppState = (() => {
-  // State variables
-  let selectedGarment = null;
-  let userPhotoUrl = null;
-  let garments = [];
-  let stores = [];
-  let selectedStore = null;
-  let currentUserAddress = null;
-  let numTrials = 0;
-  let formCompleted = false;
-  let resultData = null;
-  let resultInterval = null;
+const App = (() => {
+  // Private variables
+  const config = window.AppConfig;
+  let state = {
+    initialized: false,
+    user: null,
+    store: null,
+    garments: [],
+    selectedGarment: null,
+    userImage: null,
+    tryOnResult: null,
+    isProcessing: false,
+    trials: 0,
+    maxTrials: config.TRYON.MAX_TRIALS,
+    view: 'login' // Possible values: login, gallery, camera, result
+  };
   
-  // Getters
-  const getSelectedGarment = () => selectedGarment;
-  const getUserPhotoUrl = () => userPhotoUrl;
-  const getGarments = () => garments;
-  const getStores = () => stores;
-  const getSelectedStore = () => selectedStore;
-  const getCurrentUserAddress = () => currentUserAddress;
-  const getNumTrials = () => numTrials;
-  const isFormCompleted = () => formCompleted;
-  const getResultData = () => resultData;
+  // Event listeners
+  const eventListeners = {};
   
-  // Setters
-  const setSelectedGarment = (garment) => { selectedGarment = garment; };
-  const setUserPhotoUrl = (url) => { userPhotoUrl = url; };
-  const setGarments = (garmentsArray) => { garments = garmentsArray; };
-  const setStores = (storesArray) => { stores = storesArray; };
-  const setSelectedStore = (store) => { selectedStore = store; };
-  const setCurrentUserAddress = (address) => { currentUserAddress = address; };
-  const setNumTrials = (trials) => { numTrials = trials; };
-  const setFormCompleted = (completed) => { formCompleted = completed; };
-  const setResultData = (data) => { resultData = data; };
-  const setResultInterval = (interval) => {
-    if (resultInterval) {
-      clearInterval(resultInterval);
+  /**
+   * Initializes the application
+   */
+  async function init() {
+    try {
+      console.log('Initializing Virtual Try-On Application');
+      
+      // Initialize services
+      FirebaseService.init();
+      AuthService.init();
+      StoreService.init();
+      GarmentService.init();
+      TryOnService.init();
+      
+      // Initialize controllers
+      UIController.init();
+      FormController.init();
+      
+      // Initialize camera if video element exists
+      const videoElement = document.getElementById('camera-feed');
+      const canvasElement = document.getElementById('photo-canvas');
+      if (videoElement && canvasElement) {
+        CameraController.init(videoElement, canvasElement);
+      }
+      
+      // Check authentication status
+      const isAuthenticated = await AuthService.isAuthenticated();
+      if (isAuthenticated) {
+        const storeProfile = await StoreService.getStoreProfile();
+        state.user = {
+          authenticated: true,
+          store: storeProfile
+        };
+        state.store = storeProfile;
+        navigateToView('gallery');
+      } else {
+        navigateToView('login');
+      }
+      
+      // Load trial count
+      const trials = await TryOnService.getTrials();
+      state.trials = trials.remainingTrials;
+      state.maxTrials = trials.maxTrials;
+      
+      // Mark as initialized
+      state.initialized = true;
+      notifyStateChange();
+      
+      console.log('App initialized successfully');
+    } catch (error) {
+      console.error('Error initializing app:', error);
+      UIController.showError('Failed to initialize application. Please try refreshing the page.');
     }
-    resultInterval = interval;
-  };
-  
-  // Reset app state
-  const resetState = () => {
-    selectedGarment = null;
-    userPhotoUrl = null;
-    selectedStore = null;
-    formCompleted = false;
-    resultData = null;
-    if (resultInterval) {
-      clearInterval(resultInterval);
-      resultInterval = null;
+  }
+
+  /**
+   * Navigates to a specific view
+   * @param {string} viewName - The view to navigate to
+   */
+  function navigateToView(viewName) {
+    state.view = viewName;
+    notifyStateChange();
+    UIController.showView(viewName);
+  }
+
+  /**
+   * Updates application state
+   * @param {Object} updates - The state updates
+   */
+  function updateState(updates) {
+    state = {
+      ...state,
+      ...updates
+    };
+    notifyStateChange();
+  }
+
+  /**
+   * Gets current application state
+   * @returns {Object} The current state
+   */
+  function getState() {
+    return { ...state };
+  }
+
+  /**
+   * Notifies listeners of state changes
+   */
+  function notifyStateChange() {
+    const currentState = getState();
+    
+    if (eventListeners.stateChange) {
+      eventListeners.stateChange.forEach(callback => callback(currentState));
     }
-  };
-  
-  // Helper functions
-  const truncateAddress = (address) => {
-    if (!address) return '';
-    return `${address.slice(0, 6)}...${address.slice(-4)}`;
-  };
-  
+  }
+
+  /**
+   * Adds an event listener
+   * @param {string} event - The event type
+   * @param {Function} callback - The callback function
+   */
+  function addEventListener(event, callback) {
+    if (!eventListeners[event]) {
+      eventListeners[event] = [];
+    }
+    
+    eventListeners[event].push(callback);
+  }
+
+  /**
+   * Removes an event listener
+   * @param {string} event - The event type
+   * @param {Function} callback - The callback function to remove
+   */
+  function removeEventListener(event, callback) {
+    if (eventListeners[event]) {
+      eventListeners[event] = eventListeners[event].filter(cb => cb !== callback);
+    }
+  }
+
   // Public API
   return {
-    // Properties (with getters/setters)
-    get selectedGarment() { return selectedGarment; },
-    set selectedGarment(value) { selectedGarment = value; },
-    
-    get userPhotoUrl() { return userPhotoUrl; },
-    set userPhotoUrl(value) { userPhotoUrl = value; },
-    
-    get garments() { return garments; },
-    set garments(value) { garments = value; },
-    
-    get stores() { return stores; },
-    set stores(value) { stores = value; },
-    
-    get selectedStore() { return selectedStore; },
-    set selectedStore(value) { selectedStore = value; },
-    
-    get currentUserAddress() { return currentUserAddress; },
-    set currentUserAddress(value) { currentUserAddress = value; },
-    
-    get numTrials() { return numTrials; },
-    set numTrials(value) { numTrials = value; },
-    
-    get formCompleted() { return formCompleted; },
-    set formCompleted(value) { formCompleted = value; },
-    
-    get resultData() { return resultData; },
-    set resultData(value) { resultData = value; },
-    
-    // Methods
-    getSelectedGarment,
-    getUserPhotoUrl,
-    getGarments,
-    getStores,
-    getSelectedStore,
-    getCurrentUserAddress,
-    getNumTrials,
-    isFormCompleted,
-    getResultData,
-    
-    setSelectedGarment,
-    setUserPhotoUrl,
-    setGarments,
-    setStores,
-    setSelectedStore,
-    setCurrentUserAddress,
-    setNumTrials,
-    setFormCompleted,
-    setResultData,
-    setResultInterval,
-    
-    resetState,
-    truncateAddress
+    init,
+    navigateToView,
+    updateState,
+    getState,
+    addEventListener,
+    removeEventListener
   };
 })();
 
-// Main application initialization
-document.addEventListener('DOMContentLoaded', async () => {
-  try {
-    console.log('Initializing application...');
-    
-    // Check browser compatibility
-    const supportsRequiredFeatures = 'mediaDevices' in navigator && 
-                                     typeof HTMLCanvasElement !== 'undefined' &&
-                                     'toBlob' in HTMLCanvasElement.prototype;
-    
-    if (!supportsRequiredFeatures) {
-      UIController.showToast('Your browser may not support all features. For the best experience, use Chrome, Firefox, or Safari.', 'warning', 8000);
-    }
-    
-    // Initialize controllers and services
-    UIController.initialize();
-    FormController.initialize();
-    await FirebaseService.initialize();
-    
-    // Attempt auto-login
-    const isLoggedIn = await AuthService.checkSession();
-    if (isLoggedIn) {
-      UIController.showToast(`Connected as ${AppState.truncateAddress(AppState.currentUserAddress)}`, 'success');
-    } else {
-      await AuthService.autoLoginWithNikeCredentials();
-    }
-    
-    // Load initial data
-    StoreService.loadStores();
-    
-    // Set up visibility change handler to sync localStorage data to Firebase
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible') {
-        FirebaseService.syncLocalDataToFirebase().then(success => {
-          if (success) {
-            console.log('Successfully synced local data to Firebase on page visibility');
-          }
-        });
-      }
-    });
-    
-    console.log('Application initialized successfully');
-  } catch (error) {
-    console.error('Error initializing application:', error);
-    UIController.showToast('An error occurred during initialization. Some features may not work properly.', 'error');
-  }
-}); 
+// Initialize the app when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+  App.init();
+});
+
+export default App; 

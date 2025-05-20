@@ -11,17 +11,20 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3000
-      - CLOUDINARY_CLOUD_NAME=dj3ewvbqm
-      - CLOUDINARY_API_KEY=182963992493551
-      - CLOUDINARY_API_SECRET=Jw9FTSGXX2VxuEaxKA-l8E2Kqag
-      - ARTIFICIAL_STUDIO_API_KEY=dd240ad8f2e64de35e0b25ecddf1b42c2a7e637d
+      # Using environment variables from .env file
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
+      - TRYON_API_KEY=${TRYON_API_KEY}
+      - SESSION_SECRET=${SESSION_SECRET}
       # Add your ngrok authtoken if needed for webhooks
-      # - NGROK_AUTHTOKEN=your_ngrok_auth_token
+      # - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN}
     restart: always
     volumes:
-      - virtual_tryon_uploads:/app/uploads
-      - virtual_tryon_logs:/app/logs
-      - virtual_tryon_temp:/app/temp
+      - ./serviceAccountKey.json:/app/serviceAccountKey.json:ro
+      - virtual_tryon_uploads:/app/static/uploads
+      - virtual_tryon_logs:/app/static/logs
+      - virtual_tryon_temp:/app/static/temp
     healthcheck:
       test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:3000"]
       interval: 30s

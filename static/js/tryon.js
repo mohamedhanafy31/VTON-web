@@ -178,13 +178,17 @@ document.addEventListener('DOMContentLoaded', function() {
         const blob = await fetch(capturedImage).then(r => r.blob());
         formData.append('images', blob, 'user-photo.jpg');
         formData.append('isUserPhoto', 'true');
+        formData.append('folder', 'user_photos');
   
-        const response = await fetch('/upload', {
+        const response = await fetch('/api/upload', {
           method: 'POST',
           body: formData
         });
         
-        if (!response.ok) throw new Error('Upload failed');
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || 'Upload failed');
+        }
         const { images } = await response.json();
         capturedImage = images[0].url;
         showToast('Image uploaded!', 'success');
@@ -203,18 +207,24 @@ document.addEventListener('DOMContentLoaded', function() {
         const formData = new FormData();
         formData.append('images', fileInput.files[0]);
         formData.append('isUserPhoto', 'true');
-  
+        formData.append('folder', 'user_photos');
+
         const response = await fetch('/upload', {
           method: 'POST',
           body: formData
         });
         
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || 'Upload failed');
+        }
         const { images } = await response.json();
         capturedImage = images[0].url;
         document.getElementById('userPhoto').src = capturedImage;
         document.getElementById('toPage4').removeAttribute('disabled');
       } catch (error) {
-        showToast('Upload failed', 'error');
+        console.error('Upload error:', error);
+        showToast('Upload failed: ' + error.message, 'error');
       }
     });
   
@@ -269,13 +279,20 @@ document.addEventListener('DOMContentLoaded', function() {
               resolve(result);
             } else if (result.status === 'failed') {
               clearInterval(checkInterval);
-              reject(new Error(result.error));
+              reject(new Error(result.error || 'Try-on processing failed'));
             }
           } catch (error) {
             clearInterval(checkInterval);
             reject(error);
           }
         }, 3000);
+        
+        // Add a timeout to prevent endless polling
+        const maxPollingTime = 2 * 60 * 1000; // 2 minutes
+        setTimeout(() => {
+          clearInterval(checkInterval);
+          reject(new Error('Try-on processing timed out. Please try again.'));
+        }, maxPollingTime);
       });
     }
   

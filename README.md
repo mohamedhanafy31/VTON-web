@@ -1,85 +1,195 @@
 # Virtual Try-On Application
 
-A web application that allows users to try on garments virtually using AI technology.
-
-## Quick Start
-
-1. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
-
-2. Copy the env.example file to .env and configure your settings:
-```bash
-cp env.example .env
-```
-
-3. Run the application:
-```bash
-python start.py
-```
-
-4. Visit http://localhost:8000 in your browser
-
-## Features
-
-- Upload and manage garment images with Cloudinary
-- Take photos with webcam or upload from files
-- Virtual try-on using ArtificialStudio's AI
-- Dark/light mode with state persistence
-- Progress stepper to guide users through the process
-- Download try-on results
-- Search and filter functionality for garments
+This application allows users to virtually try on clothes using AI technology. It consists of a Node.js backend server and a JavaScript frontend.
 
 ## Project Structure
 
+The project is organized into two main components:
+
+### Backend (Node.js)
+
 ```
-App/
-├── api/                    # API backend
-│   ├── models/             # Pydantic data models
-│   ├── routers/            # API route handlers
-│   └── services/           # Business logic services (to be implemented)
-├── config/                 # Configuration settings
-├── static/                 # Static web files
-│   ├── tryon.html          # Main application interface
-│   └── index.html          # Garment upload interface
-├── app.py                  # FastAPI application
-├── start.py                # Startup script
-└── requirements.txt        # Python dependencies
+/
+├── src/
+│   ├── config/          # Configuration files
+│   │   ├── cloudinary.js
+│   │   ├── db.js
+│   │   ├── multer.js
+│   │   ├── ngrok.js
+│   │   └── session.js
+│   │
+│   ├── controllers/     # API controllers
+│   │   ├── authController.js
+│   │   ├── imageController.js
+│   │   ├── miscController.js
+│   │   ├── orderController.js
+│   │   ├── storeController.js
+│   │   └── tryonController.js
+│   │
+│   ├── middleware/      # Middleware functions
+│   │   ├── auth.js
+│   │   └── logger.js
+│   │
+│   ├── routes/          # API routes
+│   │   ├── authRoutes.js
+│   │   ├── imageRoutes.js
+│   │   ├── miscRoutes.js
+│   │   ├── orderRoutes.js
+│   │   ├── storeRoutes.js
+│   │   └── tryonRoutes.js
+│   │
+│   ├── utils/           # Utility functions
+│   │   └── jobManager.js
+│   │
+│   └── server.js        # Main application file
 ```
 
-## Development
+### Frontend (Static files)
 
-- For development mode with auto-reload:
-```bash
-python start.py --dev
+```
+/static/
+├── js/
+│   ├── config.js                  # Centralized configuration
+│   ├── app.js                     # Main application & state manager
+│   ├── services/
+│   │   ├── firebase-service.js    # Firebase data operations
+│   │   ├── auth-service.js        # Authentication functionality
+│   │   ├── store-service.js       # Store-related operations
+│   │   ├── garment-service.js     # Garment-related operations
+│   │   └── tryon-service.js       # Try-on request handling
+│   └── controllers/
+│       ├── ui-controller.js       # UI interactions & notifications
+│       ├── camera-controller.js   # Camera functionality
+│       └── form-controller.js     # Form handling
+├── css/                           # Stylesheets
+├── Media/                         # Media files
+├── uploads/                       # User uploads
+├── temp/                          # Temporary files
+├── pages/                         # Organized HTML files
+│   ├── main/                      # Main application pages
+│   │   ├── index.html             # Landing page
+│   │   ├── VTON.html              # Virtual try-on main page
+│   │   └── tryon.html             # Try-on experience
+│   ├── admin/                     # Admin interface pages
+│   │   ├── AdminDashBoard.html    # Admin dashboard
+│   │   └── StoreDashBoard.html    # Store management dashboard
+│   └── other/                     # Additional pages
+│       ├── ai-courses.html        # AI courses info
+│       ├── ai-solutions.html      # AI solutions info
+│       └── vr-solutions.html      # VR solutions info
 ```
 
-- To change port or host:
-```bash
-python start.py --port 5000 --host 127.0.0.1
+## Features
+
+- Store management (admin, customer)
+- Image upload and management
+- Virtual Try-On processing with external API
+- Order handling
+- Authentication and authorization
+
+## Application URLs
+
+### Main Pages
+- `/` - Landing page (index.html)
+- `/vton` - Virtual Try-On main page
+- `/tryon` - Try-On experience
+
+### Admin Pages
+- `/admin/dashboard` - Admin dashboard
+- `/store/dashboard` - Store dashboard
+
+## Prerequisites
+
+- Node.js (v16 or higher)
+- Firebase account (for Firestore database)
+- Cloudinary account (for image storage)
+
+## Environment Variables
+
+Create a `.env` file in the root directory with the following variables:
+
+```
+# Server configuration
+PORT=3000
+NODE_ENV=development
+SESSION_SECRET=your_session_secret_key
+
+# Firebase configuration
+GOOGLE_APPLICATION_CREDENTIALS=./serviceAccountKey.json
+
+# Cloudinary configuration
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+
+# NGROK configuration (optional)
+NGROK_AUTHTOKEN=your_ngrok_authtoken
+
+# TryOn API
+TRYON_API_KEY=your_tryon_api_key
+
+# Public URL (production only)
+PUBLIC_URL=https://your-production-url.com
 ```
 
-- For detailed logs:
-```bash
-python start.py --log-level DEBUG
+## Installation
+
+1. Install dependencies:
+   ```
+   npm install
+   ```
+
+2. Place your Firebase service account key (serviceAccountKey.json) in the root directory.
+
+3. Start the development server:
+   ```
+   npm run dev
+   ```
+
+The server will start on the specified port (default: 3000).
+
+## Production Deployment
+
+For production deployment, use the Docker configuration provided:
+
+```
+docker-compose up -d
 ```
 
-## API Documentation
+## API Endpoints
 
-Once the server is running, you can access the auto-generated API documentation at:
-- http://localhost:8000/docs (Swagger UI)
-- http://localhost:8000/redoc (ReDoc)
+### Authentication
+- `POST /store/login` - Store login
+- `POST /store/logout` - Store logout
+- `POST /admin/login` - Admin login
+- `POST /admin/logout` - Admin logout
 
-## Mock Implementation Note
+### Store Management
+- `GET /stores` - Get all stores (admin only)
+- `POST /stores` - Create new store (admin only)
+- `PUT /stores/:storeName` - Update store (admin only)
+- `DELETE /stores/:storeName` - Delete store (admin only)
+- `GET /store/profile` - Get store profile
+- `GET /store/garments/:storeName` - Get store garments
+- `GET /store/orders/:storeName` - Get store orders
+- `GET /active-stores` - Get active stores (public)
 
-This version contains mock implementations for the API calls. For a production version, you would need to implement:
+### Image Management
+- `POST /upload` - Upload images
+- `POST /store/upload-logo` - Upload store logo
+- `GET /images` - Get images
+- `GET /descriptions` - Get image descriptions
+- `DELETE /delete/:publicId` - Delete image
+- `POST /test-image` - Test image URL
 
-1. Connect to Cloudinary for actual image storage
-2. Implement full ArtificialStudio integration
-3. Add authentication and security features
-4. Set up proper background tasks for long-running operations
+### TryOn Processing
+- `POST /tryon` - Process try-on request
+- `POST /webhook` - Process webhook from AI service
+- `POST /manual-webhook` - Process manual webhook
+- `GET /get-result/:jobId` - Get job result
+- `GET /trials` - Get trials count
+- `POST /update-trials` - Update trials count
 
-## License
-
-MIT License 
+### Order Management
+- `POST /save-order` - Save order
+- `POST /update-order-wanted` - Update order wanted status 

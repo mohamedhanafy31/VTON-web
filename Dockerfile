@@ -3,14 +3,15 @@ FROM node:18-slim AS build
 # Set working directory in the container
 WORKDIR /app
 
-# Copy package.json and package-lock.json (if available)
-COPY static/package*.json ./
+# Copy package files
+COPY package*.json ./
 
 # Install dependencies
 RUN npm ci --only=production
 
 # Copy application code
-COPY static/ ./
+COPY src/ ./src/
+COPY static/ ./static/
 
 # Production image
 FROM node:18-alpine
@@ -19,20 +20,17 @@ FROM node:18-alpine
 WORKDIR /app
 
 # Copy the built application from the build stage
-COPY --from=build /app ./
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/src ./src
+COPY --from=build /app/static ./static
 
 # Create necessary directories with appropriate permissions
-RUN mkdir -p uploads temp logs && \
+RUN mkdir -p static/uploads static/temp static/logs && \
     chown -R node:node /app
 
 # Set environment variables
 ENV NODE_ENV=production
 ENV PORT=3000
-ENV CLOUDINARY_CLOUD_NAME=dj3ewvbqm
-ENV CLOUDINARY_API_KEY=182963992493551
-ENV CLOUDINARY_API_SECRET=Jw9FTSGXX2VxuEaxKA-l8E2Kqag
-ENV ARTIFICIAL_STUDIO_API_KEY=dd240ad8f2e64de35e0b25ecddf1b42c2a7e637d
-ENV MAX_GARMENTS=6
 
 # Expose the port the app runs on
 EXPOSE 3000
@@ -45,4 +43,4 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
   CMD wget -q -O - http://localhost:3000 || exit 1
 
 # Command to run the application
-CMD ["node", "server.js"] 
+CMD ["node", "src/server.js"] 

@@ -1,15 +1,45 @@
+# Node.js
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Environment variables
 .env
 venv/
 vevn/
-node_modules/
+logs/
+# Keys and credentials
 requirements.txt
 static.zip
 env.example
 main.py
 package-lock.json
 app.rar
-__pycache__/
 static/serviceAccountKey.json
 serviceAccountKey.json
 static/hash.js
+
+# Logs
+static/logs/*.log
+logs/*.log
+
+# Temporary files
+static/temp/*
+temp/*
+
+# Upload directories
+static/uploads/TryOn_Results/*
+static/uploads/VirtualTryOn_UserPhotos/*
+static/uploads/VirtualTryOn_Images/*
+!static/uploads/TryOn_Results/.gitkeep
+!static/uploads/VirtualTryOn_UserPhotos/.gitkeep
+!static/uploads/VirtualTryOn_Images/.gitkeep
+
+# Virtual environment
+__pycache__/
+
+# OS specific files
+.DS_Store
+Thumbs.db
 

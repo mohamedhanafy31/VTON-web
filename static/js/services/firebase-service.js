@@ -11,9 +11,7 @@ const FirebaseService = (() => {
   // Initialize Firebase with error handling
   const initialize = async () => {
     try {
-      firebase.initializeApp(CONFIG.firebase);
       db = firebase.firestore();
-      
       // Configure offline persistence with a smaller cache size
       db.settings({
         cacheSizeBytes: 5000000 // 5MB
@@ -42,55 +40,6 @@ const FirebaseService = (() => {
       console.error('Firebase initialization error:', error);
       UIController.showToast('Using local storage fallback', 'warning', 3000);
       db = null;
-      return false;
-    }
-  };
-  
-  // Sync local data to Firebase
-  const syncLocalDataToFirebase = async () => {
-    if (!firebaseInitialized || !db) return false;
-    
-    try {
-      // Get orders from localStorage
-      const localOrders = JSON.parse(localStorage.getItem('tryon_orders') || '[]');
-      if (localOrders.length === 0) return true; // Nothing to sync
-      
-      console.log(`Attempting to sync ${localOrders.length} local orders to Firebase`);
-      
-      let syncCount = 0;
-      for (const order of localOrders) {
-        try {
-          // Remove the local ID
-          const { id, ...orderData } = order;
-          
-          // Convert ISO string timestamp back to Firestore timestamp
-          const timestamp = orderData.timestamp ? 
-            firebase.firestore.Timestamp.fromDate(new Date(orderData.timestamp)) : 
-            firebase.firestore.FieldValue.serverTimestamp();
-          
-          // Add to Firestore
-          await db.collection('stores').doc('orders').collection('orders').add({
-            ...orderData,
-            timestamp,
-            synced_from_local: true
-          });
-          
-          syncCount++;
-        } catch (err) {
-          console.error('Failed to sync order:', order, err);
-        }
-      }
-      
-      if (syncCount > 0) {
-        // Clear synced orders
-        localStorage.setItem('tryon_orders', JSON.stringify([]));
-        console.log(`Successfully synced ${syncCount} orders to Firebase`);
-        return true;
-      }
-      
-      return false;
-    } catch (error) {
-      console.error('Error syncing local data to Firebase:', error);
       return false;
     }
   };
@@ -217,7 +166,6 @@ const FirebaseService = (() => {
   // Public API
   return {
     initialize,
-    syncLocalDataToFirebase,
     saveUserData,
     updateUserDataWithResult,
     getDB,
