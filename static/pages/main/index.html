@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MetaVR - AI & VR Solutions</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6e45e2;
+            --primary-dark: #5a36c9;
+            --secondary: #89d4cf;
+            --dark: #343a40;
+            --light: #f8f9fa;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light);
+            overflow-x: hidden;
+        }
+        
+        .hero-section {
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 100px 0;
+            margin-bottom: 50px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .hero-shapes {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            opacity: 0.4;
+        }
+        
+        .hero-shape {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        .shape-1 {
+            width: 300px;
+            height: 300px;
+            top: -150px;
+            right: -100px;
+            animation: float 8s ease-in-out infinite;
+        }
+        
+        .shape-2 {
+            width: 200px;
+            height: 200px;
+            bottom: -100px;
+            left: 10%;
+            animation: float 12s ease-in-out infinite;
+        }
+        
+        .shape-3 {
+            width: 150px;
+            height: 150px;
+            top: 30%;
+            right: 20%;
+            animation: float 7s ease-in-out infinite;
+        }
+        
+        .sticky-navbar {
+            transition: all 0.3s ease;
+            background-color: transparent;
+        }
+        
+        .sticky-navbar.scrolled {
+            background-color: white;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            transition: all 0.4s ease;
+            margin-bottom: 30px;
+            overflow: hidden;
+            background-color: white;
+        }
+        
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+        
+        .card-img-top {
+            height: 200px;
+            object-fit: cover;
+        }
+        
+        .featured-project {
+            background: linear-gradient(135deg, #f1f8ff 0%, #f7fcff 100%);
+            border-radius: 20px;
+            padding: 40px;
+            margin-top: 70px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+            border-left: 5px solid var(--primary);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .featured-project::before {
+            content: '';
+            position: absolute;
+            top: -30px;
+            right: -30px;
+            width: 150px;
+            height: 150px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            opacity: 0.1;
+            border-radius: 50%;
+        }
+        
+        .footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 70px 0 20px;
+            margin-top: 70px;
+            position: relative;
+        }
+        
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            left: 0;
+            width: 100%;
+            height: 50px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%23343a40' fill-opacity='1' d='M0,288L48,272C96,256,192,224,288,197.3C384,171,480,149,576,165.3C672,181,768,235,864,250.7C960,267,1056,245,1152,224C1248,203,1344,181,1392,170.7L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z'%3E%3C/path%3E%3C/svg%3E");
+            background-size: cover;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            border-color: var(--primary);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            border-color: var(--primary-dark);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(110, 69, 226, 0.3);
+        }
+        
+        .service-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: var(--primary);
+            transition: all 0.5s ease;
+        }
+        
+        .card:hover .service-icon {
+            transform: scale(1.1) rotate(10deg);
+        }
+        
+        .navbar-brand img {
+            height: 40px;
+            transition: all 0.3s ease;
+        }
+        
+        .animated-gradient-background {
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+            padding: 80px 0;
+            margin: 70px 0;
+            border-radius: 15px;
+            color: white;
+        }
+        
+        .stats-item {
+            border-radius: 15px;
+            padding: 30px 20px;
+            text-align: center;
+            background-color: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(5px);
+            margin-bottom: 20px;
+        }
+        
+        .stats-number {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .cta-section {
+            padding: 80px 0;
+            background: linear-gradient(135deg, #6e45e2 0%, #23a6d5 100%);
+            color: white;
+            margin: 70px 0;
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .cta-section::after {
+            content: '';
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            top: -100px;
+            right: -50px;
+        }
+        
+        .team-member {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .team-member img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 20px;
+            border: 5px solid white;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .team-member:hover img {
+            transform: scale(1.1);
+            box-shadow: 0 15px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .testimonial-card {
+            background-color: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        }
+        
+        .testimonial-img {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            margin-right: 20px;
+            object-fit: cover;
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+            100% {
+                transform: translateY(0px);
+            }
+        }
+        
+        @keyframes gradient {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+        
+        .reveal-on-scroll {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease;
+        }
+        
+        .reveal-on-scroll.revealed {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .nav-link {
+            position: relative;
+            padding: 5px 0;
+            margin: 0 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 0;
+            background-color: var(--primary);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light sticky-navbar fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="/"><img src="Media/MetaVrLogo.jpg" alt="MetaVR Logo"> MetaVR</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#services">Services</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#projects">Projects</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#about">About Us</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#contact">Contact</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section d-flex align-items-center">
+        <div class="hero-shapes">
+            <div class="hero-shape shape-1"></div>
+            <div class="hero-shape shape-2"></div>
+            <div class="hero-shape shape-3"></div>
+        </div>
+        <div class="container hero-content">
+            <div class="row align-items-center">
+                <div class="col-lg-6 text-lg-start text-center" data-aos="fade-right" data-aos-delay="200">
+                    <h1 class="display-4 fw-bold mb-4">Revolutionizing Reality with AI & VR</h1>
+                    <p class="lead mb-5">MetaVR delivers cutting-edge AI courses, innovative AI solutions, and immersive VR experiences to transform how we learn, work, and interact.</p>
+                    <a href="#services" class="btn btn-light btn-lg px-5 py-3">
+                        Explore Our Services
+                        <i class="fas fa-arrow-right ms-2"></i>
+                    </a>
+                </div>
+                <div class="col-lg-6 d-none d-lg-block" data-aos="fade-left" data-aos-delay="400">
+                    <img src="Media/First Section landding page.jpg" alt="VR Experience" class="img-fluid rounded-lg shadow-lg">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="services" class="py-5">
+        <div class="container">
+            <div class="text-center mb-5" data-aos="fade-up">
+                <h2 class="fw-bold mb-3">Our Services</h2>
+                <p class="lead text-muted">Innovative solutions for the digital age</p>
+            </div>
+            <div class="row">
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+                    <div class="card h-100 text-center p-4">
+                        <div class="card-body">
+                            <div class="service-icon">
+                                <i class="fas fa-brain"></i>
+                            </div>
+                            <h4 class="card-title">AI Courses</h4>
+                            <p class="card-text">Comprehensive AI courses designed for beginners and professionals alike. Learn machine learning, deep learning, and AI applications from industry experts.</p>
+                            <a href="CoursesService" class="btn btn-outline-primary mt-3">Learn More</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+                    <div class="card h-100 text-center p-4">
+                        <div class="card-body">
+                            <div class="service-icon">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <h4 class="card-title">AI Solutions</h4>
+                            <p class="card-text">Custom AI solutions for businesses across industries. From predictive analytics to computer vision and natural language processing applications.</p>
+                            <a href="AiService" class="btn btn-outline-primary mt-3">Learn More</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
+                    <div class="card h-100 text-center p-4">
+                        <div class="card-body">
+                            <div class="service-icon">
+                                <i class="fas fa-vr-cardboard"></i>
+                            </div>
+                            <h4 class="card-title">VR Solutions</h4>
+                            <p class="card-text">Immersive virtual reality experiences for training, education, entertainment, and more. Custom VR development for your unique needs.</p>
+                            <a href="VrService" class="btn btn-outline-primary mt-3">Learn More</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Featured Project Section -->
+    <section id="projects" class="py-5">
+        <div class="container">
+            <h2 class="text-center mb-5" data-aos="fade-up">Featured Project</h2>
+            <div class="featured-project" data-aos="fade-up" data-aos-delay="200">
+                <div class="row align-items-center">
+                    <div class="col-lg-6" data-aos="fade-right" data-aos-delay="300">
+                        <h3 class="fw-bold">Virtual Try-On (VTON)</h3>
+                        <p class="lead">An innovative AI-powered virtual clothing try-on solution that allows users to see how clothing items look on them without physically trying them on.</p>
+                        <p>Our VTON project combines advanced computer vision, deep learning, and 3D modeling to create a seamless virtual try-on experience for e-commerce and retail.</p>
+                        <ul class="mt-4">
+                            <li class="mb-2">Realistic clothing visualization</li>
+                            <li class="mb-2">Multiple garment categories</li>
+                            <li class="mb-2">User-friendly interface</li>
+                            <li class="mb-2">Easy integration with e-commerce platforms</li>
+                        </ul>
+                        <a href="/VTON" class="btn btn-primary mt-4 px-4 py-2">
+                            Explore VTON Project
+                            <i class="fas fa-arrow-right ms-2"></i>
+                        </a>
+                    </div>
+                    <div class="col-lg-6" data-aos="fade-left" data-aos-delay="400">
+                        <img src="../Media/GMqwvteasAEfD3T.jpg" alt="VTON Demo" class="img-fluid rounded shadow-lg">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container text-center">
+            <h2 class="fw-bold mb-4" data-aos="fade-up">Ready to Transform Your Digital Experience?</h2>
+            <p class="lead mb-5" data-aos="fade-up" data-aos-delay="100">Let's discuss how our AI and VR solutions can help your business grow</p>
+            <a href="#contact" class="btn btn-light btn-lg px-5 py-3" data-aos="fade-up" data-aos-delay="200">
+                Get Started Today
+                <i class="fas fa-arrow-right ms-2"></i>
+            </a>
+        </div>
+    </section>
+
+    <!-- About Us Section -->
+    <section id="about" class="py-5 bg-light">
+        <div class="container">
+            <h2 class="text-center mb-5" data-aos="fade-up">About MetaVR</h2>
+            <div class="row">
+                <div class="col-lg-6" data-aos="fade-right">
+                    <p>MetaVR is at the forefront of AI and VR innovation, bringing cutting-edge technology solutions to businesses and individuals worldwide. Founded by a team of AI researchers and VR enthusiasts, we combine theoretical expertise with practical applications.</p>
+                    <p>Our mission is to make advanced technologies accessible and usable for real-world challenges. Whether through educational courses, custom AI implementations, or immersive VR experiences, we're committed to pushing the boundaries of what's possible.</p>
+                </div>
+                <div class="col-lg-6" data-aos="fade-left">
+                    <p>With a team of experienced developers, designers, and educators, we provide end-to-end solutions from concept to deployment. Our collaborative approach ensures that every project meets the unique needs of our clients while maintaining the highest standards of quality and innovation.</p>
+                    <p>MetaVR is more than just a technology company—we're partners in your journey toward digital transformation and technological advancement.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-5">
+        <div class="container">
+            <h2 class="text-center mb-5" data-aos="fade-up">Contact Us</h2>
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="card shadow-lg" data-aos="fade-up" data-aos-delay="200">
+                        <div class="card-body p-5">
+                            <form>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="name" class="form-label">Name</label>
+                                        <input type="text" class="form-control" id="name" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="email" class="form-label">Email</label>
+                                        <input type="email" class="form-control" id="email" required>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="subject" class="form-label">Subject</label>
+                                    <input type="text" class="form-control" id="subject" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="message" class="form-label">Message</label>
+                                    <textarea class="form-control" id="message" rows="5" required></textarea>
+                                </div>
+                                <div class="text-center">
+                                    <button type="submit" class="btn btn-primary btn-lg px-5">Send Message</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4" data-aos="fade-up" data-aos-delay="100">
+                    <h5>MetaVR</h5>
+                    <p>Revolutionizing reality with AI & VR solutions</p>
+                </div>
+                <div class="col-lg-4" data-aos="fade-up" data-aos-delay="200">
+                    <h5>Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#services" class="text-white">Services</a></li>
+                        <li><a href="#projects" class="text-white">Projects</a></li>
+                        <li><a href="#about" class="text-white">About Us</a></li>
+                        <li><a href="#contact" class="text-white">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-4" data-aos="fade-up" data-aos-delay="300">
+                    <h5>Connect With Us</h5>
+                    <div class="d-flex">
+                        <a href="#" class="text-white me-3"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-white me-3"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-white me-3"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" class="text-white"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr class="my-4 bg-light">
+            <div class="text-center">
+                <p>&copy; 2023 MetaVR. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        // Initialize AOS
+        AOS.init({
+            duration: 800,
+            once: false
+        });
+        
+        // Navbar scroll effect
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.sticky-navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+        
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    window.scrollTo({
+                        top: target.offsetTop - 70,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+        
+        // Animate counter stats
+        const counters = document.querySelectorAll('.stats-number');
+        const speed = 200;
+        
+        const animateCounters = () => {
+            counters.forEach(counter => {
+                const target = +counter.getAttribute('data-target');
+                const count = +counter.innerText;
+                const increment = target / speed;
+                
+                if (count < target) {
+                    counter.innerText = Math.ceil(count + increment);
+                    setTimeout(animateCounters, 30);
+                } else {
+                    counter.innerText = target;
+                }
+            });
+        };
+        
+        // Start counter animation when stats section is visible
+        const statsSection = document.querySelector('.animated-gradient-background');
+        const statsObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    animateCounters();
+                    statsObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1 });
+        
+        if (statsSection) {
+            statsObserver.observe(statsSection);
+        }
+        
+        // Reveal on scroll animation
+        const revealElements = document.querySelectorAll('.reveal-on-scroll');
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('revealed');
+                }
+            });
+        }, { threshold: 0.1 });
+        
+        revealElements.forEach(element => {
+            revealObserver.observe(element);
+        });
+    </script>
+</body>
+</html>

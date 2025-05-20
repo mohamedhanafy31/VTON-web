@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Solutions - MetaVR</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6e45e2;
+            --primary-dark: #5a36c9;
+            --secondary: #89d4cf;
+            --dark: #343a40;
+            --light: #f8f9fa;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light);
+            overflow-x: hidden;
+        }
+        
+        .hero-section {
+            min-height: 60vh;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 100px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .hero-shapes {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            opacity: 0.4;
+        }
+        
+        .hero-shape {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        .shape-1 {
+            width: 300px;
+            height: 300px;
+            top: -150px;
+            right: -100px;
+            animation: float 8s ease-in-out infinite;
+        }
+        
+        .shape-2 {
+            width: 200px;
+            height: 200px;
+            bottom: -100px;
+            left: 10%;
+            animation: float 12s ease-in-out infinite;
+        }
+        
+        .shape-3 {
+            width: 150px;
+            height: 150px;
+            top: 30%;
+            right: 20%;
+            animation: float 7s ease-in-out infinite;
+        }
+        
+        .sticky-navbar {
+            transition: all 0.3s ease;
+            background-color: transparent;
+        }
+        
+        .sticky-navbar.scrolled {
+            background-color: white;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            transition: all 0.4s ease;
+            margin-bottom: 30px;
+            overflow: hidden;
+            background-color: white;
+        }
+        
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            border-color: var(--primary);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            border-color: var(--primary-dark);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(110, 69, 226, 0.3);
+        }
+        
+        .footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 70px 0 20px;
+            margin-top: 70px;
+            position: relative;
+        }
+        
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            left: 0;
+            width: 100%;
+            height: 50px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%23343a40' fill-opacity='1' d='M0,288L48,272C96,256,192,224,288,197.3C384,171,480,149,576,165.3C672,181,768,235,864,250.7C960,267,1056,245,1152,224C1248,203,1344,181,1392,170.7L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z'%3E%3C/path%3E%3C/svg%3E");
+            background-size: cover;
+        }
+        
+        .solution-icon {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .solution-card:hover .solution-icon {
+            transform: scale(1.2);
+        }
+        
+        .case-study-card {
+            position: relative;
+            overflow: hidden;
+            border-radius: 15px;
+        }
+        
+        .case-study-content {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+            color: white;
+            padding: 30px 20px;
+            transform: translateY(100px);
+            transition: all 0.3s ease;
+        }
+        
+        .case-study-card:hover .case-study-content {
+            transform: translateY(0);
+        }
+        
+        .case-study-card img {
+            transition: all 0.5s ease;
+        }
+        
+        .case-study-card:hover img {
+            transform: scale(1.1);
+        }
+        
+        .industry-pill {
+            display: inline-block;
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-right: 5px;
+            margin-bottom: 15px;
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+            100% {
+                transform: translateY(0px);
+            }
+        }
+        
+        .navbar-brand img {
+            height: 40px;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link {
+            position: relative;
+            padding: 5px 0;
+            margin: 0 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 0;
+            background-color: var(--primary);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light sticky-navbar fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="index.html"><img src="/Media/MetaVrLogo.jpg" alt="MetaVR Logo"> MetaVR</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html#services">Services</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html#projects">Projects</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html#about">About Us</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html#contact">Contact</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section d-flex align-items-center">
+        <div class="hero-shapes">
+            <div class="hero-shape shape-1"></div>
+            <div class="hero-shape shape-2"></div>
+            <div class="hero-shape shape-3"></div>
+        </div>
+        <div class="container hero-content">
+            <div class="row align-items-center">
+                <div class="col-lg-12 text-center" data-aos="fade-up">
+                    <h1 class="display-4 fw-bold mb-4">AI Solutions</h1>
+                    <p class="lead mb-4">Custom intelligent systems that transform your business with the power of artificial intelligence</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Overview Section -->
+    <section class="py-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="card p-4 shadow-lg" data-aos="fade-up">
+                        <div class="card-body">
+                            <h2 class="mb-4 text-center">Our AI Services</h2>
+                            <p class="lead">MetaVR builds custom AI solutions that help businesses automate processes, gain insights, and create innovative products and services.</p>
+                            <p>Our team of AI specialists and data scientists work closely with you to understand your business challenges and develop tailored solutions that deliver measurable results. From predictive analytics to computer vision systems and natural language processing applications, we provide end-to-end AI development services that transform how your business operates.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Solutions Section -->
+    <section class="py-5 bg-light">
+        <div class="container">
+            <h2 class="text-center mb-5" data-aos="fade-up">Our AI Solutions</h2>
+            <div class="row">
+                <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="100">
+                    <div class="card h-100 solution-card p-4">
+                        <div class="card-body text-center">
+                            <div class="solution-icon">
+                                <i class="fas fa-brain"></i>
+                            </div>
+                            <h4 class="mb-3">Machine Learning</h4>
+                            <p>Custom ML models that analyze data patterns, make predictions, and automate decision-making processes for your business.</p>
+                            <ul class="text-start mt-4">
+                                <li>Predictive analytics</li>
+                                <li>Classification systems</li>
+                                <li>Recommendation engines</li>
+                                <li>Anomaly detection</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="200">
+                    <div class="card h-100 solution-card p-4">
+                        <div class="card-body text-center">
+                            <div class="solution-icon">
+                                <i class="fas fa-eye"></i>
+                            </div>
+                            <h4 class="mb-3">Computer Vision</h4>
+                            <p>Visual recognition systems that can identify objects, people, text, and activities in images and video streams.</p>
+                            <ul class="text-start mt-4">
+                                <li>Object detection</li>
+                                <li>Image classification</li>
+                                <li>Face recognition</li>
+                                <li>Video analytics</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="300">
+                    <div class="card h-100 solution-card p-4">
+                        <div class="card-body text-center">
+                            <div class="solution-icon">
+                                <i class="fas fa-comments"></i>
+                            </div>
+                            <h4 class="mb-3">Natural Language Processing</h4>
+                            <p>Systems that understand, interpret, and generate human language for chatbots, sentiment analysis, and more.</p>
+                            <ul class="text-start mt-4">
+                                <li>Chatbots & virtual assistants</li>
+                                <li>Text classification</li>
+                                <li>Sentiment analysis</li>
+                                <li>Language translation</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="400">
+                    <div class="card h-100 solution-card p-4">
+                        <div class="card-body text-center">
+                            <div class="solution-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <h4 class="mb-3">Predictive Analytics</h4>
+                            <p>Advanced analytics that forecast trends, customer behavior, and business outcomes to drive strategic decisions.</p>
+                            <ul class="text-start mt-4">
+                                <li>Demand forecasting</li>
+                                <li>Customer churn prediction</li>
+                                <li>Risk assessment</li>
+                                <li>Market trend analysis</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="500">
+                    <div class="card h-100 solution-card p-4">
+                        <div class="card-body text-center">
+                            <div class="solution-icon">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <h4 class="mb-3">AI Automation</h4>
+                            <p>Intelligent process automation that combines RPA with AI to automate complex, knowledge-based business processes.</p>
+                            <ul class="text-start mt-4">
+                                <li>Workflow automation</li>
+                                <li>Document processing</li>
+                                <li>Intelligent decision-making</li>
+                                <li>Quality control systems</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="600">
+                    <div class="card h-100 solution-card p-4">
+                        <div class="card-body text-center">
+                            <div class="solution-icon">
+                                <i class="fas fa-cogs"></i>
+                            </div>
+                            <h4 class="mb-3">Custom AI Development</h4>
+                            <p>Tailor-made AI solutions designed specifically for your unique business challenges and objectives.</p>
+                            <ul class="text-start mt-4">
+                                <li>Requirements analysis</li>
+                                <li>Custom algorithm design</li>
+                                <li>Integration with existing systems</li>
+                                <li>Deployment & maintenance</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Our Products Section -->
+    <section class="py-5">
+        <div class="container">
+            <h2 class="text-center mb-5" data-aos="fade-up">Our Products</h2>
+            <div class="row">
+                <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="100">
+                    <div class="case-study-card">
+                        <img src="https://images.unsplash.com/photo-1581091877018-dac6a371d50f" alt="Virtual Try-On (VTON)" class="img-fluid">
+                        <div class="case-study-content">
+                            <span class="industry-pill">Retail</span>
+                            <h4>Virtual Try-On (VTON)</h4>
+                            <p>Our flagship AI-powered solution that enables customers to virtually try on clothing, reducing return rates by up to 35%.</p>
+                            <a href="/VTON" class="btn btn-primary btn-sm mt-3">Learn More</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="200">
+                    <div class="case-study-card">
+                        <img src="https://images.unsplash.com/photo-1573164713988-8665fc963095" alt="Healthcare AI Solution" class="img-fluid">
+                        <div class="case-study-content">
+                            <span class="industry-pill">Healthcare</span>
+                            <h4>Medical Imaging Analysis</h4>
+                            <p>AI-powered diagnostic tool that assists radiologists in detecting abnormalities in X-rays with 95% accuracy.</p>
+                            <a href="#" class="btn btn-primary btn-sm mt-3">Learn More</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="300">
+                    <div class="case-study-card">
+                        <img src="https://images.unsplash.com/photo-1580927752452-89d86da3fa0a" alt="Manufacturing AI Solution" class="img-fluid">
+                        <div class="case-study-content">
+                            <span class="industry-pill">Manufacturing</span>
+                            <h4>Predictive Maintenance</h4>
+                            <p>IoT and AI solution that reduces equipment downtime by 78% through predictive maintenance alerts.</p>
+                            <a href="#" class="btn btn-primary btn-sm mt-3">Learn More</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Development Process Section -->
+    <section class="py-5 bg-light">
+        <div class="container">
+            <h2 class="text-center mb-5" data-aos="fade-up">Our AI Development Process</h2>
+            <div class="row">
+                <div class="col-md-3 mb-4" data-aos="fade-up" data-aos-delay="100">
+                    <div class="card h-100 text-center p-4">
+                        <div class="card-body">
+                            <div class="display-4 mb-3">01</div>
+                            <h4>Discovery</h4>
+                            <p>We analyze your business needs, data availability, and define clear objectives for your AI solution.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-3 mb-4" data-aos="fade-up" data-aos-delay="200">
+                    <div class="card h-100 text-center p-4">
+                        <div class="card-body">
+                            <div class="display-4 mb-3">02</div>
+                            <h4>Data Preparation</h4>
+                            <p>We collect, clean, and organize your data to ensure it's ready for AI model training.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-3 mb-4" data-aos="fade-up" data-aos-delay="300">
+                    <div class="card h-100 text-center p-4">
+                        <div class="card-body">
+                            <div class="display-4 mb-3">03</div>
+                            <h4>Development</h4>
+                            <p>Our team builds and trains custom AI models specifically tailored to your business requirements.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-3 mb-4" data-aos="fade-up" data-aos-delay="400">
+                    <div class="card h-100 text-center p-4">
+                        <div class="card-body">
+                            <div class="display-4 mb-3">04</div>
+                            <h4>Deployment</h4>
+                            <p>We integrate the solution into your existing systems and provide ongoing support and optimization.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-5">
+        <div class="container">
+            <div class="card bg-primary text-white p-5 text-center" data-aos="fade-up">
+                <div class="card-body">
+                    <h2 class="mb-4">Ready to Transform Your Business with AI?</h2>
+                    <p class="lead mb-4">Let's discuss how our custom AI solutions can address your specific challenges</p>
+                    <a href="index.html#contact" class="btn btn-light btn-lg px-5 py-3">
+                        Schedule a Consultation
+                        <i class="fas fa-arrow-right ms-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4" data-aos="fade-up" data-aos-delay="100">
+                    <h5>MetaVR</h5>
+                    <p>Revolutionizing reality with AI & VR solutions</p>
+                </div>
+                <div class="col-lg-4" data-aos="fade-up" data-aos-delay="200">
+                    <h5>Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="index.html#services" class="text-white">Services</a></li>
+                        <li><a href="index.html#projects" class="text-white">Projects</a></li>
+                        <li><a href="index.html#about" class="text-white">About Us</a></li>
+                        <li><a href="index.html#contact" class="text-white">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-4" data-aos="fade-up" data-aos-delay="300">
+                    <h5>Connect With Us</h5>
+                    <div class="d-flex">
+                        <a href="#" class="text-white me-3"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-white me-3"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-white me-3"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" class="text-white"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr class="my-4 bg-light">
+            <div class="text-center">
+                <p>&copy; 2023 MetaVR. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        // Initialize AOS
+        AOS.init({
+            duration: 800,
+            once: false
+        });
+        
+        // Navbar scroll effect
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.sticky-navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+        
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    window.scrollTo({
+                        top: target.offsetTop - 70,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Store Dashboard - Garment Management</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/index.css">
+    
+    <!-- Firebase scripts -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script>
+        // Firebase configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyA2acnGWc7l7WMuocYwLp46Q-ybZx2mTt0",
+        authDomain: "vton-f7059.firebaseapp.com",
+        projectId: "vton-f7059",
+        storageBucket: "vton-f7059.appspot.com",
+        messagingSenderId: "25358125157",
+        appId: "1:25358125157:web:1ef4e67c9e7ba788a2de8c",
+        measurementId: "G-4FKNGG88PN"
+    };
+
+    // Initialize Firebase
+        if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+        }
+    const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        // Update the connection check function
+    async function checkFirestoreConnection() {
+        try {
+                // First check if we're authenticated
+                const user = auth.currentUser;
+                if (!user) {
+                    // console.log('User not authenticated, attempting anonymous auth...');
+                    await auth.signInAnonymously();
+                }
+
+            // Try to get a document that should exist (or not)
+                await db.collection('test_connection').doc('connection_test').get();
+                showNotification('Connected to Firestore successfully', 'success');
+            return true;
+        } catch (e) {
+                console.error('Firestore connection error:', e);
+                if (e.code === 'permission-denied') {
+                    showNotification('Firebase permissions error. Please check your Firestore rules.', 'error', 10000);
+                } else {
+            showNotification('Could not connect to Firestore. Please check your internet connection and Firebase config.', 'error', 10000);
+                }
+            return false;
+        }
+    }
+
+        let uploadedImages = [];
+        let descriptions = {};
+        let token = null;
+        let storeInfo = null;
+
+    // Simple connection check
+    function checkConnection() {
+        if (!navigator.onLine) {
+            showNotification('No internet connection. Please check your connection.', 'error');
+            return false;
+        }
+            return true;
+    }
+
+    // Login function
+    async function login() {
+        if (!checkConnection()) return;
+
+        const email = document.getElementById('emailInput').value;
+        const password = document.getElementById('passwordInput').value;
+        const errorMessage = document.getElementById('errorMessage');
+        
+        if (!email || !password) {
+            errorMessage.textContent = 'Please enter both email and password';
+            errorMessage.style.display = 'block';
+            return;
+        }
+
+        try {
+            showNotification('Logging in...', 'info');
+            
+            const response = await fetch(`${API_URL}/store/login`, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ email, password }),
+                credentials: 'include'
+            });
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Login failed');
+            }
+            
+            const result = await response.json();
+            token = result.token;
+            
+            // Update UI
+            document.getElementById('loginContainer').style.display = 'none';
+            document.getElementById('mainContainer').style.display = 'block';
+            errorMessage.style.display = 'none';
+            
+            showNotification('Login successful!', 'success');
+            
+            // Load store profile and fetch images
+            storeInfo = await loadStoreProfile();
+            if (storeInfo) {
+                await fetchImages();
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            showNotification('Login failed: ' + error.message, 'error');
+            errorMessage.textContent = error.message;
+            errorMessage.style.display = 'block';
+        }
+    }
+
+    // Display images function
+    function displayImages() {
+        const gallery = document.getElementById('imageGallery');
+        gallery.innerHTML = '';
+
+        if (uploadedImages.length === 0) {
+            gallery.innerHTML = '<p>No garments uploaded yet.</p>';
+            return;
+        }
+
+        uploadedImages.forEach(image => {
+            const imageContainer = document.createElement('div');
+            imageContainer.className = 'image-container';
+            
+            const img = document.createElement('img');
+            img.src = image.url;
+            img.alt = image.name || 'Garment image';
+            
+            const infoDiv = document.createElement('div');
+            infoDiv.className = 'image-info';
+            infoDiv.innerHTML = `
+                <p><strong>Name:</strong> ${image.name}</p>
+                <p><strong>Color:</strong> ${image.color}</p>
+                <p><strong>Type:</strong> ${image.garmentType}</p>
+                <p><strong>Category:</strong> ${image.garmentCategory}</p>
+            `;
+            
+            const deleteButton = document.createElement('button');
+            deleteButton.className = 'delete-button';
+            deleteButton.innerHTML = 'Delete';
+            deleteButton.onclick = () => deleteImage(image.id);
+            
+            imageContainer.appendChild(img);
+            imageContainer.appendChild(infoDiv);
+            imageContainer.appendChild(deleteButton);
+            
+            gallery.appendChild(imageContainer);
+        });
+    }
+
+    // Update remaining counter function
+    function updateRemainingCounter(count) {
+        const counter = document.getElementById('remainingCounter');
+        const limit = storeInfo?.garment_limit || 8;
+        counter.textContent = `Remaining: ${count}/${limit}`;
+    }
+
+    // Show notification function
+        function showNotification(message, type = 'info', duration = 5000) {
+            const notificationBar = document.getElementById('notificationBar');
+            notificationBar.textContent = message;
+            
+            switch(type) {
+                case 'success':
+                    notificationBar.style.backgroundColor = '#4CAF50';
+                    notificationBar.style.color = 'white';
+                    break;
+                case 'error':
+                    notificationBar.style.backgroundColor = '#f44336';
+                    notificationBar.style.color = 'white';
+                    break;
+                case 'warning':
+                    notificationBar.style.backgroundColor = '#ff9800';
+                    notificationBar.style.color = 'white';
+                    break;
+                default:
+                    notificationBar.style.backgroundColor = '#2196F3';
+                    notificationBar.style.color = 'white';
+            }
+            
+            notificationBar.style.display = 'block';
+            
+            if (duration > 0) {
+                setTimeout(() => {
+                    notificationBar.style.display = 'none';
+                }, duration);
+            }
+        }
+
+    // Load store profile function
+    async function loadStoreProfile() {
+            try {
+            const response = await fetch(`${API_URL}/store/profile`, {
+                    method: 'GET',
+                    headers: { 
+                    'Accept': 'application/json',
+                    'Authorization': token ? `Bearer ${token}` : ''
+                    },
+                credentials: 'include'
+                });
+                
+                if (!response.ok) {
+                throw new Error('Failed to load store profile');
+                }
+
+            const data = await response.json();
+            return data;
+            } catch (error) {
+            console.error('Error loading store profile:', error);
+            showNotification('Error loading store profile: ' + error.message, 'error');
+            return null;
+        }
+    }
+
+    // In window.onload, check Firestore connection before proceeding
+    window.onload = async function() {
+        const firestoreOk = await checkFirestoreConnection();
+        if (!firestoreOk) return;
+            // Always show login form on load
+            document.getElementById('loginContainer').style.display = 'block';
+            document.getElementById('mainContainer').style.display = 'none';
+    };
+
+    // Upload images function
+        async function uploadImages() {
+        if (!checkConnection()) return;
+
+            const imageInput = document.getElementById('imageInput');
+            const colorSelect = document.getElementById('colorSelect');
+            const garmentTypeSelect = document.getElementById('garmentTypeSelect');
+            const garmentCategorySelect = document.getElementById('garmentCategorySelect');
+            const garmentNameInput = document.getElementById('garmentNameInput');
+            const uploadButton = document.getElementById('uploadButton');
+            const spinner = document.getElementById('spinner');
+            
+            if (!storeInfo || !storeInfo.store_name) {
+                showNotification('Could not determine store information. Please refresh and try again.', 'error');
+                return;
+            }
+            
+            if (!imageInput.files.length) {
+                showNotification('Please select at least one image', 'warning');
+                return;
+            }
+            
+        if (!colorSelect.value || !garmentTypeSelect.value || !garmentCategorySelect.value) {
+            showNotification('Please fill in all required fields', 'warning');
+                return;
+            }
+            
+            const customName = garmentNameInput.value.trim();
+            const garmentName = customName || `${colorSelect.value} ${garmentTypeSelect.value}`;
+            
+            uploadButton.disabled = true;
+            spinner.classList.add('active');
+            
+            try {
+                const files = Array.from(imageInput.files);
+                const formData = new FormData();
+            
+                for (let file of files) {
+                    formData.append('images', file);
+                }
+            
+                formData.append('color', colorSelect.value);
+                formData.append('garmentType', garmentTypeSelect.value);
+                formData.append('garmentCategory', garmentCategorySelect.value);
+                formData.append('garmentName', garmentName);
+                formData.append('storeName', storeInfo.store_name);
+
+            const response = await fetch(`${API_URL}/api/upload?storeName=${encodeURIComponent(storeInfo.store_name)}`, {
+                    method: 'POST',
+                    body: formData,
+                credentials: 'include',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+                });
+                
+                if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Upload failed');
+                }
+                
+                const result = await response.json();
+                
+                // No Firestore writes here; backend handles Firestore
+                if (result.images) {
+                showNotification(`Successfully uploaded ${result.images.length} garment(s)!`, 'success');
+                await fetchImages();
+                // Reset form
+                    imageInput.value = '';
+                    colorSelect.value = '';
+                    garmentTypeSelect.value = '';
+                    garmentCategorySelect.value = '';
+                    garmentNameInput.value = '';
+                                document.getElementById('garmentPreviewSection').style.display = 'none';
+            }
+                    } catch (error) {
+                console.error('Upload error:', error);
+            showNotification('Failed to upload: ' + error.message, 'error');
+            } finally {
+                uploadButton.disabled = false;
+                spinner.classList.remove('active');
+            }
+        }
+
+    // Fetch images function
+    async function fetchImages() {
+        if (!checkConnection()) return;
+
+            const spinner = document.getElementById('spinner');
+        const gallery = document.getElementById('imageGallery');
+            spinner.classList.add('active');
+        gallery.innerHTML = '';
+        
+        try {
+            if (!storeInfo || !storeInfo.store_name) {
+                storeInfo = await loadStoreProfile();
+                if (!storeInfo) throw new Error('Could not load store profile');
+            }
+                // Read the 'garments/information' document
+                const doc = await db.collection('garments').doc('information').get();
+                if (!doc.exists) {
+            uploadedImages = [];
+            descriptions = {};
+                    displayImages();
+                    updateRemainingCounter(0);
+                    showNotification('No garments found', 'warning');
+                    return;
+                }
+                const garmentData = doc.data();
+                uploadedImages = [];
+                descriptions = {};
+                // Loop over all fields and filter by store name
+                for (const [id, data] of Object.entries(garmentData)) {
+                    if (data.store === storeInfo.store_name) {
+                        uploadedImages.push({ ...data, id });
+                        descriptions[id] = {
+                            color: data.color,
+                            garmentType: data.type,
+                            name: data.name
+                        };
+                    }
+                }
+                displayImages();
+                updateRemainingCounter(uploadedImages.length);
+            showNotification(`Loaded ${uploadedImages.length} garments`, 'success');
+            } catch (error) {
+            console.error('Error fetching images:', error);
+            showNotification('Error loading garments: ' + error.message, 'error');
+            } finally {
+                spinner.classList.remove('active');
+            }
+        }
+
+    // Delete image function
+    async function deleteImage(imageId) {
+        if (!checkConnection()) return;
+
+            const spinner = document.getElementById('spinner');
+        spinner.classList.add('active');
+        
+        try {
+            const imageToDelete = uploadedImages.find(img => img.id === imageId);
+            if (!imageToDelete) {
+                throw new Error('Image not found');
+            }
+            
+            const response = await fetch(`${API_URL}/delete/${encodeURIComponent(imageToDelete.public_id)}`, {
+                method: 'DELETE',
+                    headers: { 
+                    'Authorization': `Bearer ${token}`
+                    },
+                    credentials: 'include'
+                });
+                
+                if (!response.ok) {
+                throw new Error('Failed to delete image from storage');
+            }
+            
+            await db.collection('garments').doc(imageId).delete();
+            
+            uploadedImages = uploadedImages.filter(img => img.id !== imageId);
+            delete descriptions[imageId];
+            
+            displayImages();
+            updateRemainingCounter(uploadedImages.length);
+            
+            showNotification('Garment deleted successfully', 'success');
+            } catch (error) {
+            console.error('Delete error:', error);
+            showNotification('Failed to delete: ' + error.message, 'error');
+        } finally {
+            spinner.classList.remove('active');
+        }
+    }
+
+    // Color name mapping and event handler
+    const colorPicker = document.getElementById('colorPicker');
+    const colorSwatch = document.getElementById('colorSwatch');
+    const colorNameDisplay = document.getElementById('colorNameDisplay');
+    const colorSelect = document.getElementById('colorSelect');
+
+        const colorMap = {
+        '#FF0000': 'Red',
+        '#000000': 'Black',
+        '#FFFFFF': 'White',
+        '#FFFF00': 'Yellow',
+        '#00FF00': 'Lime',
+        '#0000FF': 'Blue',
+        '#FFA500': 'Orange',
+        '#800080': 'Purple',
+        '#FFC0CB': 'Pink',
+        '#A52A2A': 'Brown',
+        '#808080': 'Gray',
+        '#008000': 'Green',
+        '#808000': 'Olive',
+        '#00FFFF': 'Cyan',
+        '#FFD700': 'Gold',
+        '#C0C0C0': 'Silver',
+        '#8B4513': 'SaddleBrown',
+        '#4B0082': 'Indigo',
+        '#F5F5DC': 'Beige',
+        '#DC143C': 'Crimson',
+        '#B22222': 'FireBrick',
+        '#2E8B57': 'SeaGreen',
+        '#4682B4': 'SteelBlue',
+        '#D2691E': 'Chocolate',
+        '#E9967A': 'DarkSalmon',
+        '#F0E68C': 'Khaki',
+        '#ADD8E6': 'LightBlue',
+        '#90EE90': 'LightGreen',
+        '#20B2AA': 'LightSeaGreen',
+        '#87CEFA': 'LightSkyBlue',
+        '#778899': 'LightSlateGray',
+        '#B0C4DE': 'LightSteelBlue',
+        '#FFFFE0': 'LightYellow',
+        '#00CED1': 'DarkTurquoise',
+        '#9400D3': 'DarkViolet',
+        '#FF1493': 'DeepPink',
+        '#696969': 'DimGray',
+        '#1E90FF': 'DodgerBlue',
+        '#B22222': 'FireBrick',
+        '#228B22': 'ForestGreen',
+        '#DAA520': 'GoldenRod',
+        '#ADFF2F': 'GreenYellow',
+        '#FF69B4': 'HotPink',
+        '#CD5C5C': 'IndianRed',
+        '#F08080': 'LightCoral',
+        '#E0FFFF': 'LightCyan',
+        '#FAFAD2': 'LightGoldenRodYellow',
+        '#D3D3D3': 'LightGrey',
+        '#FFB6C1': 'LightPink',
+        '#FFA07A': 'LightSalmon',
+        '#20B2AA': 'LightSeaGreen',
+        '#87CEFA': 'LightSkyBlue',
+        '#778899': 'LightSlateGray',
+        '#B0C4DE': 'LightSteelBlue',
+        '#FFFFE0': 'LightYellow',
+        '#32CD32': 'LimeGreen',
+        '#800000': 'Maroon',
+        '#66CDAA': 'MediumAquaMarine',
+        '#000080': 'Navy',
+        '#808000': 'Olive',
+        '#6B8E23': 'OliveDrab',
+        '#FFA500': 'Orange',
+        '#FF4500': 'OrangeRed',
+        '#DA70D6': 'Orchid',
+        '#EEE8AA': 'PaleGoldenRod',
+        '#98FB98': 'PaleGreen',
+        '#AFEEEE': 'PaleTurquoise',
+        '#DB7093': 'PaleVioletRed',
+        '#FFEFD5': 'PapayaWhip',
+        '#FFDAB9': 'PeachPuff',
+        '#CD853F': 'Peru',
+        '#FFC0CB': 'Pink',
+        '#DDA0DD': 'Plum',
+        '#B0E0E6': 'PowderBlue',
+        '#800080': 'Purple',
+        '#FF0000': 'Red',
+        '#BC8F8F': 'RosyBrown',
+        '#4169E1': 'RoyalBlue',
+        '#8B4513': 'SaddleBrown',
+        '#FA8072': 'Salmon',
+        '#F4A460': 'SandyBrown',
+        '#2E8B57': 'SeaGreen',
+        '#FFF5EE': 'SeaShell',
+        '#A0522D': 'Sienna',
+        '#C0C0C0': 'Silver',
+        '#87CEEB': 'SkyBlue',
+        '#6A5ACD': 'SlateBlue',
+        '#708090': 'SlateGray',
+        '#FFFAFA': 'Snow',
+        '#00FF7F': 'SpringGreen',
+        '#4682B4': 'SteelBlue',
+        '#D2B48C': 'Tan',
+        '#008080': 'Teal',
+        '#D8BFD8': 'Thistle',
+        '#FF6347': 'Tomato',
+        '#40E0D0': 'Turquoise',
+        '#EE82EE': 'Violet',
+        '#F5DEB3': 'Wheat',
+        '#FFFFFF': 'White',
+        '#F5F5F5': 'WhiteSmoke',
+        '#FFFF00': 'Yellow',
+        '#9ACD32': 'YellowGreen'
+    };
+
+    function hexToName(hex) {
+        hex = hex.toUpperCase();
+        if (colorMap[hex]) return colorMap[hex];
+        // Find closest color by Euclidean distance
+        let minDist = Infinity;
+        let closest = 'Custom';
+        const r1 = parseInt(hex.substr(1,2),16);
+        const g1 = parseInt(hex.substr(3,2),16);
+        const b1 = parseInt(hex.substr(5,2),16);
+        for (const [key, name] of Object.entries(colorMap)) {
+            const r2 = parseInt(key.substr(1,2),16);
+            const g2 = parseInt(key.substr(3,2),16);
+            const b2 = parseInt(key.substr(5,2),16);
+            const dist = Math.sqrt((r1-r2)**2 + (g1-g2)**2 + (b1-b2)**2);
+            if (dist < minDist) {
+                minDist = dist;
+                closest = name;
+            }
+        }
+        return closest;
+    }
+
+    if (colorPicker && colorSwatch && colorNameDisplay && colorSelect) {
+                colorPicker.addEventListener('input', function() {
+                    const hexColor = colorPicker.value;
+            colorSwatch.style.backgroundColor = hexColor;
+            const colorName = hexToName(hexColor);
+                    colorNameDisplay.textContent = colorName;
+                    colorSelect.value = colorName;
+        });
+    }
+    </script>
+    
+    <style>
+      .header-logo {
+        display: block;
+        margin: 0 auto 20px auto;
+        max-height: 100px;
+        max-width: 200px;
+        width: auto;
+        object-fit: contain;
+      }
+      
+      /* Styles for indicating required fields */
+      .error-input {
+        border: 2px solid #ff4444 !important;
+        background-color: #fff8f8 !important;
+      }
+      
+      /* Indicate duplicate name warning */
+      .duplicate-name-warning {
+        color: #ff4444;
+        font-size: 0.8rem;
+        margin-top: 5px;
+        display: none;
+      }
+      .login-container {
+        max-width: 400px;
+        margin: 50px auto;
+        padding: 20px;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        text-align: center;
+      }
+      .login-container h2 {
+        margin-bottom: 20px;
+        font-size: 24px;
+        color: #333;
+      }
+      .login-container input {
+        width: 100%;
+        padding: 10px;
+        margin: 10px 0;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 16px;
+      }
+      .login-container button {
+        width: 100%;
+        padding: 10px;
+        background: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        font-size: 16px;
+        cursor: pointer;
+      }
+      .login-container button:hover {
+        background: #0056b3;
+      }
+      .error-message {
+        color: #ff4444;
+        margin-top: 10px;
+        display: none;
+      }
+      .container {
+        display: none;
+      }
+      .logo-container {
+        width: 150px;
+        height: 150px;
+        margin: 0 auto 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        overflow: hidden;
+        background-color: #f8f8f8;
+        border: 1px solid #eee;
+        position: relative;
+      }
+      .logo-container img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+      }
+      .logo-upload {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        padding: 5px 0;
+        opacity: 0;
+        transition: opacity 0.3s;
+      }
+      .logo-container:hover .logo-upload {
+        opacity: 1;
+      }
+      .upload-logo-btn {
+        background: #007bff;
+        color: white;
+        border: none;
+        border-radius: 3px;
+        padding: 5px 10px;
+        font-size: 12px;
+        cursor: pointer;
+      }
+      .upload-logo-btn:hover {
+        background: #0056b3;
+      }
+      /* Navigation Styles */
+      .nav-tabs {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 20px;
+        border-bottom: 1px solid #ccc;
+      }
+      .nav-tab {
+        padding: 10px 20px;
+        margin: 0 5px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 500;
+        color: #666;
+        border-bottom: 3px solid transparent;
+        transition: all 0.3s ease;
+      }
+      .nav-tab:hover {
+        color: #007bff;
+      }
+      .nav-tab.active {
+        color: #007bff;
+        border-bottom: 3px solid #007bff;
+      }
+      /* Orders Page Styles */
+      .orders-container {
+        display: none;
+        padding: 20px;
+      }
+      .order-item {
+        background: #fff;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        font-size: 16px;
+        color: #333;
+      }
+      .order-item:hover {
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      }
+      .logout-btn {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        padding: 8px 15px;
+        background-color: #f44336;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+      .logout-btn:hover {
+        background-color: #d32f2f;
+      }
+      
+      #connectionStatus {
+        position: fixed;
+        bottom: 10px;
+        right: 10px;
+        padding: 5px 10px;
+        border-radius: 3px;
+        font-size: 12px;
+      }
+      #connectionStatus.connected { background: #4CAF50; color: white; }
+      #connectionStatus.disconnected { background: #f44336; color: white; }
+    </style>
+</head>
+<body>
+    <div id="notificationBar" style="display: none; position: fixed; top: 0; left: 0; right: 0; padding: 10px; text-align: center; z-index: 1000; font-weight: bold;"></div>
+
+    <div class="login-container" id="loginContainer">
+        <div class="logo-container">
+            <img src="/MetaVrLogo.jpg" alt="MetaVR Logo" class="header-logo">
+        </div>
+        <h2>Store Login</h2>
+        <input type="email" id="emailInput" placeholder="Email" required>
+        <input type="password" id="passwordInput" placeholder="Password" required>
+        <button onclick="login()">Login</button>
+        <div class="error-message" id="errorMessage"></div>
+        <div style="margin-top: 20px; text-align: center;">
+            <button onclick="debugSession()" style="background: #555; padding: 5px 10px; border: none; color: white; border-radius: 4px; font-size: 12px;">Debug Session</button>
+        </div>
+    </div>
+
+    <div class="container" id="mainContainer">
+        <div class="logo-container">
+            <img src="/MetaVrLogo.jpg" alt="MetaVR Logo" class="header-logo" id="storeLogo">
+            <div class="logo-upload" id="logoUploadContainer">
+                <input type="file" id="logoInput" accept="image/*" style="display: none;">
+                <button id="logoUploadBtn" class="upload-logo-btn">Change Logo</button>
+            </div>
+        </div>
+        <h1 id="storeHeading">Garment Image Management</h1>
+        <button id="logoutBtn" class="logout-btn">Logout <i class="fas fa-sign-out-alt"></i></button>
+
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <div class="nav-tab active" onclick="switchTab('garments')">Garments</div>
+            <div class="nav-tab" onclick="switchTab('orders')">Orders</div>
+        </div>
+
+        <!-- Garments Page -->
+        <div id="garmentsContainer">
+            <div class="upload-container">
+                <input type="file" id="imageInput" accept="image/*" multiple>
+                <div class="color-picker-container" style="margin: 10px 0; display: flex; align-items: center;">
+                    <label for="colorPicker" style="margin-right: 10px;">Color:</label>
+                    <div style="position: relative; width: 50px; height: 30px; overflow: hidden; border-radius: 4px; border: 1px solid #ccc;">
+                        <input type="color" id="colorPicker" value="#ff0000" style="position: absolute; top: -5px; left: -5px; width: 60px; height: 40px; cursor: pointer;">
+                    </div>
+                    <div style="display: flex; align-items: center; margin-left: 10px;">
+                        <div style="width: 20px; height: 20px; border-radius: 50%; background-color: #ff0000; border: 1px solid #ccc; margin-right: 8px;" id="colorSwatch"></div>
+                        <span id="colorNameDisplay" style="font-size: 16px;">Red</span>
+                    </div>
+                    <input type="hidden" id="colorSelect" value="Red">
+                </div>
+                <select id="garmentTypeSelect">
+                    <option value="" disabled selected>Select Garment Type</option>
+                    <option value="Shirt">Shirt</option>
+                    <option value="T-Shirt">T-Shirt</option>
+                    <option value="Dress">Dress</option>
+                    <option value="Pants">Pants</option>
+                    <option value="Jacket">Jacket</option>
+                </select>
+                <select id="garmentCategorySelect">
+                    <option value="" disabled selected>Select Garment Category</option>
+                    <option value="upper_body">Upper Body</option>
+                    <option value="lower_body">Lower Body</option>
+                    <option value="dress">Dress</option>
+                </select>
+                <input type="text" id="garmentNameInput" placeholder="Garment Name (optional)" style="width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 4px;">
+                <div class="name-info" style="font-size: 0.8rem; margin-bottom: 10px; color: #666;">
+                    <i class="fas fa-info-circle"></i> If no name is provided, it will be generated from color and type
+                </div>
+                <div id="duplicateNameWarning" class="duplicate-name-warning">
+                    <i class="fas fa-exclamation-triangle"></i> A garment with this name already exists. Please provide a unique name.
+                </div>
+                
+                <!-- Garment preview section -->
+                <div id="garmentPreviewSection" style="margin: 15px 0; padding: 15px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9; display: none;">
+                    <h3 style="margin-top: 0; margin-bottom: 15px; font-size: 18px;">Garment Preview</h3>
+                    <div style="display: flex; align-items: flex-start;">
+                        <div style="margin-right: 20px; width: 150px;">
+                            <div id="previewColorSwatch" style="width: 50px; height: 50px; border-radius: 4px; margin-bottom: 15px; border: 1px solid #ccc;"></div>
+                            <div id="imagePreviewContainer" style="width: 150px; height: 150px; background-color: #eee; display: flex; align-items: center; justify-content: center; border-radius: 4px; overflow: hidden; margin-bottom: 10px; position: relative;">
+                                <span id="noImageText" style="color: #888; font-size: 12px; text-align: center;">No image selected</span>
+                                <img id="imagePreview" style="max-width: 100%; max-height: 100%; display: none;" />
+                                <div id="imageCounter" style="position: absolute; bottom: 5px; right: 5px; background-color: rgba(0,0,0,0.6); color: white; padding: 2px 6px; border-radius: 10px; font-size: 12px; display: none;">1/1</div>
+                            </div>
+                            <div style="font-size: 12px; color: #666; text-align: center;" id="imageCaptionText">Image Preview</div>
+                            
+                            <!-- Thumbnail preview for multiple images -->
+                            <div id="thumbnailsContainer" style="display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; justify-content: center; display: none;">
+                                <!-- Thumbnails will be added here dynamically -->
+                            </div>
+                        </div>
+                        <div>
+                            <div id="previewGarmentName" style="font-size: 18px; font-weight: bold; margin-bottom: 5px;">Red Shirt</div>
+                            <div style="margin-bottom: 15px; display: flex; gap: 15px;">
+                                <div><strong>Type:</strong> <span id="previewGarmentType">Shirt</span></div>
+                                <div><strong>Category:</strong> <span id="previewGarmentCategory">Upper Body</span></div>
+                            </div>
+                            <div style="color: #666; font-size: 14px;">
+                                <i class="fas fa-info-circle"></i> This is how your garment will appear in the gallery after upload.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Action buttons for preview section -->
+                    <div style="margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px;">
+                        <button type="button" id="resetFormButton" class="btn" style="background-color: #f0f0f0; border: 1px solid #ccc; padding: 8px 15px; border-radius: 4px; cursor: pointer;">
+                            Reset Form
+                        </button>
+                        <button type="button" id="confirmUploadButton" class="btn" style="background-color: #28a745; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer;">
+                            Confirm Upload
+                        </button>
+                    </div>
+                </div>
+                
+                <button id="uploadButton" onclick="uploadImages()">Upload</button>
+                <div class="remaining-counter" id="remainingCounter" style="font-weight: bold;">Remaining: 8/8</div>
+            </div>
+            <h2>Uploaded Garments</h2>
+            <div class="spinner" id="spinner"></div>
+            <div class="image-gallery" id="imageGallery"></div>
+        </div>
+
+        <!-- Orders Page -->
+        <div id="ordersContainer" class="orders-container">
+            <h2>Customer Orders</h2>
+            <div class="spinner" id="ordersSpinner"></div>
+            <div id="ordersList"></div>
+        </div>
+    </div>
+
+    <script>
+    // Base URL for API server
+    const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+        ? 'http://localhost:3000' 
+        : window.location.origin;
+
+    function switchTab(tab) {
+      document.getElementById('garmentsContainer').style.display = tab === 'garments' ? 'block' : 'none';
+      document.getElementById('ordersContainer').style.display = tab === 'orders' ? 'block' : 'none';
+      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.nav-tab')[tab === 'garments' ? 0 : 1].classList.add('active');
+      if (tab === 'orders') {
+        fetchAndDisplayOrders();
+      }
+    }
+
+    async function fetchAndDisplayOrders() {
+      const ordersList = document.getElementById('ordersList');
+      const ordersSpinner = document.getElementById('ordersSpinner');
+      ordersList.innerHTML = '';
+      ordersSpinner.style.display = 'block';
+      try {
+        if (!storeInfo || !storeInfo.store_name) {
+          storeInfo = await loadStoreProfile();
+          if (!storeInfo) throw new Error('Could not load store profile');
+        }
+        // Query Firestore for orders for this store where wanted is true
+        const ordersRef = db.collection('stores').doc(storeInfo.store_name).collection('orders');
+        const snapshot = await ordersRef.where('wanted', '==', true).get();
+        let orders = [];
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          orders.push({ id: doc.id, ...data });
+        });
+        // Sort by timestamp descending (latest first)
+        orders.sort((a, b) => {
+          const ta = a.timestamp ? new Date(a.timestamp) : 0;
+          const tb = b.timestamp ? new Date(b.timestamp) : 0;
+          return tb - ta;
+        });
+        if (orders.length === 0) {
+          ordersList.innerHTML = '<p>No wanted orders found for this store.</p>';
+        } else {
+          orders.forEach(order => {
+            ordersList.innerHTML += `
+              <div class="order-item">
+                <strong>Name:</strong> ${order.name || ''}<br>
+                <strong>Phone:</strong> ${order.phone || ''}<br>
+                <strong>Garment:</strong> ${order.garmentName || ''}<br>
+                <strong>Store:</strong> ${order.storeName || ''}<br>
+                <strong>Timestamp:</strong> ${order.timestamp || ''}<br>
+                <strong>Wanted:</strong> <span style="color: green; font-weight: bold;">${order.wanted ? 'Yes' : 'No'}</span>
+              </div>
+            `;
+          });
+        }
+      } catch (error) {
+        ordersList.innerHTML = `<p style="color: red;">Error loading orders: ${error.message}</p>`;
+      } finally {
+        ordersSpinner.style.display = 'none';
+      }
+    }
+    </script>
+</body>
+</html>

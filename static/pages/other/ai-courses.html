@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Courses - MetaVR</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6e45e2;
+            --primary-dark: #5a36c9;
+            --secondary: #89d4cf;
+            --dark: #343a40;
+            --light: #f8f9fa;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light);
+            overflow-x: hidden;
+        }
+        
+        .hero-section {
+            min-height: 60vh;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 100px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .hero-shapes {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            opacity: 0.4;
+        }
+        
+        .hero-shape {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        .shape-1 {
+            width: 300px;
+            height: 300px;
+            top: -150px;
+            right: -100px;
+            animation: float 8s ease-in-out infinite;
+        }
+        
+        .shape-2 {
+            width: 200px;
+            height: 200px;
+            bottom: -100px;
+            left: 10%;
+            animation: float 12s ease-in-out infinite;
+        }
+        
+        .shape-3 {
+            width: 150px;
+            height: 150px;
+            top: 30%;
+            right: 20%;
+            animation: float 7s ease-in-out infinite;
+        }
+        
+        .sticky-navbar {
+            transition: all 0.3s ease;
+            background-color: transparent;
+        }
+        
+        .sticky-navbar.scrolled {
+            background-color: white;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            transition: all 0.4s ease;
+            margin-bottom: 30px;
+            overflow: hidden;
+            background-color: white;
+        }
+        
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            border-color: var(--primary);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            border-color: var(--primary-dark);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(110, 69, 226, 0.3);
+        }
+        
+        .footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 70px 0 20px;
+            margin-top: 70px;
+            position: relative;
+        }
+        
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            left: 0;
+            width: 100%;
+            height: 50px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%23343a40' fill-opacity='1' d='M0,288L48,272C96,256,192,224,288,197.3C384,171,480,149,576,165.3C672,181,768,235,864,250.7C960,267,1056,245,1152,224C1248,203,1344,181,1392,170.7L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z'%3E%3C/path%3E%3C/svg%3E");
+            background-size: cover;
+        }
+        
+        .course-card {
+            position: relative;
+            overflow: hidden;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            height: 100%;
+        }
+        
+        .course-card img {
+            transition: all 0.4s ease;
+        }
+        
+        .course-card:hover img {
+            transform: scale(1.1);
+        }
+        
+        .course-details {
+            padding: 20px;
+        }
+        
+        .course-skill {
+            display: inline-block;
+            background-color: rgba(110, 69, 226, 0.1);
+            color: var(--primary);
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+        
+        .course-price {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background-color: var(--primary);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            z-index: 10;
+        }
+        
+        .course-level {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            z-index: 10;
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+            100% {
+                transform: translateY(0px);
+            }
+        }
+        
+        .navbar-brand img {
+            height: 40px;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link {
+            position: relative;
+            padding: 5px 0;
+            margin: 0 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 0;
+            background-color: var(--primary);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light sticky-navbar fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="index.html"><img src="/Media/MetaVrLogo.jpg" alt="MetaVR Logo"> MetaVR</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html#services">Services</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html#projects">Projects</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html#about">About Us</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html#contact">Contact</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section d-flex align-items-center">
+        <div class="hero-shapes">
+            <div class="hero-shape shape-1"></div>
+            <div class="hero-shape shape-2"></div>
+            <div class="hero-shape shape-3"></div>
+        </div>
+        <div class="container hero-content">
+            <div class="row align-items-center">
+                <div class="col-lg-12 text-center" data-aos="fade-up">
+                    <h1 class="display-4 fw-bold mb-4">AI Courses</h1>
+                    <p class="lead mb-4">Master the future of technology with our comprehensive AI curriculum</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Overview Section -->
+    <section class="py-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="card p-4 shadow-lg" data-aos="fade-up">
+                        <div class="card-body">
+                            <h2 class="mb-4 text-center">Our AI Education Approach</h2>
+                            <p class="lead">MetaVR offers comprehensive AI courses designed for learners at all levels, from beginners to advanced practitioners.</p>
+                            <p>Our curriculum is developed by industry experts and focuses on practical skills that are highly sought after in today's job market. Whether you're looking to start a career in AI, upskill your technical capabilities, or lead AI initiatives within your organization, our courses provide the knowledge and hands-on experience you need to succeed.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Courses Section -->
+    <section class="py-5 bg-light">
+        <div class="container">
+            <h2 class="text-center mb-5" data-aos="fade-up">Featured Courses</h2>
+            <div class="row justify-content-center">
+                <!-- Course 1: Machine Learning -->
+                <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="100">
+                    <div class="course-card">
+                        <div class="course-price">$699</div>
+                        <div class="course-level">Beginner</div>
+                        <img src="https://images.unsplash.com/photo-1580927752452-89d86da3fa0a" alt="Machine Learning Fundamentals" class="img-fluid">
+                        <div class="course-details">
+                            <h4>Machine Learning (ML)</h4>
+                            <p>A comprehensive introduction to machine learning algorithms, techniques, and applications.</p>
+                            <div class="mb-3">
+                                <span class="course-skill">Python</span>
+                                <span class="course-skill">Data Analysis</span>
+                                <span class="course-skill">ML Algorithms</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span><i class="fas fa-clock me-2"></i>8 weeks</span>
+                                <a href="#" class="btn btn-primary">Enroll Now</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Course 2: Natural Language Processing -->
+                <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="200">
+                    <div class="course-card">
+                        <div class="course-price">$899</div>
+                        <div class="course-level">Intermediate</div>
+                        <img src="https://images.unsplash.com/photo-1573164713988-8665fc963095" alt="Natural Language Processing" class="img-fluid">
+                        <div class="course-details">
+                            <h4>Natural Language Processing (NLP)</h4>
+                            <p>Master text analysis, sentiment analysis, language generation, and transformers for advanced language applications.</p>
+                            <div class="mb-3">
+                                <span class="course-skill">TensorFlow</span>
+                                <span class="course-skill">BERT</span>
+                                <span class="course-skill">Text Mining</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span><i class="fas fa-clock me-2"></i>12 weeks</span>
+                                <a href="#" class="btn btn-primary">Enroll Now</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Course 3: Computer Vision -->
+                <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="300">
+                    <div class="course-card">
+                        <div class="course-price">$1,299</div>
+                        <div class="course-level">Advanced</div>
+                        <img src="https://images.unsplash.com/photo-1593508512255-86ab42a8e620" alt="Computer Vision" class="img-fluid">
+                        <div class="course-details">
+                            <h4>Computer Vision (CV)</h4>
+                            <p>Advanced techniques for image processing, object detection, segmentation, and video analysis.</p>
+                            <div class="mb-3">
+                                <span class="course-skill">OpenCV</span>
+                                <span class="course-skill">CNNs</span>
+                                <span class="course-skill">Object Detection</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span><i class="fas fa-clock me-2"></i>10 weeks</span>
+                                <a href="#" class="btn btn-primary">Enroll Now</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Learning Approach Section -->
+    <section class="py-5">
+        <div class="container">
+            <h2 class="text-center mb-5" data-aos="fade-up">Our Learning Approach</h2>
+            <div class="row">
+                <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="100">
+                    <div class="card h-100 text-center p-4">
+                        <div class="card-body">
+                            <i class="fas fa-laptop-code fa-3x text-primary mb-4"></i>
+                            <h4>Hands-on Projects</h4>
+                            <p>Apply concepts through real-world projects and build a portfolio that showcases your skills to potential employers.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="200">
+                    <div class="card h-100 text-center p-4">
+                        <div class="card-body">
+                            <i class="fas fa-users fa-3x text-primary mb-4"></i>
+                            <h4>Expert Mentorship</h4>
+                            <p>Learn from industry professionals with extensive experience in AI development and implementation.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="300">
+                    <div class="card h-100 text-center p-4">
+                        <div class="card-body">
+                            <i class="fas fa-certificate fa-3x text-primary mb-4"></i>
+                            <h4>Industry Certification</h4>
+                            <p>Earn recognized certifications that validate your expertise and help advance your career.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-5 bg-light">
+        <div class="container">
+            <div class="card bg-primary text-white p-5 text-center" data-aos="fade-up">
+                <div class="card-body">
+                    <h2 class="mb-4">Ready to Start Your AI Journey?</h2>
+                    <p class="lead mb-4">Enroll today and gain the skills needed for the jobs of tomorrow</p>
+                    <a href="index.html#contact" class="btn btn-light btn-lg px-5 py-3">
+                        Request Course Information
+                        <i class="fas fa-arrow-right ms-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4" data-aos="fade-up" data-aos-delay="100">
+                    <h5>MetaVR</h5>
+                    <p>Revolutionizing reality with AI & VR solutions</p>
+                </div>
+                <div class="col-lg-4" data-aos="fade-up" data-aos-delay="200">
+                    <h5>Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="index.html#services" class="text-white">Services</a></li>
+                        <li><a href="index.html#projects" class="text-white">Projects</a></li>
+                        <li><a href="index.html#about" class="text-white">About Us</a></li>
+                        <li><a href="index.html#contact" class="text-white">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-4" data-aos="fade-up" data-aos-delay="300">
+                    <h5>Connect With Us</h5>
+                    <div class="d-flex">
+                        <a href="#" class="text-white me-3"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-white me-3"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-white me-3"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" class="text-white"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr class="my-4 bg-light">
+            <div class="text-center">
+                <p>&copy; 2023 MetaVR. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        // Initialize AOS
+        AOS.init({
+            duration: 800,
+            once: false
+        });
+        
+        // Navbar scroll effect
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.sticky-navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+        
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    window.scrollTo({
+                        top: target.offsetTop - 70,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

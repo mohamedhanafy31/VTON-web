@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Try-On (VTON) - MetaVR</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6e45e2;
+            --primary-dark: #5a36c9;
+            --secondary: #89d4cf;
+            --dark: #343a40;
+            --light: #f8f9fa;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light);
+            overflow-x: hidden;
+        }
+        
+        .hero-section {
+            min-height: 60vh;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 100px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .hero-shapes {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            opacity: 0.4;
+        }
+        
+        .hero-shape {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        .shape-1 {
+            width: 300px;
+            height: 300px;
+            top: -150px;
+            right: -100px;
+            animation: float 8s ease-in-out infinite;
+        }
+        
+        .shape-2 {
+            width: 200px;
+            height: 200px;
+            bottom: -100px;
+            left: 10%;
+            animation: float 12s ease-in-out infinite;
+        }
+        
+        .shape-3 {
+            width: 150px;
+            height: 150px;
+            top: 30%;
+            right: 20%;
+            animation: float 7s ease-in-out infinite;
+        }
+        
+        .sticky-navbar {
+            transition: all 0.3s ease;
+            background-color: transparent;
+        }
+        
+        .sticky-navbar.scrolled {
+            background-color: white;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            transition: all 0.4s ease;
+            margin-bottom: 30px;
+            overflow: hidden;
+            background-color: white;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            border-color: var(--primary);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            border-color: var(--primary-dark);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(110, 69, 226, 0.3);
+        }
+        
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: var(--primary);
+            transition: all 0.5s ease;
+        }
+        
+        .feature-item:hover .feature-icon {
+            transform: scale(1.1);
+        }
+        
+        .footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 70px 0 20px;
+            margin-top: 70px;
+            position: relative;
+        }
+        
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            left: 0;
+            width: 100%;
+            height: 50px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%23343a40' fill-opacity='1' d='M0,288L48,272C96,256,192,224,288,197.3C384,171,480,149,576,165.3C672,181,768,235,864,250.7C960,267,1056,245,1152,224C1248,203,1344,181,1392,170.7L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z'%3E%3C/path%3E%3C/svg%3E");
+            background-size: cover;
+        }
+        
+        .timeline {
+            position: relative;
+            padding: 0;
+            list-style: none;
+        }
+        
+        .timeline::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            width: 2px;
+            margin-left: -1px;
+            background-color: var(--primary);
+        }
+        
+        .timeline-item {
+            position: relative;
+            margin-bottom: 50px;
+            min-height: 50px;
+        }
+        
+        .timeline-item::after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+        
+        .timeline-item .timeline-badge {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 50px;
+            height: 50px;
+            margin-left: -25px;
+            border-radius: 50%;
+            text-align: center;
+            background-color: var(--primary);
+            color: white;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        
+        .timeline-item .timeline-panel {
+            position: relative;
+            float: left;
+            width: 46%;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            background-color: white;
+        }
+        
+        .timeline-item.timeline-inverted .timeline-panel {
+            float: right;
+        }
+        
+        .timeline-item .timeline-panel::before {
+            position: absolute;
+            top: 10px;
+            right: -14px;
+            display: inline-block;
+            content: " ";
+            border-top: 14px solid transparent;
+            border-bottom: 14px solid transparent;
+            border-left: 14px solid white;
+        }
+        
+        .timeline-item.timeline-inverted .timeline-panel::before {
+            right: auto;
+            left: -14px;
+            border-right: 14px solid white;
+            border-left: 0;
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+            100% {
+                transform: translateY(0px);
+            }
+        }
+        
+        .nav-link {
+            position: relative;
+            padding: 5px 0;
+            margin: 0 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 0;
+            background-color: var(--primary);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        .navbar-brand img {
+            height: 40px;
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light sticky-navbar fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="index.html"><img src="/Media/MetaVrLogo.jpg" alt="MetaVR Logo"> MetaVR</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html#services">Services</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html#projects">Projects</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html#about">About Us</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html#contact">Contact</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section d-flex align-items-center">
+        <div class="hero-shapes">
+            <div class="hero-shape shape-1"></div>
+            <div class="hero-shape shape-2"></div>
+            <div class="hero-shape shape-3"></div>
+        </div>
+        <div class="container hero-content">
+            <div class="row align-items-center">
+                <div class="col-lg-12 text-center" data-aos="fade-up">
+                    <h1 class="display-4 fw-bold mb-4">Virtual Try-On (VTON)</h1>
+                    <p class="lead mb-4">Revolutionizing the online shopping experience with AI-powered virtual clothing try-on</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Overview Section -->
+    <section class="py-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="card p-4 shadow-lg" data-aos="fade-up">
+                        <div class="card-body">
+                            <h2 class="mb-4 text-center">Project Overview</h2>
+                            <p class="lead">Virtual Try-On (VTON) is our flagship project that combines cutting-edge AI, computer vision, and 3D modeling to allow users to virtually try on clothing without physically wearing them.</p>
+                            <p>In the age of online shopping, one of the biggest challenges faced by consumers is the inability to try on clothes before purchasing. Our VTON solution bridges this gap by providing a realistic and interactive virtual try-on experience, helping customers make more informed purchasing decisions and reducing return rates for retailers.</p>
+                            <div class="text-center mt-4">
+                                <a href="/TryOn" title="Click to try the VTON demo">
+                                    <img src="/static/media/GMqwvteasAEfD3T.jpg" alt="VTON Demo" class="img-fluid rounded shadow-sm">
+                                </a>
+                                <div class="mt-3">
+                                    <button id="demoButton" class="btn btn-primary mt-3">Try Demo</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="py-5 bg-light">
+        <div class="container">
+            <h2 class="text-center mb-5" data-aos="fade-up">Key Features</h2>
+            <div class="row">
+                <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="100">
+                    <div class="card h-100 feature-item p-4">
+                        <div class="card-body text-center">
+                            <div class="feature-icon">
+                                <i class="fas fa-tshirt"></i>
+                            </div>
+                            <h4 class="card-title">Realistic Visualization</h4>
+                            <p class="card-text">Advanced AI algorithms that ensure clothing drapes naturally on the user's body, with accurate fabric behavior, folds, and lighting.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="200">
+                    <div class="card h-100 feature-item p-4">
+                        <div class="card-body text-center">
+                            <div class="feature-icon">
+                                <i class="fas fa-expand-arrows-alt"></i>
+                            </div>
+                            <h4 class="card-title">Multiple Garment Types</h4>
+                            <p class="card-text">Support for various clothing items including tops, bottoms, dresses, outerwear, and accessories for a complete outfit visualization.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="300">
+                    <div class="card h-100 feature-item p-4">
+                        <div class="card-body text-center">
+                            <div class="feature-icon">
+                                <i class="fas fa-mobile-alt"></i>
+                            </div>
+                            <h4 class="card-title">Responsive Interface</h4>
+                            <p class="card-text">User-friendly interface that works across devices, allowing users to try on clothes from their desktop or mobile devices.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="400">
+                    <div class="card h-100 feature-item p-4">
+                        <div class="card-body text-center">
+                            <div class="feature-icon">
+                                <i class="fas fa-magic"></i>
+                            </div>
+                            <h4 class="card-title">Real-time Customization</h4>
+                            <p class="card-text">Ability to change colors and patterns on the fly, giving users a comprehensive shopping experience.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="500">
+                    <div class="card h-100 feature-item p-4">
+                        <div class="card-body text-center">
+                            <div class="feature-icon">
+                                <i class="fas fa-camera"></i>
+                            </div>
+                            <h4 class="card-title">Selfie Mode</h4>
+                            <p class="card-text">Users can upload their photos or use their camera to see how clothes look on their actual body.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="600">
+                    <div class="card h-100 feature-item p-4">
+                        <div class="card-body text-center">
+                            <div class="feature-icon">
+                                <i class="fas fa-code"></i>
+                            </div>
+                            <h4 class="card-title">API Integration</h4>
+                            <p class="card-text">Easy integration with existing e-commerce platforms through our comprehensive API and plugins.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Technology Section -->
+    <section class="py-5">
+        <div class="container">
+            <h2 class="text-center mb-5" data-aos="fade-up">Technology Behind VTON</h2>
+            <div class="row align-items-center">
+                <div class="col-lg-6" data-aos="fade-right">
+                    <h3 class="mb-4">Advanced AI & Computer Vision</h3>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item"><i class="fas fa-check-circle text-primary me-2"></i> Deep learning models for human pose estimation</li>
+                        <li class="list-group-item"><i class="fas fa-check-circle text-primary me-2"></i> Convolutional neural networks for garment segmentation</li>
+                        <li class="list-group-item"><i class="fas fa-check-circle text-primary me-2"></i> Generative adversarial networks for realistic rendering</li>
+                        <li class="list-group-item"><i class="fas fa-check-circle text-primary me-2"></i> Real-time cloth simulation algorithms</li>
+                        <li class="list-group-item"><i class="fas fa-check-circle text-primary me-2"></i> 3D modeling and texture mapping</li>
+                    </ul>
+                </div>
+                <div class="col-lg-6" data-aos="fade-left">
+                    <img src="https://via.placeholder.com/600x400?text=AI+Technology" alt="AI Technology" class="img-fluid rounded shadow-lg">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Implementation Timeline -->
+    <section class="py-5 bg-light">
+        <div class="container">
+            <h2 class="text-center mb-5" data-aos="fade-up">Implementation Timeline</h2>
+            <ul class="timeline">
+                <li class="timeline-item" data-aos="fade-right">
+                    <div class="timeline-badge">
+                        <i class="fas fa-lightbulb"></i>
+                    </div>
+                    <div class="timeline-panel">
+                        <div class="timeline-heading">
+                            <h4 class="mb-2">Research & Development</h4>
+                            <p class="text-muted mb-3"><small><i class="fas fa-calendar-alt me-2"></i>Phase 1</small></p>
+                        </div>
+                        <div class="timeline-body">
+                            <p>Initial research into AI models for clothing visualization and human pose estimation. Development of core algorithms and proof of concept.</p>
+                        </div>
+                    </div>
+                </li>
+                <li class="timeline-item timeline-inverted" data-aos="fade-left">
+                    <div class="timeline-badge">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <div class="timeline-panel">
+                        <div class="timeline-heading">
+                            <h4 class="mb-2">Prototype Development</h4>
+                            <p class="text-muted mb-3"><small><i class="fas fa-calendar-alt me-2"></i>Phase 2</small></p>
+                        </div>
+                        <div class="timeline-body">
+                            <p>Building the first working prototype with basic clothing types. Initial user testing and feedback collection to refine the experience.</p>
+                        </div>
+                    </div>
+                </li>
+                <li class="timeline-item" data-aos="fade-right">
+                    <div class="timeline-badge">
+                        <i class="fas fa-expand-alt"></i>
+                    </div>
+                    <div class="timeline-panel">
+                        <div class="timeline-heading">
+                            <h4 class="mb-2">Feature Expansion</h4>
+                            <p class="text-muted mb-3"><small><i class="fas fa-calendar-alt me-2"></i>Phase 3</small></p>
+                        </div>
+                        <div class="timeline-body">
+                            <p>Adding support for additional garment types, improving rendering quality, and developing the user interface for both web and mobile platforms.</p>
+                        </div>
+                    </div>
+                </li>
+                <li class="timeline-item timeline-inverted" data-aos="fade-left">
+                    <div class="timeline-badge">
+                        <i class="fas fa-rocket"></i>
+                    </div>
+                    <div class="timeline-panel">
+                        <div class="timeline-heading">
+                            <h4 class="mb-2">Beta Launch</h4>
+                            <p class="text-muted mb-3"><small><i class="fas fa-calendar-alt me-2"></i>Phase 4</small></p>
+                        </div>
+                        <div class="timeline-body">
+                            <p>Limited release to partner retailers for integration testing. Collection of performance metrics and optimization of the system for scalability.</p>
+                        </div>
+                    </div>
+                </li>
+                <li class="timeline-item" data-aos="fade-right">
+                    <div class="timeline-badge">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                    <div class="timeline-panel">
+                        <div class="timeline-heading">
+                            <h4 class="mb-2">Full Release</h4>
+                            <p class="text-muted mb-3"><small><i class="fas fa-calendar-alt me-2"></i>Phase 5</small></p>
+                        </div>
+                        <div class="timeline-body">
+                            <p>Public release with API access for e-commerce integration. Continuous improvement based on user feedback and performance data.</p>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-5">
+        <div class="container">
+            <div class="card bg-primary text-white p-5 text-center" data-aos="fade-up">
+                <div class="card-body">
+                    <h2 class="mb-4">Ready to Transform Your Shopping Experience?</h2>
+                    <p class="lead mb-4">Connect with our team to learn how VTON can be integrated into your e-commerce platform or retail business</p>
+                    <a href="index.html#contact" id="contactButton" class="btn btn-light btn-lg px-5 py-3">
+                        Contact Us Today
+                        <i class="fas fa-arrow-right ms-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4" data-aos="fade-up" data-aos-delay="100">
+                    <h5>MetaVR</h5>
+                    <p>Revolutionizing reality with AI & VR solutions</p>
+                </div>
+                <div class="col-lg-4" data-aos="fade-up" data-aos-delay="200">
+                    <h5>Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="index.html#services" class="text-white">Services</a></li>
+                        <li><a href="index.html#projects" class="text-white">Projects</a></li>
+                        <li><a href="index.html#about" class="text-white">About Us</a></li>
+                        <li><a href="index.html#contact" class="text-white">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-4" data-aos="fade-up" data-aos-delay="300">
+                    <h5>Connect With Us</h5>
+                    <div class="d-flex">
+                        <a href="#" class="text-white me-3"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-white me-3"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-white me-3"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" class="text-white"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr class="my-4 bg-light">
+            <div class="text-center">
+                <p>&copy; 2023 MetaVR. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        // Initialize AOS
+        AOS.init({
+            duration: 800,
+            once: false
+        });
+        
+        // Navbar scroll effect
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.sticky-navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+        
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    window.scrollTo({
+                        top: target.offsetTop - 70,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+        
+        // Demo button functionality
+        document.getElementById('demoButton')?.addEventListener('click', function() {
+            window.location.href = '/TryOn';
+        });
+        
+        // Contact button functionality
+        document.getElementById('contactButton')?.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.location.href = '/index.html#contact';
+        });
+    </script>
+</body>
+</html> 

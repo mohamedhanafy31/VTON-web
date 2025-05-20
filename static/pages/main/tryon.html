@@ -1,0 +1,1937 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Virtual Try-On Experience</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #007bff;
+      --success: #28a745;
+      --warning: #ffc107;
+      --danger: #dc3545;
+      --background: #f5f5f5;
+      --card-background: #ffffff;
+      --text: #333333;
+      --text-light: #666666;
+      --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      --border-radius: 8px;
+      --transition: all 0.3s ease;
+    }
+
+    [data-theme="dark"] {
+      --background: #1a1a1a;
+      --card-background: #2c2c2c;
+      --text: #ffffff;
+      --text-light: #b0b0b0;
+    }
+
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: var(--background);
+      color: var(--text);
+      margin: 0;
+      padding: 0;
+      transition: var(--transition);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .header-logo {
+      width: 100px;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      font-size: 1.2rem;
+      color: var(--text-light);
+    }
+
+    .theme-toggle {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: var(--text);
+    }
+
+    .progress-stepper {
+      display: flex;
+      justify-content: space-between;
+      margin: 40px 0;
+    }
+
+    .step {
+      flex: 1;
+      text-align: center;
+      position: relative;
+    }
+
+    .step-circle {
+      width: 40px;
+      height: 40px;
+      background-color: #ddd;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 10px;
+      font-weight: bold;
+      transition: var(--transition);
+    }
+
+    .step.active .step-circle {
+      background-color: var(--primary);
+      color: #fff;
+    }
+
+    .step-text {
+      font-size: 0.9rem;
+      color: var(--text-light);
+    }
+
+    .page {
+      display: none;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    .card {
+      background-color: var(--card-background);
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    h2 {
+      font-size: 1.8rem;
+      margin-bottom: 10px;
+    }
+
+    p {
+      color: var(--text-light);
+      margin-bottom: 20px;
+    }
+
+    .store-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+    }
+
+    .store-card {
+      background-color: var(--card-background);
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      padding: 15px;
+      text-align: center;
+      cursor: pointer;
+      transition: var(--transition);
+      opacity: 0.5;
+    }
+
+    .store-card.loaded {
+      opacity: 1;
+    }
+
+    .store-card:hover, .store-card.selected {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .store-card.selected {
+      border: 2px solid var(--primary);
+    }
+
+    .store-logo-container {
+      width: 100%;
+      height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 10px;
+      overflow: hidden;
+    }
+
+    .store-logo-container img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+
+    .garment-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 20px;
+    }
+
+    .garment-item {
+      position: relative;
+      background-color: var(--card-background);
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      padding: 15px;
+      text-align: center;
+      cursor: pointer;
+      transition: var(--transition);
+      opacity: 0.8;
+    }
+
+    .garment-item.loaded {
+      opacity: 1;
+    }
+
+    .garment-item:hover, .garment-item.selected {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .garment-item.selected {
+      border: 2px solid var(--primary);
+    }
+
+    .garment-item img {
+      width: 100%;
+      height: 200px;
+      object-fit: contain;
+      border-radius: var(--border-radius);
+      margin-bottom: 10px;
+      background-color: #f9f9f9;
+      transition: transform 0.3s ease;
+      border: 1px solid #eee;
+    }
+
+    .garment-item:hover img {
+      transform: scale(1.05);
+    }
+
+    .garment-check {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background-color: var(--primary);
+      color: #fff;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: var(--transition);
+    }
+
+    .garment-item.selected .garment-check {
+      opacity: 1;
+    }
+
+    .garment-category-badge {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background-color: rgba(0, 123, 255, 0.8);
+      color: white;
+      padding: 4px 8px;
+      font-size: 0.7rem;
+      border-radius: 12px;
+      font-weight: bold;
+    }
+
+    .garment-item.error img {
+      opacity: 0.5;
+    }
+
+    .garment-item.error::after {
+      content: '❌ Image Error';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: rgba(220, 53, 69, 0.8);
+      color: white;
+      padding: 5px 10px;
+      border-radius: 4px;
+    }
+
+    .camera-container {
+      position: relative;
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+      border-radius: var(--border-radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .camera-loading {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+    }
+
+    video {
+      width: 100%;
+      display: block;
+    }
+
+    .camera-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: 10px solid rgba(255, 255, 255, 0.3);
+      box-sizing: border-box;
+      pointer-events: none;
+    }
+
+    .flash {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #fff;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .flash.active {
+      opacity: 0.7;
+    }
+
+    .timer {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 3rem;
+      color: #fff;
+      background-color: rgba(0, 0, 0, 0.7);
+      padding: 10px 20px;
+      border-radius: var(--border-radius);
+      display: none;
+    }
+
+    .camera-instructions {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      right: 10px;
+      background-color: rgba(0, 0, 0, 0.7);
+      color: #fff;
+      padding: 10px;
+      border-radius: var(--border-radius);
+      font-size: 0.9rem;
+      text-align: center;
+    }
+
+    .camera-controls {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .camera-control-btn {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .camera-control-btn.primary {
+      background-color: var(--primary);
+      color: #fff;
+    }
+
+    .camera-control-btn.secondary {
+      background-color: var(--text-light);
+      color: #fff;
+    }
+
+    .error-message {
+      color: var(--danger);
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    .preview-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+    }
+
+    .preview-card {
+      flex: 1;
+      min-width: 250px;
+      background-color: var(--card-background);
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .preview-header {
+      background-color: var(--primary);
+      color: #fff;
+      padding: 10px;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    .preview-body {
+      padding: 15px;
+      text-align: center;
+    }
+
+    .preview-image {
+      width: 100%;
+      height: 300px;
+      object-fit: contain;
+      border-radius: var(--border-radius);
+      background-color: #f9f9f9;
+      border: 1px solid #eee;
+      transition: transform 0.3s ease;
+    }
+    
+    .preview-image:hover {
+      transform: scale(1.02);
+    }
+
+    .preview-details {
+      margin-top: 10px;
+      text-align: left;
+    }
+
+    .preview-detail-item {
+      margin: 5px 0;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .result-container {
+      margin-top: 40px;
+      text-align: center;
+    }
+
+    .output-id {
+      margin-top: 10px;
+      color: var(--text-light);
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 20px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: var(--border-radius);
+      font-size: 1rem;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .btn:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+
+    .btn-outline {
+      background-color: transparent;
+      border: 2px solid var(--primary);
+      color: var(--primary);
+    }
+
+    .btn-outline:hover {
+      background-color: var(--primary);
+      color: #fff;
+    }
+
+    .btn-success {
+      background-color: var(--success);
+      color: #fff;
+    }
+
+    .btn-success:hover {
+      background-color: #218838;
+    }
+
+    .btn-warning {
+      background-color: var(--warning);
+      color: #212529;
+    }
+
+    .btn-warning:hover {
+      background-color: #e0a800;
+    }
+
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: none;
+      z-index: 1000;
+    }
+
+    .overlay.show {
+      display: block;
+    }
+
+    .popup-form {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: var(--card-background);
+      padding: 20px;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      max-width: 400px;
+      width: 90%;
+      z-index: 1001;
+      display: none;
+    }
+
+    .popup-form.show {
+      display: block;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: var(--border-radius);
+      box-sizing: border-box;
+    }
+
+    .form-group input.error {
+      border-color: var(--danger);
+    }
+
+    .form-details {
+      margin: 20px 0;
+      padding: 10px;
+      background-color: #f5f5f5;
+      border-radius: var(--border-radius);
+    }
+
+    .form-detail-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 5px;
+    }
+
+    .detail-label {
+      font-weight: bold;
+    }
+
+    .form-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .required-message {
+      color: var(--danger);
+      text-align: center;
+      margin-top: 10px;
+      display: none;
+    }
+
+    .required-message.visible {
+      display: block;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: var(--card-background);
+      padding: 10px 20px;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      z-index: 1002;
+      display: none;
+    }
+
+    .toast.show {
+      display: flex;
+    }
+
+    .toast-icon {
+      font-size: 1.5rem;
+    }
+
+    .toast-close {
+      background: none;
+      border: none;
+      font-size: 1rem;
+      cursor: pointer;
+      color: var(--text-light);
+    }
+
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid var(--primary);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .tryon-progress-bar {
+      width: 100%;
+      height: 10px;
+      background-color: #f0f0f0;
+      overflow: hidden;
+      position: relative;
+      margin-top: 20px;
+      border-radius: var(--border-radius);
+    }
+
+    .tryon-progress-bar::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 50%;
+      height: 100%;
+      background-color: var(--primary);
+      animation: progress 1.5s infinite linear;
+    }
+
+    @keyframes progress {
+      0% {
+        transform: translateX(-100%);
+      }
+      100% {
+        transform: translateX(200%);
+      }
+    }
+
+    /* Result image optimization */
+    #resultImage {
+      width: 100%;
+      max-height: 500px;
+      object-fit: contain;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      background-color: #f9f9f9;
+      transition: all 0.3s ease;
+      border: 1px solid #eee;
+    }
+    
+    #resultImage:hover {
+      transform: scale(1.02);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 10px;
+      }
+
+      h1 {
+        font-size: 2rem;
+      }
+
+      .progress-stepper {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .step {
+        flex: none;
+      }
+
+      .preview-container {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .preview-card {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Toast Notification -->
+  <div id="toast" class="toast">
+    <div class="toast-icon">
+      <i id="toastIcon" class="fas fa-info-circle"></i>
+    </div>
+    <span id="toastMessage"></span>
+    <button class="toast-close" id="toastClose" aria-label="Close">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+
+  <!-- User Info Form Overlay -->
+  <div class="overlay" id="formOverlay"></div>
+  <div class="popup-form" id="userInfoForm">
+    <h3>Enter Your Details</h3>
+    <button id="closeFormBtn" class="btn btn-outline" style="position: absolute; top: 10px; right: 10px;">Close</button>
+    <p style="margin-bottom: 15px; color: var(--text-light); text-align: center;">Please provide your contact information to complete this action.</p>
+    <div class="form-group">
+      <label for="userName"><i class="fas fa-user"></i> Name *</label>
+      <input type="text" id="userName" placeholder="Enter your name" required autocomplete="name">
+    </div>
+    <div class="form-group">
+      <label for="userPhone"><i class="fas fa-phone"></i> Phone Number *</label>
+      <input type="tel" id="userPhone" placeholder="Enter your phone number" required autocomplete="tel">
+      <small style="display: block; margin-top: 5px; color: var(--text-light);">Format: +1 234 567 8900 or 2345678900</small>
+    </div>
+    <div class="form-details">
+      <div class="form-detail-row">
+        <span class="detail-label">Store:</span>
+        <span class="detail-value" id="formStoreDetail">Loading...</span>
+      </div>
+      <div class="form-detail-row">
+        <span class="detail-label">Garment:</span>
+        <span class="detail-value" id="formGarmentDetail">Loading...</span>
+      </div>
+    </div>
+    <div class="form-buttons">
+      <button id="submitFormBtn" class="btn btn-success"><i class="fas fa-check"></i> Submit</button>
+    </div>
+    <div class="required-message">
+      <i class="fas fa-info-circle"></i> This information is required to proceed
+    </div>
+  </div>
+
+  <!-- Main Container -->
+  <div class="container">
+    <header>
+      <img src="/MetaVrLogo.jpg" alt="MetaVR Logo" class="header-logo">
+      <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
+        <i class="fas fa-moon"></i>
+      </button>
+      <h1>Virtual Try-On Experience</h1>
+      <p class="subtitle">Experience the future of shopping with our AI-powered virtual try-on</p>
+      <div class="progress-stepper" data-progress="1">
+        <div class="step active" data-step="1"><div class="step-circle">1</div><div class="step-text">Store Selection</div></div>
+        <div class="step" data-step="2"><div class="step-circle">2</div><div class="step-text">Select Garment</div></div>
+        <div class="step" data-step="3"><div class="step-circle">3</div><div class="step-text">Upload Image</div></div>
+        <div class="step" data-step="4"><div class="step-circle">4</div><div class="step-text">TryOn Result</div></div>
+      </div>
+    </header>
+
+    <!-- Step 1: Store Selection -->
+    <div id="page1" class="page active">
+      <div class="card">
+        <h2><i class="fas fa-store"></i> Step 1: Select a Store</h2>
+        <p>Choose a store to explore their garment collection</p>
+        <div id="loading-stores">
+          <div class="spinner"></div>
+          <p>Loading available stores...</p>
+        </div>
+        <div id="stores-container" class="store-grid">
+          <div class="spinner" id="garmentSpinner"></div>
+        </div>
+      </div>
+      <div class="navigation btn-group">
+        <button id="toPage2" class="btn" disabled>Next: Select Garment <i class="fas fa-arrow-right"></i></button>
+      </div>
+    </div>
+
+    <!-- Step 2: Garment Selection -->
+    <div id="page2" class="page">
+      <div class="card">
+        <h2><i class="fas fa-tshirt"></i> Step 2: Select a Garment</h2>
+        <p>Browse the collection and choose the garment you'd like to try on virtually.</p>
+        <div id="garmentGrid" class="garment-grid">
+          <div class="spinner" id="garmentSpinner"></div>
+        </div>
+        <div id="garmentError" class="error-message"></div>
+      </div>
+      <div class="navigation btn-group">
+        <button id="backToPage1" class="btn btn-outline">Back</button>
+        <button id="toPage3" class="btn" disabled>Next: Take Photo <i class="fas fa-arrow-right"></i></button>
+      </div>
+    </div>
+
+    <!-- Step 3: Take Photo -->
+    <div id="page3" class="page">
+      <div class="card">
+        <h2><i class="fas fa-camera"></i> Step 3: Take a Photo</h2>
+        <p>Position yourself in the frame and click the capture button to take a photo.</p>
+        <div class="camera-container">
+          <div class="camera-loading" id="cameraLoading">
+            <div class="spinner"></div>
+            <p>Initializing camera...</p>
+          </div>
+          <video id="video" autoplay playsinline></video>
+          <div class="camera-overlay"></div>
+          <div id="flash" class="flash"></div>
+          <div id="timer" class="timer">3</div>
+          <div class="camera-instructions">
+            <i class="fas fa-info-circle"></i> Stand in good lighting and ensure your full body is visible
+          </div>
+        </div>
+        <div id="cameraError" class="error-message"></div>
+        <div class="camera-controls">
+          <button id="captureBtn" class="camera-control-btn primary"><i class="fas fa-camera"></i></button>
+          <button id="switchCamera" class="camera-control-btn secondary"><i class="fas fa-sync"></i></button>
+        </div>
+        <div id="alternativeUpload" style="display: none; margin-top: 20px; padding-top: 20px; border-top: 1px dashed #ddd;">
+          <h3 style="font-size: 1.1rem; margin-bottom: 15px;">Alternative: Upload an Image</h3>
+          <p style="margin-bottom: 15px; color: var(--text-light);">If your camera isn't working, you can upload an image instead:</p>
+          <input type="file" id="manualImageUpload" accept="image/*" style="margin-bottom: 15px;">
+          <button id="uploadImageBtn" class="btn">Upload Image</button>
+          <div class="spinner" id="uploadSpinner" style="display: none;"></div>
+          <div style="margin-top: 20px; padding-top: 10px; border-top: 1px dashed #ddd;">
+            <button id="runDiagnosticBtn" class="btn btn-outline" style="margin-top: 10px;">
+              <i class="fas fa-stethoscope"></i> Run Camera Diagnostic
+            </button>
+            <div id="diagnosticResult" style="margin-top: 15px; display: none;">
+              <h4 style="margin-bottom: 10px;">Diagnostic Results:</h4>
+              <pre id="diagnosticOutput" style="background-color: #f5f5f5; padding: 10px; border-radius: 4px; overflow-x: auto; font-size: 0.85rem;"></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="navigation btn-group">
+        <button id="backToPage2" class="btn btn-outline">Back</button>
+        <button id="toPage4" class="btn" disabled>Next: Preview <i class="fas fa-arrow-right"></i></button>
+      </div>
+    </div>
+
+    <!-- Step 4: Preview and Try-On -->
+    <div id="page4" class="page">
+      <div class="card">
+        <h2><i class="fas fa-magic"></i> Step 4: Preview and Try-On</h2>
+        <p>Review your photo and selected garment, then click Try-On to see the magic happen.</p>
+        <div class="preview-container">
+          <div class="preview-card">
+            <div class="preview-header">Your Photo</div>
+            <div class="preview-body">
+              <img id="userPhoto" class="preview-image" alt="Your photo">
+            </div>
+          </div>
+          <div class="preview-card">
+            <div class="preview-header">Selected Garment</div>
+            <div class="preview-body">
+              <img id="selectedGarment" class="preview-image" alt="Selected garment">
+              <div class="preview-details">
+                <div class="preview-detail-item">
+                  <span>Type:</span>
+                  <span id="garmentType"></span>
+                </div>
+                <div class="preview-detail-item">
+                  <span>Color:</span>
+                  <span id="garmentColor"></span>
+                </div>
+                <div class="preview-detail-item">
+                  <span>Category:</span>
+                  <span id="garmentCategory"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="btn-group" style="justify-content: center; margin-top: 20px;">
+          <button id="tryOnBtn" class="btn btn-success">Try On Now <i class="fas fa-wand-magic-sparkles"></i></button>
+        </div>
+        <p id="trialInfo" style="text-align: center; margin-top: 10px; color: var(--text-light);"></p>
+        <div id="spinner" class="spinner" style="display: none;"></div>
+        <div id="tryonProgressBar" class="tryon-progress-bar" style="display: none;"></div>
+        <div id="errorMessage" class="error-message"></div>
+        
+        <!-- Add result container -->
+        <div id="resultContainer" class="result-container" style="display: none; margin-top: 20px;">
+          <h3>Try-On Result</h3>
+          <img id="resultImage" class="result-image" alt="Try-on result" style="max-width: 100%; border-radius: 8px;">
+          <button id="orderItBtn" class="btn btn-success" style="margin-top: 15px; display: none;">Order It</button>
+          <div id="successMessage" class="success-message" style="display: none; color: var(--success); margin-top: 10px;"></div>
+        </div>
+      </div>
+      <div class="navigation btn-group">
+        <button id="backToPage3" class="btn btn-outline">Back</button>
+        <button id="startOver" class="btn btn-warning">Start Over <i class="fas fa-redo"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <canvas id="canvas" style="display: none;"></canvas>
+
+  <!-- Add this before your other scripts -->
+  <script src="/js/debug.js"></script>
+  <!-- Add Socket.IO client -->
+  <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+  <!-- Your other scripts -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <script src="/static/backend.js"></script>
+  <script>
+    // Initialize Socket.IO connection
+    const socket = io();
+    
+    socket.on('connect', () => {
+      console.log('Connected to server via Socket.IO');
+    });
+    
+    socket.on('disconnect', () => {
+      console.log('Disconnected from server');
+    });
+    
+    socket.on('webhook', (data) => {
+      console.log('Received webhook via Socket.IO:', data);
+      handleTryOnWebhook(data.payload);
+    });
+
+    // Include backend functions directly to avoid path issues
+    async function fetchStores() {
+      try {
+        console.log("Fetching available stores...");
+        const response = await fetch('/active-stores');
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch stores: ${response.status} ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        console.log("Stores fetched successfully:", data.stores);
+        return data.stores || [];
+      } catch (error) {
+        console.error("Error fetching stores:", error);
+        throw error;
+      }
+    }
+
+    async function fetchGarmentsForStore(storeId) {
+      try {
+        console.log(`Fetching garments for store: ${storeId}`);
+        // Get garments from Firestore directly
+        const snapshot = await firebase.firestore().collection('garments').doc('information').get();
+        
+        if (!snapshot.exists) {
+          console.log("No garments found in Firestore");
+          return [];
+        }
+        
+        const garmentData = snapshot.data();
+        const garments = Object.entries(garmentData)
+          .filter(([_, data]) => data.store === storeId)
+          .map(([id, data]) => ({
+            id,
+            url: data.url,
+            public_id: data.public_id,
+            color: data.color,
+            name: data.name || `${data.color} ${data.type}`,
+            type: data.type,
+            category: data.category || determineCategory(data.type)
+          }));
+        
+        console.log(`Found ${garments.length} garments for store ${storeId}`);
+        return garments;
+      } catch (error) {
+        console.error(`Error fetching garments for store ${storeId}:`, error);
+        throw error;
+      }
+    }
+    
+    // Helper function to determine category based on garment type if not specified
+    function determineCategory(type) {
+      if (!type) return 'upper_body'; // Default
+      
+      type = type.toLowerCase();
+      if (['shirt', 't-shirt', 'jacket', 'sweater', 'top', 'blouse'].includes(type)) {
+        return 'upper_body';
+      } else if (['pants', 'jeans', 'shorts', 'skirt'].includes(type)) {
+        return 'lower_body';
+      } else if (['dress'].includes(type)) {
+        return 'dress';
+      }
+      return 'upper_body'; // Default fallback
+    }
+    
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyA2acnGWc7l7WMuocYwLp46Q-ybZx2mTt0",
+      authDomain: "vton-f7059.firebaseapp.com",
+      projectId: "vton-f7059",
+      storageBucket: "vton-f7059.appspot.com",
+      messagingSenderId: "25358125157",
+      appId: "1:25358125157:web:1ef4e67c9e7ba788a2de8c",
+      measurementId: "G-4FKNGG88PN"
+    };
+
+    // Create a global database reference for use across functions
+    let db = null;
+
+    // Initialize Firebase with error handling
+    try {
+      if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+      }
+      
+      // Create the global db reference
+      db = firebase.firestore();
+      console.log("Firebase initialized successfully, db reference created");
+      
+      // Set up error logging for Firestore
+      firebase.firestore().enableNetwork()
+        .catch(error => {
+          console.error("Firestore network error:", error);
+          document.getElementById('loading-stores').innerHTML = 
+            '<p>Unable to connect to database. Please check your connection and try again.</p>';
+        });
+    } catch (error) {
+      console.error("Firebase initialization error:", error);
+      document.getElementById('loading-stores').innerHTML = 
+        '<p>Error initializing the application. Please try again later.</p>';
+    }
+
+    // Global Variables
+    let selectedStore = null;
+    let selectedGarment = null;
+    let userPhotoUrl = null;
+    let jobId = null;
+    let orderId = null;
+    let isFormSubmitted = false;
+    let trialLimit = 0; // To store the trial limit from the selected store
+    let trialCount = 0; // To track the number of try-on attempts
+  
+    // Fetch Trial Limit from the Selected Store
+    async function fetchTrialLimit(storeId) {
+      try {
+        console.log(`Fetching trial limit for store: ${storeId}`);
+        
+        // Check if we have a database reference
+        if (!db) {
+          // Attempt to create or recreate db reference if needed
+          if (typeof firebase !== 'undefined' && firebase.firestore) {
+            db = firebase.firestore();
+            console.log("DB reference recreated");
+          } else {
+            throw new Error('Firebase Firestore reference not available');
+          }
+        }
+        
+        // Use the global db reference
+        const storeDoc = await db.collection('information').doc(storeId).get();
+        
+        if (storeDoc.exists) {
+          const data = storeDoc.data();
+          
+          // Explicitly check for tryon_limit in the document
+          if (data.tryon_limit !== undefined) {
+            trialLimit = data.tryon_limit;
+            console.log(`Found tryon_limit in database: ${trialLimit}`);
+          } else {
+            console.warn(`No tryon_limit found for ${storeId}, using store-specific default`);
+            // Use store-specific defaults if not found
+            trialLimit = (storeId === 'Nike') ? 10 : 
+                         (storeId === 'Adidas') ? 6 : 5;
+          }
+          
+          // Get number of tryons used
+          trialCount = data.num_tryons || 0;
+          console.log(`Trial values from Firestore: limit=${trialLimit}, used=${trialCount}`);
+        } else {
+          throw new Error(`Store document not found: information/${storeId}`);
+        }
+      } catch (error) {
+        console.error(`Error fetching trial limit for ${storeId}:`, error);
+        
+        // Store-specific fallbacks based on the database screenshot
+        if (storeId === 'Nike') {
+          trialLimit = 10; // From the database screenshot
+        } else if (storeId === 'Adidas') {
+          trialLimit = 6;  // Common limit
+        } else {
+          trialLimit = 5;  // Default fallback
+        }
+        
+        trialCount = 0; // Reset count on error
+        console.log(`Using fallback trial limit: ${trialLimit} for ${storeId}`);
+      }
+      
+      // Ensure we have valid values
+      trialLimit = Math.max(0, trialLimit);
+      trialCount = Math.max(0, trialCount);
+      
+      console.log(`Final trial values: limit=${trialLimit}, used=${trialCount}`);
+      updateTrialInfo(); // Update UI
+    }
+  
+    // Update Trial Info Display
+    function updateTrialInfo() {
+      const trialInfo = document.getElementById('trialInfo');
+      if (trialInfo) {
+        const remainingTrials = trialLimit - trialCount;
+        
+        // Create pill-shaped counter with color coding
+        const pillColor = getPillColor(remainingTrials, trialLimit);
+        
+        trialInfo.innerHTML = `
+          <div style="display: inline-flex; align-items: center; background-color: ${pillColor}; 
+                    color: white; padding: 4px 12px; border-radius: 20px; font-weight: bold;">
+            <i class="fas fa-tshirt" style="margin-right: 6px;"></i>
+            <span>Try-ons: ${remainingTrials} / ${trialLimit}</span>
+          </div>
+          ${remainingTrials <= 0 ? '<div style="color: var(--danger); margin-top: 5px;">Limit reached</div>' : ''}
+        `;
+        
+        // Update try-on button state
+        const tryOnBtn = document.getElementById('tryOnBtn');
+        if (tryOnBtn) {
+          if (remainingTrials <= 0) {
+            tryOnBtn.disabled = true;
+            tryOnBtn.title = "You've reached your try-on limit";
+            tryOnBtn.innerHTML = 'Try-on Limit Reached <i class="fas fa-lock"></i>';
+          } else {
+            tryOnBtn.disabled = false;
+            tryOnBtn.title = `${remainingTrials} try-ons remaining`;
+            tryOnBtn.innerHTML = 'Try On Now <i class="fas fa-wand-magic-sparkles"></i>';
+          }
+        }
+      }
+    }
+    
+    // Helper function to determine pill color based on remaining trials
+    function getPillColor(remaining, total) {
+      if (remaining <= 0) return '#dc3545'; // Danger red
+      if (remaining <= Math.ceil(total * 0.25)) return '#fd7e14'; // Warning orange
+      if (remaining <= Math.ceil(total * 0.5)) return '#0dcaf0'; // Info blue
+      return '#198754'; // Success green
+    }
+  
+    // Page Switching Function
+    function switchPage(from, to) {
+      document.getElementById(from).classList.remove('active');
+      document.getElementById(to).classList.add('active');
+      const stepper = document.querySelector('.progress-stepper');
+      const steps = stepper.querySelectorAll('.step');
+      steps.forEach(step => step.classList.remove('active'));
+      stepper.querySelector(`.step[data-step="${to.slice(-1)}"]`).classList.add('active');
+      stepper.setAttribute('data-progress', to.slice(-1));
+    }
+  
+    // Display Stores
+    function displayStores(stores) {
+      const container = document.getElementById('stores-container');
+      const loading = document.getElementById('loading-stores');
+      loading.style.display = 'none';
+      container.innerHTML = '';
+      stores.forEach(store => {
+        const card = document.createElement('div');
+        card.className = 'store-card';
+        card.innerHTML = `
+          <div class="store-logo-container">
+            <img src="${store.logo_link || '/Media/MetaVrLogo.jpg'}" alt="${store.store_name}">
+          </div>
+          <h3>${store.store_name}</h3>
+          <p>${store.specialization}</p>
+        `;
+        const img = card.querySelector('img');
+        img.onload = () => {
+          card.classList.add('loaded');
+          console.log(`Store logo loaded for ${store.store_name}`);
+        };
+        img.onerror = () => {
+          card.classList.add('loaded');
+          console.log(`Store logo failed to load for ${store.store_name}`);
+        };
+        card.addEventListener('click', async () => {
+          selectedStore = store;
+          document.getElementById('toPage2').disabled = false;
+          document.querySelectorAll('.store-card').forEach(c => c.classList.remove('selected'));
+          card.classList.add('selected');
+          await fetchTrialLimit(store.id); // Fetch trial limit for the selected store
+        });
+        container.appendChild(card);
+      });
+    }
+  
+    // Display Garments
+    function displayGarments(garments) {
+      const grid = document.getElementById('garmentGrid');
+      const spinner = document.getElementById('garmentSpinner');
+      spinner.style.display = 'none';
+      grid.innerHTML = '';
+
+      if (garments.length === 0) {
+        grid.innerHTML = '<div class="error-message"><i class="fas fa-exclamation-circle"></i> No garments found for this store.</div>';
+        return;
+      }
+
+      garments.forEach(garment => {
+        const categoryLabel = getCategoryLabel(garment.category || 'upper_body');
+        const categoryColor = getCategoryColor(garment.category || 'upper_body');
+        
+        const item = document.createElement('div');
+        item.className = 'garment-item';
+        item.innerHTML = `
+          <div class="garment-category-badge" style="background-color: ${categoryColor}">
+            ${categoryLabel}
+          </div>
+          <img src="${garment.url || 'default-garment.png'}" alt="${garment.name}" loading="lazy">
+          <div class="garment-check"><i class="fas fa-check"></i></div>
+          <h4>${garment.name || 'Unnamed Garment'}</h4>
+          <div style="display: flex; justify-content: space-between; margin-top: 8px; margin-bottom: 4px;">
+            <span><strong>Color:</strong> ${garment.color || 'N/A'}</span>
+            <span><strong>Type:</strong> ${garment.type || 'N/A'}</span>
+          </div>
+        `;
+        
+        const img = item.querySelector('img');
+        img.onload = () => {
+          item.classList.add('loaded');
+        };
+        
+        img.onerror = () => {
+          item.classList.add('error');
+          console.error(`Failed to load image for ${garment.name}`);
+        };
+        
+        item.addEventListener('click', () => {
+          if (item.classList.contains('error')) {
+            alert('This garment image could not be loaded. Please try another one.');
+            return;
+          }
+          
+          selectedGarment = garment;
+          document.getElementById('toPage3').disabled = false;
+          document.querySelectorAll('.garment-item').forEach(i => i.classList.remove('selected'));
+          item.classList.add('selected');
+        });
+        
+        grid.appendChild(item);
+      });
+    }
+    
+    // Helper functions for category styling
+    function getCategoryLabel(category) {
+      const labels = {
+        'upper_body': 'Top',
+        'lower_body': 'Bottom',
+        'dress': 'Dress',
+        'full_body': 'Full Body'
+      };
+      return labels[category] || 'Other';
+    }
+    
+    function getCategoryColor(category) {
+      const colors = {
+        'upper_body': 'rgba(0, 123, 255, 0.8)',
+        'lower_body': 'rgba(40, 167, 69, 0.8)',
+        'dress': 'rgba(111, 66, 193, 0.8)',
+        'full_body': 'rgba(253, 126, 20, 0.8)'
+      };
+      return colors[category] || 'rgba(108, 117, 125, 0.8)';
+    }
+  
+    // Setup Camera
+    function setupCamera() {
+      const video = document.getElementById('video');
+      const loading = document.getElementById('cameraLoading');
+      navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => {
+          video.srcObject = stream;
+          video.play();
+          loading.style.display = 'none';
+        })
+        .catch(error => {
+          console.error('Camera error:', error);
+          loading.style.display = 'none';
+          document.getElementById('alternativeUpload').style.display = 'block';
+          document.getElementById('cameraError').textContent = 'Unable to access camera. Please upload an image instead.';
+        });
+    }
+  
+    // Start Countdown for Photo Capture
+    function startCountdown() {
+      let count = 3;
+      const timer = document.getElementById('timer');
+      timer.style.display = 'block';
+      const interval = setInterval(() => {
+        timer.textContent = count;
+        count--;
+        if (count < 0) {
+          clearInterval(interval);
+          timer.style.display = 'none';
+          capturePhoto();
+        }
+      }, 1000);
+    }
+  
+    // Capture Photo
+    function capturePhoto() {
+      const video = document.getElementById('video');
+      const canvas = document.getElementById('canvas');
+      const toPage4Btn = document.getElementById('toPage4');
+      const cameraError = document.getElementById('cameraError');
+
+      // Disable button and clear previous errors at the start of capture
+      if (toPage4Btn) toPage4Btn.disabled = true;
+      if (cameraError) cameraError.textContent = '';
+      userPhotoUrl = null; // Clear previous photo URL
+
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      canvas.getContext('2d').drawImage(video, 0, 0);
+      
+      // Convert canvas to blob
+      canvas.toBlob(async (blob) => {
+        try {
+          const formData = new FormData();
+          formData.append('images', blob, 'user_photo.jpg');
+          formData.append('isUserPhoto', 'true');
+          formData.append('folder', 'user_photos');
+
+          const response = await fetch('/api/upload', {
+            method: 'POST',
+            body: formData
+          });
+
+          if (!response.ok) {
+            throw new Error(`Upload failed: ${response.status} ${response.statusText}`);
+          }
+
+          const result = await response.json();
+          
+          if (result.success && result.image && result.image.url) {
+            userPhotoUrl = result.image.url;
+            console.log('User photo uploaded:', userPhotoUrl);
+            if (toPage4Btn) toPage4Btn.disabled = false;
+          } else {
+            throw new Error('Upload response missing image URL');
+          }
+        } catch (error) {
+          console.error('Upload error:', error);
+          if (cameraError) cameraError.textContent = 'Failed to upload photo. Please try again.';
+          if (toPage4Btn) toPage4Btn.disabled = true;
+          userPhotoUrl = null;
+        }
+      }, 'image/jpeg', 0.9); // Use JPEG format with 90% quality
+    }
+
+    // Handle manual image upload
+    document.getElementById('manualImageUpload').addEventListener('change', async (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const toPage4Btn = document.getElementById('toPage4');
+      const cameraError = document.getElementById('cameraError');
+      const uploadSpinner = document.getElementById('uploadSpinner');
+
+      try {
+        toPage4Btn.disabled = true;
+        cameraError.textContent = '';
+        uploadSpinner.style.display = 'block';
+        userPhotoUrl = null;
+
+        const formData = new FormData();
+        formData.append('images', file);
+        formData.append('isUserPhoto', 'true');
+        formData.append('folder', 'user_photos');
+
+        const response = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!response.ok) {
+          throw new Error(`Upload failed: ${response.status} ${response.statusText}`);
+        }
+
+        const result = await response.json();
+        
+        if (result.success && result.image && result.image.url) {
+          userPhotoUrl = result.image.url;
+          console.log('Image uploaded:', userPhotoUrl);
+          toPage4Btn.disabled = false;
+          
+          // Show preview
+          const preview = document.getElementById('userPhoto');
+          if (preview) {
+            preview.src = userPhotoUrl;
+          }
+        } else {
+          throw new Error('Upload response missing image URL');
+        }
+      } catch (error) {
+        console.error('Upload error:', error);
+        cameraError.textContent = 'Failed to upload image. Please try again.';
+        toPage4Btn.disabled = true;
+        userPhotoUrl = null;
+      } finally {
+        uploadSpinner.style.display = 'none';
+      }
+    });
+  
+    // Update the handleTryOnWebhook function
+    function handleTryOnWebhook(data) {
+      console.log('Received webhook data:', data);
+      
+      // Extract data from webhook payload
+      const jobId = data.id || data.job_id;
+      const status = data.status;
+      const outputUrl = data.output;
+
+      console.log('Processing webhook:', { jobId, status, outputUrl });
+
+      if (status === 'success' || status === 'succeeded') {
+        // Use the output URL as-is
+        let finalOutputUrl = outputUrl;
+
+        // Update UI with result
+        const resultContainer = document.getElementById('resultContainer');
+        const resultImage = document.getElementById('resultImage');
+        const progressBar = document.getElementById('tryonProgressBar');
+        const errorMessage = document.getElementById('errorMessage');
+        
+        if (resultContainer && resultImage) {
+          // Hide progress bar and error message
+          if (progressBar) progressBar.style.display = 'none';
+          if (errorMessage) errorMessage.style.display = 'none';
+          
+          // Show result
+          resultImage.src = finalOutputUrl;
+          resultContainer.style.display = 'block';
+          
+          // Show success message
+          const successMessage = document.getElementById('successMessage');
+          if (successMessage) {
+            successMessage.textContent = 'Try-on completed successfully!';
+            successMessage.style.display = 'block';
+          }
+
+          // Show the user info form after successful try-on
+          const overlay = document.querySelector('.overlay');
+          const form = document.querySelector('.popup-form');
+          if (overlay && form) {
+            overlay.classList.add('show');
+            form.classList.add('show');
+            document.getElementById('formStoreDetail').textContent = selectedStore ? selectedStore.store_name : 'N/A';
+            document.getElementById('formGarmentDetail').textContent = selectedGarment ? selectedGarment.name : 'N/A';
+          }
+
+          // Show the Order It button if orderId exists
+          const orderItBtn = document.getElementById('orderItBtn');
+          if (orderItBtn) {
+            orderItBtn.style.display = 'inline-block';
+            orderItBtn.disabled = !window.orderId;
+          }
+
+          // Scroll to result
+          resultContainer.scrollIntoView({ behavior: 'smooth' });
+        } else {
+          console.error('Result container or image element not found');
+        }
+      } else {
+        // Handle error
+        const errorMessage = document.getElementById('errorMessage');
+        const progressBar = document.getElementById('tryonProgressBar');
+        
+        if (errorMessage) {
+          errorMessage.textContent = data.error || 'Try-on process failed';
+          errorMessage.style.display = 'block';
+        }
+        
+        if (progressBar) {
+          progressBar.style.display = 'none';
+        }
+      }
+    }
+
+    // Add event listener for Order It button
+    document.addEventListener('DOMContentLoaded', function() {
+      const orderItBtn = document.getElementById('orderItBtn');
+      if (orderItBtn) {
+        orderItBtn.addEventListener('click', async function() {
+          if (!window.orderId) {
+            alert('No order found. Please complete the try-on process first.');
+            return;
+          }
+          orderItBtn.disabled = true;
+          orderItBtn.textContent = 'Ordering...';
+          try {
+            const response = await fetch('/update-order-wanted', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ orderId: window.orderId })
+            });
+            const data = await response.json();
+            if (data.success) {
+              orderItBtn.textContent = 'Ordered!';
+              orderItBtn.classList.add('btn-success');
+              document.getElementById('successMessage').textContent = 'Order marked as wanted successfully!';
+              document.getElementById('successMessage').style.display = 'block';
+            } else {
+              throw new Error(data.error || 'Failed to mark order as wanted');
+            }
+          } catch (error) {
+            orderItBtn.disabled = false;
+            orderItBtn.textContent = 'Order It';
+            alert('Failed to mark order as wanted: ' + error.message);
+          }
+        });
+      }
+    });
+
+    // Initialize Stores and Fetch Trial Limit
+    document.addEventListener('DOMContentLoaded', async () => {
+      fetchStores()
+        .then(stores => {
+          if (stores.length === 0) {
+            document.getElementById('loading-stores').innerHTML = '<p>No stores available at this time.</p>';
+          } else {
+            displayStores(stores);
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching stores:', error.message);
+          document.getElementById('loading-stores').innerHTML = '<p>Unable to load stores: ' + error.message + '</p>';
+        });
+  
+      // Navigation Event Listeners
+      const toPage2Btn = document.getElementById('toPage2');
+      if (toPage2Btn) {
+        toPage2Btn.addEventListener('click', () => {
+          switchPage('page1', 'page2');
+          document.getElementById('garmentSpinner').style.display = 'block';
+          fetchGarmentsForStore(selectedStore.id)
+            .then(garments => {
+              if (garments.length === 0) {
+                document.getElementById('garmentGrid').innerHTML = '<p>No garments available for this store.</p>';
+                document.getElementById('garmentSpinner').style.display = 'none';
+              } else {
+                displayGarments(garments);
+              }
+            })
+            .catch(error => {
+              console.error('Error fetching garments:', error.message);
+              document.getElementById('garmentError').textContent = 'Error loading garments: ' + error.message;
+              document.getElementById('garmentSpinner').style.display = 'none';
+            });
+        });
+      }
+  
+      const backToPage1Btn = document.getElementById('backToPage1');
+      if (backToPage1Btn) {
+        backToPage1Btn.addEventListener('click', () => switchPage('page2', 'page1'));
+      }
+  
+      const toPage3Btn = document.getElementById('toPage3');
+      if (toPage3Btn) {
+        toPage3Btn.addEventListener('click', () => {
+          switchPage('page2', 'page3');
+          setupCamera();
+        });
+      }
+  
+      const backToPage2Btn = document.getElementById('backToPage2');
+      if (backToPage2Btn) {
+        backToPage2Btn.addEventListener('click', () => switchPage('page3', 'page2'));
+      }
+  
+      const captureBtn = document.getElementById('captureBtn');
+      if (captureBtn) {
+        captureBtn.addEventListener('click', startCountdown);
+      }
+  
+      const toPage4Btn = document.getElementById('toPage4');
+      if (toPage4Btn) {
+        toPage4Btn.addEventListener('click', () => {
+          switchPage('page3', 'page4');
+          document.getElementById('userPhoto').src = userPhotoUrl;
+          document.getElementById('selectedGarment').src = selectedGarment.url;
+          document.getElementById('garmentType').textContent = selectedGarment.type || 'N/A';
+          document.getElementById('garmentColor').textContent = selectedGarment.color || 'N/A';
+          
+          // Add category to the preview details
+          if (document.getElementById('garmentCategory')) {
+            document.getElementById('garmentCategory').textContent = selectedGarment.category || 'upper_body';
+          } else {
+            const categoryElement = document.createElement('div');
+            categoryElement.className = 'preview-detail-item';
+            categoryElement.innerHTML = `
+              <span>Category:</span>
+              <span id="garmentCategory">${selectedGarment.category || 'upper_body'}</span>
+            `;
+            document.querySelector('.preview-details').appendChild(categoryElement);
+          }
+          
+          updateTrialInfo(); // Update trial info when reaching the try-on page
+        });
+      }
+  
+      const backToPage3Btn = document.getElementById('backToPage3');
+      if (backToPage3Btn) {
+        backToPage3Btn.addEventListener('click', () => switchPage('page4', 'page3'));
+      }
+  
+      const startOverBtn = document.getElementById('startOver');
+      if (startOverBtn) {
+        startOverBtn.addEventListener('click', () => {
+          selectedStore = null;
+          selectedGarment = null;
+          userPhotoUrl = null;
+          jobId = null;
+          orderId = null;
+          isFormSubmitted = false;
+          trialCount = 0; // Reset trial count on start over
+          const progressBar = document.getElementById('tryonProgressBar');
+          if (progressBar) {
+            progressBar.style.display = 'none';
+          }
+          document.getElementById('toPage2').disabled = true;
+          document.getElementById('toPage3').disabled = true;
+          document.getElementById('toPage4').disabled = true;
+          switchPage('page4', 'page1');
+          fetchStores()
+            .then(stores => {
+              if (stores.length === 0) {
+                document.getElementById('loading-stores').innerHTML = '<p>No stores available at this time.</p>';
+              } else {
+                displayStores(stores);
+              }
+            })
+            .catch(error => {
+              console.error('Error fetching stores:', error.message);
+              document.getElementById('loading-stores').innerHTML = '<p>Unable to load stores: ' + error.message + '</p>';
+            });
+          updateTrialInfo(); // Update trial info after resetting
+        });
+      }
+  
+      // Modify the tryOnBtn click handler
+      const tryOnBtn = document.getElementById('tryOnBtn');
+      if (tryOnBtn) {
+        tryOnBtn.addEventListener('click', async () => {
+          if (!userPhotoUrl || !selectedGarment) {
+            alert('Please upload a photo and select a garment first.');
+            return;
+          }
+
+          try {
+            console.log('Verifying images accessibility...');
+            
+            // Check garment image
+            console.log(`Checking garment image: ${selectedGarment.url}`);
+            const garmentImageResponse = await fetch(selectedGarment.url, { 
+              method: 'HEAD',
+              cache: 'no-store' 
+            });
+            
+            if (!garmentImageResponse.ok) {
+              console.error('Garment image accessibility check failed:', 
+                garmentImageResponse.status, garmentImageResponse.statusText);
+              alert(`The selected garment image is not available (${garmentImageResponse.status} error). Please choose another garment.`);
+              return;
+            }
+            
+            // Check user image
+            console.log(`Checking user image: ${userPhotoUrl}`);
+            const userImageResponse = await fetch(userPhotoUrl, { 
+              method: 'HEAD',
+              cache: 'no-store'
+            });
+            
+            if (!userImageResponse.ok) {
+              console.error('User image accessibility check failed:', 
+                userImageResponse.status, userImageResponse.statusText);
+              alert(`The user photo is not accessible (${userImageResponse.status} error). Please take another photo.`);
+              return;
+            }
+            
+            console.log('Image verification successful - both images are accessible');
+
+            // Increment trial count in the UI
+            trialCount++;
+            updateTrialInfo();
+
+            // Update the num_tryons in the database
+            try {
+              if (selectedStore && db) {
+                const doc = await db.collection('information').doc(selectedStore.id).get();
+                if (doc.exists) {
+                  const currentTryons = doc.data().num_tryons || 0;
+                  try {
+                    await db.collection('information').doc(selectedStore.id).update({
+                      num_tryons: currentTryons + 1
+                    });
+                    console.log(`Updated num_tryons for ${selectedStore.id} to ${currentTryons + 1}`);
+                  } catch (updateError) {
+                    console.error('Error updating num_tryons:', updateError);
+                  }
+                }
+              }
+            } catch (dbError) {
+              console.error('Error getting store document:', dbError);
+            }
+
+            // Show progress bar
+            const progressBar = document.getElementById('tryonProgressBar');
+            if (progressBar) {
+              progressBar.style.display = 'block';
+            }
+
+            // Prepare the payload with webhook
+            const payload = {
+              human: userPhotoUrl,
+              garment: selectedGarment.url,
+              garment_description: `${selectedGarment.color || 'N/A'} ${selectedGarment.type || 'N/A'}`,
+              category: selectedGarment.category || 'upper_body',
+              storeName: selectedStore ? selectedStore.store_name : null,
+              webhook: `${window.location.protocol}//${window.location.host}/api/webhook` // Updated webhook URL
+            };
+
+            console.log('Sending try-on request with payload:', payload);
+
+            const response = await fetch('/tryon', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Cache-Control': 'no-cache, no-store, must-revalidate'
+              },
+              body: JSON.stringify(payload)
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok && data.success) {
+              jobId = data.job_id;
+              console.log('Try-on job submitted successfully, jobId:', jobId);
+              // No need to call pollForResults() since we're using webhooks
+            } else {
+              console.error('Try-on failed:', data.error);
+              if (progressBar) {
+                progressBar.style.display = 'none';
+              }
+              
+              let errorMessage = data.error || 'Unknown error';
+              if (errorMessage.includes('Garment image URL is inaccessible')) {
+                errorMessage = 'The selected garment image is not available. Please try a different garment or contact support.';
+              } else if (errorMessage.includes('API key missing')) {
+                errorMessage = 'The try-on service is not properly configured. Please contact support.';
+              } else if (errorMessage.includes('No trials remaining')) {
+                errorMessage = 'You have reached your try-on limit for this store.';
+              }
+              
+              document.getElementById('errorMessage').textContent = errorMessage;
+              alert(`Try-on request failed: ${errorMessage}. Please try again.`);
+              return;
+            }
+
+            // Show the user info form
+            const overlay = document.querySelector('.overlay');
+            const form = document.querySelector('.popup-form');
+            if (overlay && form) {
+              overlay.classList.add('show');
+              form.classList.add('show');
+              document.getElementById('formStoreDetail').textContent = selectedStore ? selectedStore.store_name : 'N/A';
+              document.getElementById('formGarmentDetail').textContent = selectedGarment ? selectedGarment.name : 'N/A';
+            }
+          } catch (error) {
+            console.error('Error processing try-on request:', error);
+            alert('An error occurred while processing your request. Please try again.');
+            
+            const progressBar = document.getElementById('tryonProgressBar');
+            if (progressBar) {
+              progressBar.style.display = 'none';
+            }
+          }
+        });
+      } else {
+        console.error('tryOnBtn element not found');
+      }
+  
+      const closeFormBtn = document.getElementById('closeFormBtn');
+      if (closeFormBtn) {
+        closeFormBtn.addEventListener('click', () => {
+          const form = document.querySelector('.popup-form');
+          const overlay = document.querySelector('.overlay');
+          if (form && overlay) {
+            form.classList.remove('show');
+            overlay.classList.remove('show');
+          } else {
+            console.error('Form or overlay element not found');
+          }
+        });
+      } else {
+        console.error('closeFormBtn element not found');
+      }
+  
+      const submitFormBtn = document.getElementById('submitFormBtn');
+      if (submitFormBtn) {
+        submitFormBtn.addEventListener('click', async () => {
+          const name = document.getElementById('userName').value.trim();
+          const phone = document.getElementById('userPhone').value.trim();
+          const requiredMessage = document.getElementById('requiredMessage');
+
+          if (!name || !phone) {
+            requiredMessage.classList.add('visible');
+            return;
+          }
+
+          requiredMessage.classList.remove('visible');
+          submitFormBtn.disabled = true;
+
+          try {
+            const orderResponse = await fetch('/save-order', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                name,
+                phone,
+                garmentName: selectedGarment.name,
+                storeName: selectedStore ? selectedStore.store_name : 'Unknown'
+              })
+            });
+
+            const orderData = await orderResponse.json();
+            if (!orderData.success) {
+              throw new Error(orderData.error || 'Failed to save order');
+            }
+
+            // Set the orderId globally
+            window.orderId = orderData.orderId;
+            console.log('Order saved with orderId:', window.orderId, 'Garment:', selectedGarment.name, 'Store:', selectedStore?.store_name);
+            isFormSubmitted = true;
+
+            // Update Order It button state
+            const orderItBtn = document.getElementById('orderItBtn');
+            if (orderItBtn) {
+              orderItBtn.disabled = false;
+            }
+
+            // Close the form
+            const form = document.querySelector('.popup-form');
+            const overlay = document.querySelector('.overlay');
+            if (form && overlay) {
+              form.classList.remove('show');
+              overlay.classList.remove('show');
+            }
+
+            // Show success message
+            const successMessage = document.getElementById('successMessage');
+            if (successMessage) {
+              successMessage.textContent = 'Order created successfully! You can now click "Order It" to confirm your order.';
+              successMessage.style.display = 'block';
+            }
+          } catch (error) {
+            console.error('Error processing order:', error);
+            alert('Error processing your request. Please try again.');
+          } finally {
+            submitFormBtn.disabled = false;
+          }
+        });
+      } else {
+        console.error('submitFormBtn element not found');
+      }
+  
+      const buyBtn = document.getElementById('buyBtn');
+      if (buyBtn) {
+        buyBtn.addEventListener('click', async () => {
+          if (!orderId) {
+            console.error('No orderId found for Buy Now action');
+            alert('No order found. Please complete the try-on process first.');
+            return;
+          }
+  
+          console.log('Buy Now clicked with orderId:', orderId, 'Garment:', selectedGarment?.name, 'Store:', selectedStore?.store_name);
+  
+          const confirmPurchase = confirm(
+            `Do you want to mark the order for "${selectedGarment?.name || 'Unknown Garment'}" from "${selectedStore?.store_name || 'Unknown Store'}" as wanted?`
+          );
+          if (!confirmPurchase) {
+            console.log('User cancelled Buy Now action');
+            return;
+          }
+  
+          try {
+            const response = await fetch('/update-order-wanted', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ orderId })
+            });
+  
+            const data = await response.json();
+            if (data.success) {
+              console.log(`Order ${orderId} marked as wanted`);
+              alert('Order marked as wanted successfully!');
+            } else {
+              throw new Error(data.error || 'Failed to mark order as wanted');
+            }
+          } catch (error) {
+            console.error('Error marking order as wanted:', error);
+            alert(`Failed to mark order as wanted: ${error.message}. Please try again.`);
+          }
+        });
+      } else {
+        console.error('buyBtn element not found');
+      }
+  
+      const themeToggleBtn = document.getElementById('themeToggle');
+      if (themeToggleBtn) {
+        themeToggleBtn.addEventListener('click', () => {
+          document.body.dataset.theme = document.body.dataset.theme === 'dark' ? 'light' : 'dark';
+        });
+      }
+    });
+  </script>
+</body>
+</html>

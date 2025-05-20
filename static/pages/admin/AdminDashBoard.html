@@ -1,0 +1,1765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .spinner {
+      display: none;
+      border: 4px solid rgba(0, 0, 0, 0.1);
+      border-left-color: #1e40af;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+    .spinner.active {
+      display: block;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .header-logo {
+      display: block;
+      margin: 0 auto 20px auto;
+      max-height: 100px;
+      width: auto;
+    }
+    .form-error {
+      color: #ff4444;
+      font-size: 0.875rem;
+      margin-top: 0.25rem;
+    }
+    #error-message, #success-message {
+      display: none;
+    }
+    .password-container {
+      position: relative;
+    }
+    .password-toggle {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #4b5563;
+      font-size: 1rem;
+      padding: 0;
+    }
+    .password-toggle:hover {
+      color: #1e40af;
+    }
+    .password-toggle::before {
+      content: '👁️';
+    }
+    .password-toggle.hidden::before {
+      content: '🙈';
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 50;
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background: white;
+      padding: 2rem;
+      border-radius: 0.5rem;
+      max-width: 600px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    .modal-content h2 {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+    }
+    
+    /* Inline editing styles */
+    tr.editing {
+      background-color: #f0f9ff !important; /* Light blue background */
+      box-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
+    }
+    
+    tr.editing td {
+      position: relative;
+    }
+    
+    tr.editing input, tr.editing select {
+      border: 1px solid #60a5fa;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.25rem;
+      width: 100%;
+      background-color: white;
+    }
+    
+    tr.editing input:focus, tr.editing select:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+    }
+    
+    tr:not(.editing):hover {
+      background-color: #f9fafb;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+  <!-- Login Screen -->
+  <div id="login-screen" class="flex items-center justify-center min-h-screen">
+    <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+      <img src="/MetaVrLogo.jpg" alt="MetaVR Logo" class="header-logo">
+      <h2 class="text-2xl font-bold mb-6 text-center">Admin Login</h2>
+      <p id="error-message" class="text-red-500 mb-4"></p>
+      <p id="success-message" class="text-green-500 mb-4"></p>
+      <form id="login-form">
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700">Email</label>
+          <input
+            type="email"
+            id="login-email"
+            class="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500"
+            required
+          >
+        </div>
+        <div class="mb-4 password-container">
+          <label class="block text-sm font-medium text-gray-700">Password</label>
+          <input
+            type="password"
+            id="login-password"
+            class="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 pr-10"
+            required
+          >
+          <button
+            type="button"
+            id="toggle-login-password"
+            class="password-toggle"
+            aria-label="Toggle password visibility"
+          ></button>
+        </div>
+        <button
+          type="submit"
+          id="login-button"
+          class="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 disabled:bg-blue-300"
+        >
+          Login
+        </button>
+      </form>
+      <div id="login-spinner" class="spinner mt-4"></div>
+    </div>
+  </div>
+
+  <!-- Dashboard Screen -->
+  <div id="dashboard-screen" class="p-6 hidden">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex justify-between items-center mb-6">
+        <div>
+          <img src="/MetaVrLogo.jpg" alt="MetaVR Logo" class="header-logo">
+          <h1 class="text-3xl font-bold text-gray-800">Admin Dashboard</h1>
+        </div>
+        <button
+          id="logout-button"
+          class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700"
+        >
+          Logout
+        </button>
+      </div>
+
+      <!-- Create Store Form -->
+      <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+        <h2 class="text-xl font-semibold mb-4">Create New Store Account</h2>
+        <p id="form-error" class="text-red-500 mb-4"></p>
+        <p id="form-success" class="text-green-500 mb-4"></p>
+        <form id="create-store-form" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Store Name *</label>
+            <input
+              type="text"
+              id="store_name"
+              class="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500"
+              required
+            >
+            <p id="store_name-error" class="form-error"></p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Email *</label>
+            <input
+              type="email"
+              id="email"
+              class="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500"
+              required
+            >
+            <p id="email-error" class="form-error"></p>
+          </div>
+          <div class="password-container">
+            <label class="block text-sm font-medium text-gray-700">Password *</label>
+            <input
+              type="password"
+              id="password"
+              class="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 pr-10"
+              required
+            >
+            <button
+              type="button"
+              id="toggle-password"
+              class="password-toggle"
+              aria-label="Toggle password visibility"
+            ></button>
+            <p id="password-error" class="form-error"></p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Specialization *</label>
+            <input
+              type="text"
+              id="specialization"
+              class="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500"
+              required
+            >
+            <p id="specialization-error" class="form-error"></p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Country</label>
+            <input
+              type="text"
+              id="country"
+              class="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500"
+            >
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">User Name</label>
+            <input
+              type="text"
+              id="user_name"
+              class="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500"
+            >
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Access *</label>
+            <input
+              type="checkbox"
+              id="access"
+              class="mt-1 h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              checked
+            >
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Garment Limit *</label>
+            <input
+              type="number"
+              id="garment_limit"
+              class="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500"
+              min="1"
+              max="100"
+              value="6"
+              required
+            >
+            <p id="garment_limit-error" class="form-error"></p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">TryOn Limit *</label>
+            <input
+              type="number"
+              id="tryon_limit"
+              class="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500"
+              min="0"
+              max="1000"
+              value="10"
+              required
+            >
+            <p id="tryon_limit-error" class="form-error"></p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Store Logo</label>
+            <div class="mt-1 flex items-center">
+              <input
+                type="file"
+                id="logo"
+                accept="image/*"
+                class="p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500"
+              >
+            </div>
+            <p class="text-xs text-gray-500 mt-1">Upload a logo image for the store. Will be displayed on the store selection page.</p>
+            <p id="logo-error" class="form-error"></p>
+          </div>
+          <div class="md:col-span-2 flex items-center">
+            <button
+              type="submit"
+              id="create-store-button"
+              class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 disabled:bg-blue-300"
+            >
+              Create Store
+            </button>
+            <div id="form-spinner" class="spinner ml-4"></div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Edit Store Modal -->
+      <div id="edit-store-modal" class="modal">
+        <div class="modal-content">
+          <h2>Edit Store Account</h2>
+          <p id="edit-form-error" class="text-red-500 mb-4"></p>
+          <p id="edit-form-success" class="text-green-500 mb-4"></p>
+          <form id="edit-store-form" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <input type="hidden" id="edit-store-id">
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Store Name *</label>
+              <input
+                type="text"
+                id="edit-store_name"
+                class="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500"
+                required
+              >
+              <p id="edit-store_name-error" class="form-error"></p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Email *</label>
+              <input
+                type="email"
+                id="edit-email"
+                class="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500"
+                required
+              >
+              <p id="edit-email-error" class="form-error"></p>
+            </div>
+            <div class="password-container">
+              <label class="block text-sm font-medium text-gray-700">Password</label>
+              <input
+                type="password"
+                id="edit-password"
+                class="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 pr-10"
+              >
+              <button
+                type="button"
+                id="edit-toggle-password"
+                class="password-toggle"
+                aria-label="Toggle password visibility"
+              ></button>
+              <p id="edit-password-error" class="form-error"></p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Specialization *</label>
+              <input
+                type="text"
+                id="edit-specialization"
+                class="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500"
+                required
+              >
+              <p id="edit-specialization-error" class="form-error"></p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Country</label>
+              <input
+                type="text"
+                id="edit-country"
+                class="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500"
+              >
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">User Name</label>
+              <input
+                type="text"
+                id="edit-user_name"
+                class="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500"
+              >
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Access *</label>
+              <input
+                type="checkbox"
+                id="edit-access"
+                class="mt-1 h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              >
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Garment Limit *</label>
+              <input
+                type="number"
+                id="edit-garment_limit"
+                class="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500"
+                min="1"
+                max="100"
+                required
+              >
+              <p id="edit-garment_limit-error" class="form-error"></p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">TryOn Limit *</label>
+              <input
+                type="number"
+                id="edit-tryon_limit"
+                class="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500"
+                min="0"
+                max="1000"
+                required
+              >
+              <p id="edit-tryon_limit-error" class="form-error"></p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Store Logo</label>
+              <div class="mt-1 flex items-center">
+                <input
+                  type="file"
+                  id="edit-logo"
+                  accept="image/*"
+                  class="p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500"
+                >
+              </div>
+              <p class="text-xs text-gray-500 mt-1">Upload a new logo image for the store.</p>
+              <p id="edit-logo-error" class="form-error"></p>
+            </div>
+            <div class="md:col-span-2 flex justify-end gap-4">
+              <button
+                type="button"
+                id="cancel-edit-button"
+                class="bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                id="save-edit-button"
+                class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 disabled:bg-blue-300"
+              >
+                Save Changes
+              </button>
+            </div>
+          </form>
+          <div id="edit-form-spinner" class="spinner mt-4"></div>
+        </div>
+      </div>
+
+      <!-- Stores Table -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-xl font-semibold mb-4">Existing Stores</h2>
+        <div id="table-spinner" class="spinner active mb-4"></div>
+        <p id="no-stores" class="text-gray-500 hidden">No stores found.</p>
+        <div id="stores-table" class="overflow-x-auto hidden">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Store Name</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Password</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Specialization</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Country</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User Name</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Logo</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Access</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Garment Limit</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">TryOn Limit</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="stores-table-body" class="bg-white divide-y divide-gray-200"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Debug Output Panel (hidden by default) -->
+  <div id="debug-panel" style="display: none; position: fixed; bottom: 0; left: 0; right: 0; height: 200px; background: rgba(0,0,0,0.8); color: #fff; font-family: monospace; padding: 10px; overflow: auto; z-index: 9999;">
+    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+      <h3 style="margin: 0;">Debug Console</h3>
+      <button id="clear-debug" style="background: #333; color: #fff; border: none; padding: 5px 10px;">Clear</button>
+      <button id="close-debug" style="background: #d33; color: #fff; border: none; padding: 5px 10px;">Close</button>
+    </div>
+    <div id="debug-output"></div>
+  </div>
+
+  <!-- Add Debug Controls -->
+  <div style="position: fixed; bottom: 10px; right: 10px; z-index: 9998;">
+    <button id="show-debug" style="background: #007bff; color: #fff; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer;">
+      Show Debug
+    </button>
+  </div>
+
+  <script>
+    console.log("=== Admin Dashboard Script Initialized ===");
+    
+    // Debug variable to enable verbose logging
+    const DEBUG = true;
+    
+    // Debug function to log information
+    function debugLog(message, data) {
+      if (DEBUG) {
+        console.log(`[DEBUG] ${message}`, data || '');
+      }
+    }
+    
+    // Improved log function with more context
+    function logClientAction(action, details = {}) {
+      const log = {
+        page: 'admin',
+        level: action.includes('error') ? 'error' : 'info',
+        action,
+        details,
+        timestamp: new Date().toISOString()
+      };
+      
+      debugLog(`[${log.level.toUpperCase()}] ${action}`, details);
+      
+      // Only send logs if we're not in a login error state
+      if (log.action !== 'login_error' || details?.source !== 'network') {
+        fetch(`${API_URL}/client-logs`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ logs: [log] })
+        }).catch(err => {
+          console.error('Failed to send client log:', err);
+        });
+      }
+    }
+    
+    // Add a session check function
+    async function checkSession() {
+      debugLog("Checking for existing session...");
+      
+      try {
+        // First try using the stored token
+        const storedToken = localStorage.getItem('adminToken');
+        
+        if (storedToken) {
+          debugLog("Found stored token, attempting to use it");
+          
+          const response = await fetch(`${API_URL}/store/profile`, {
+            method: 'GET',
+            headers: { 
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${storedToken}`,
+              'X-User-Email': 'admin@metavrai.shop' // Pass email for session recovery
+            },
+            credentials: 'include'
+          });
+          
+          debugLog("Session check status:", response.status);
+          
+          if (response.status === 200) {
+            debugLog("Valid session found");
+            token = storedToken;
+            return true;
+          } else {
+            debugLog("No valid session found despite stored token");
+          }
+        } else {
+          // Try without token (cookie-based session)
+          const response = await fetch(`${API_URL}/store/profile`, {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include'
+          });
+          
+          debugLog("Session check status:", response.status);
+          
+          if (response.status === 200) {
+            debugLog("Valid session found via cookies");
+            return true;
+          } else {
+            debugLog("No valid session found");
+          }
+        }
+        
+        // At this point, no valid session exists
+        // Clear any stale tokens that might be causing issues
+        if (localStorage.getItem('adminToken')) {
+          debugLog("Clearing stale token");
+          localStorage.removeItem('adminToken');
+          token = '';
+        }
+        
+        return false;
+      } catch (error) {
+        debugLog("Error checking session:", error);
+        return false;
+      }
+    }
+    
+    // Enhanced login function with debugging
+    async function performLogin(email, password) {
+      debugLog("Starting login process", { email });
+      
+      try {
+        // Log the API URL for debugging
+        debugLog("API URL:", API_URL);
+        debugLog("Origin:", window.location.origin);
+        
+        // Check CORS setup
+        debugLog("CORS credentials mode will be: include");
+        
+        // Debug request payload
+        const payload = { email, password };
+        debugLog("Login payload (credentials redacted):", { email, passwordLength: password.length });
+        
+        // Make the login request
+        debugLog("Sending login request...");
+        
+        // Use test endpoint if in debug mode and using test credentials
+        const isTestMode = DEBUG && email === 'admin@test.com' && password === 'test123';
+        const endpoint = isTestMode ? `${API_URL}/admin/login-test` : `${API_URL}/admin/login`;
+        
+        debugLog(`Using endpoint: ${endpoint}${isTestMode ? ' (TEST MODE)' : ''}`);
+        
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+          },
+          credentials: 'include',
+          body: JSON.stringify(payload)
+        });
+        
+        debugLog("Login response received:", { 
+          status: response.status, 
+          statusText: response.statusText,
+          headers: Object.fromEntries([...response.headers])
+        });
+        
+        // Handle the response
+        if (!response.ok) {
+          const errorText = await response.text();
+          debugLog("Login error response:", errorText);
+          throw new Error(`HTTP Error: ${response.status} ${response.statusText}`);
+        }
+        
+        // Parse the response
+        let responseText;
+        try {
+          responseText = await response.text();
+          debugLog("Raw response:", responseText);
+          
+          const result = JSON.parse(responseText);
+          debugLog("Parsed response:", result);
+          
+          if (result.success) {
+            debugLog("Login successful");
+            // Store the token if provided
+            token = result.token || 'session-auth';
+            localStorage.setItem('adminToken', token);
+            
+            // Verify authentication is working
+            debugLog("Stored authentication token:", token);
+            
+            // Try to verify auth after login
+            setTimeout(async () => {
+              try {
+                const authCheck = await fetch(`${API_URL}/admin/auth-test`, {
+                  headers: { 'Authorization': `Bearer ${token}` },
+                  credentials: 'include'
+                });
+                const authResult = await authCheck.json();
+                debugLog("Auth check after login:", authResult);
+              } catch (authError) {
+                debugLog("Auth check error:", authError);
+              }
+            }, 500);
+            
+            return { success: true, token };
+          } else {
+            throw new Error(result.error || 'Login request failed without specific error');
+          }
+        } catch (parseError) {
+          debugLog("Failed to parse response:", parseError);
+          throw new Error(`Failed to parse response: ${parseError.message}`);
+        }
+      } catch (error) {
+        debugLog("Login error:", error);
+        logClientAction('login_error', { message: error.message, source: 'network' }, 'error');
+        throw error;
+      }
+    }
+    
+    const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+      ? 'http://localhost:3000'
+      : window.location.origin;
+
+    const loginScreen = document.getElementById('login-screen');
+    const dashboardScreen = document.getElementById('dashboard-screen');
+    const errorMessage = document.getElementById('error-message');
+    const successMessage = document.getElementById('success-message');
+    const loginForm = document.getElementById('login-form');
+    const loginButton = document.getElementById('login-button');
+    const loginSpinner = document.getElementById('login-spinner');
+    const logoutButton = document.getElementById('logout-button');
+    const createStoreForm = document.getElementById('create-store-form');
+    const createStoreButton = document.getElementById('create-store-button');
+    const formSpinner = document.getElementById('form-spinner');
+    const formError = document.getElementById('form-error');
+    const formSuccess = document.getElementById('form-success');
+    const tableSpinner = document.getElementById('table-spinner');
+    const noStores = document.getElementById('no-stores');
+    const storesTable = document.getElementById('stores-table');
+    const storesTableBody = document.getElementById('stores-table-body');
+    const loginPasswordInput = document.getElementById('login-password');
+    const toggleLoginPassword = document.getElementById('toggle-login-password');
+    const passwordInput = document.getElementById('password');
+    const togglePassword = document.getElementById('toggle-password');
+    const editStoreModal = document.getElementById('edit-store-modal');
+    const editStoreForm = document.getElementById('edit-store-form');
+    const editFormError = document.getElementById('edit-form-error');
+    const editFormSuccess = document.getElementById('edit-form-success');
+    const editFormSpinner = document.getElementById('edit-form-spinner');
+    const saveEditButton = document.getElementById('save-edit-button');
+    const cancelEditButton = document.getElementById('cancel-edit-button');
+    const editPasswordInput = document.getElementById('edit-password');
+    const editTogglePassword = document.getElementById('edit-toggle-password');
+
+    let token = localStorage.getItem('adminToken') || '';
+    let currentlyEditing = null;
+
+    function showElement(element) {
+      element.classList.remove('hidden');
+      element.style.display = '';
+    }
+
+    function hideElement(element) {
+      element.classList.add('hidden');
+      element.style.display = 'none';
+    }
+
+    function showError(element, message) {
+      element.textContent = message;
+      showElement(element);
+    }
+
+    function showSuccess(element, message) {
+      element.textContent = message;
+      showElement(element);
+    }
+
+    function clearMessages() {
+      hideElement(errorMessage);
+      hideElement(successMessage);
+      hideElement(formError);
+      hideElement(formSuccess);
+      hideElement(editFormError);
+      hideElement(editFormSuccess);
+      errorMessage.textContent = '';
+      successMessage.textContent = '';
+      formError.textContent = '';
+      formSuccess.textContent = '';
+      editFormError.textContent = '';
+      editFormSuccess.textContent = '';
+    }
+
+    function validateForm(formId = 'create-store-form') {
+      debugLog(`Starting form validation for ${formId}`);
+      const errors = {};
+      const prefix = formId === 'edit-store-form' ? 'edit-' : '';
+      
+      // Safely get form field values
+      debugLog(`Looking for form fields with prefix: "${prefix}"`);
+      const storeNameField = document.getElementById(`${prefix}store_name`);
+      const emailField = document.getElementById(`${prefix}email`);
+      const passwordField = document.getElementById(`${prefix}password`);
+      const specializationField = document.getElementById(`${prefix}specialization`);
+      const logoLinkField = document.getElementById(`${prefix}logo_link`); // This may be null now
+      const garmentLimitField = document.getElementById(`${prefix}garment_limit`);
+      const tryonLimitField = document.getElementById(`${prefix}tryon_limit`);
+      
+      debugLog('Form fields found:', {
+        storeNameField: !!storeNameField,
+        emailField: !!emailField,
+        passwordField: !!passwordField,
+        specializationField: !!specializationField,
+        logoLinkField: !!logoLinkField,
+        garmentLimitField: !!garmentLimitField,
+        tryonLimitField: !!tryonLimitField
+      });
+
+      // Check if fields exist to avoid null errors
+      if (!storeNameField) errors.store_name = 'Store name field not found';
+      if (!emailField) errors.email = 'Email field not found';
+      if (!passwordField) errors.password = 'Password field not found';
+      if (!specializationField) errors.specialization = 'Specialization field not found';
+      if (!garmentLimitField) errors.garment_limit = 'Garment limit field not found';
+      if (!tryonLimitField) errors.tryon_limit = 'TryOn limit field not found';
+      // Don't require logo_link field as it's been removed
+      
+      const requiredFieldsPresent = Object.keys(errors).length === 0;
+      debugLog(`Required fields present: ${requiredFieldsPresent}`, errors);
+
+      if (!requiredFieldsPresent) {
+        logClientAction('form_validation_error', { form: formId, errors, stage: 'missing_fields' });
+        document.querySelectorAll(`#${formId} .form-error`).forEach(el => el.textContent = '');
+        Object.keys(errors).forEach(key => {
+          const errorElement = document.getElementById(`${prefix}${key}-error`);
+          if (errorElement) errorElement.textContent = errors[key];
+        });
+        return false;
+      }
+
+      // Now we know all required fields exist, extract values
+      debugLog('Extracting values from form fields');
+      const storeName = storeNameField.value.trim();
+      const email = emailField.value.trim();
+      const password = passwordField.value;
+      const specialization = specializationField.value.trim();
+      // Only get logoLink if the field exists
+      const logoLink = logoLinkField ? logoLinkField.value.trim() : '';
+      const garmentLimit = garmentLimitField.value;
+      const tryonLimit = tryonLimitField.value;
+      
+      debugLog('Values extracted:', {
+        storeName,
+        email,
+        passwordLength: password ? password.length : 0,
+        specialization,
+        logoLink,
+        garmentLimit,
+        tryonLimit
+      });
+
+      // Validate values
+      debugLog('Validating field values');
+      if (!storeName) errors.store_name = 'Store name is required';
+      if (!email) errors.email = 'Email is required';
+      else if (!/\S+@\S+\.\S+/.test(email)) errors.email = 'Invalid email format';
+      if (formId === 'create-store-form' && !password) errors.password = 'Password is required';
+      if (formId === 'create-store-form' && password && password.length < 6) errors.password = 'Password must be at least 6 characters';
+      if (formId === 'edit-store-form' && password && password.length < 6) errors.password = 'Password must be at least 6 characters';
+      if (!specialization) errors.specialization = 'Specialization is required';
+      // Only validate logoLink if it exists and has a value
+      if (logoLink && !/^https?:\/\/[^\s$.?#].[^\s]*$/.test(logoLink)) {
+        errors.logo_link = 'Invalid URL format';
+      }
+      if (!garmentLimit) errors.garment_limit = 'Garment limit is required';
+      else if (isNaN(garmentLimit) || parseInt(garmentLimit) < 1) errors.garment_limit = 'Garment limit must be at least 1';
+      if (!tryonLimit) errors.tryon_limit = 'TryOn limit is required';
+      else if (isNaN(tryonLimit) || parseInt(tryonLimit) < 0) errors.tryon_limit = 'TryOn limit must be at least 0';
+
+      const validationPassed = Object.keys(errors).length === 0;
+      debugLog(`Validation passed: ${validationPassed}`, errors);
+      
+      if (!validationPassed) {
+        logClientAction('form_validation_error', { form: formId, errors, stage: 'validation' });
+      }
+
+      document.querySelectorAll(`#${formId} .form-error`).forEach(el => el.textContent = '');
+      Object.keys(errors).forEach(key => {
+        const errorElement = document.getElementById(`${prefix}${key}-error`);
+        if (errorElement) errorElement.textContent = errors[key];
+      });
+
+      return validationPassed;
+    }
+
+    async function fetchStores() {
+      showElement(tableSpinner);
+      hideElement(noStores);
+      hideElement(storesTable);
+      storesTableBody.innerHTML = '';
+      debugLog('Fetching stores with token:', token ? `${token.substring(0, 5)}...` : 'none');
+
+      try {
+        const response = await fetch(`${API_URL}/stores`, {
+          method: 'GET',
+          headers: { 
+            'Accept': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          credentials: 'include'
+        });
+        
+        debugLog('Fetch stores response status:', response.status);
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          debugLog('Error response body:', errorText);
+          throw new Error(`HTTP error: ${response.status} - ${errorText || response.statusText}`);
+        }
+        
+        let result;
+        try {
+          const responseText = await response.text();
+          debugLog('Raw response:', responseText);
+          result = JSON.parse(responseText);
+          debugLog('Parsed stores result:', result);
+        } catch (parseError) {
+          debugLog('Failed to parse response:', parseError);
+          throw new Error(`Failed to parse response: ${parseError.message}`);
+        }
+        
+        if (!result || !Array.isArray(result.stores)) {
+          debugLog('Invalid response format:', result);
+          throw new Error('Invalid response format - stores data not found');
+        }
+        
+        const stores = result.stores || [];
+        if (stores.length === 0) {
+          showElement(noStores);
+        } else {
+          stores.forEach(store => {
+            const row = document.createElement('tr');
+            row.dataset.storeId = store.id || store.store_name;
+            
+            // Determine if password is available
+            const hasPassword = store.password || store.plain_password;
+            const passwordToShow = store.plain_password || '';
+            const maskedPassword = hasPassword ? '••••••' : '-';
+            
+            row.innerHTML = `
+              <td class="px-6 py-4 whitespace-nowrap" data-field="store_name">${sanitize(store.store_name)}</td>
+              <td class="px-6 py-4 whitespace-nowrap" data-field="email">${sanitize(store.email)}</td>
+              <td class="px-6 py-4 whitespace-nowrap" data-field="password">
+                <span class="password-display">${maskedPassword}</span>
+                ${passwordToShow ? `<button class="password-toggle-btn ml-2 text-gray-500 hover:text-blue-700" data-password="${sanitize(passwordToShow)}">👁️</button>` : ''}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap" data-field="specialization">${sanitize(store.specialization)}</td>
+              <td class="px-6 py-4 whitespace-nowrap" data-field="country">${store.country ? sanitize(store.country) : '-'}</td>
+              <td class="px-6 py-4 whitespace-nowrap" data-field="user_name">${store.user_name ? sanitize(store.user_name) : '-'}</td>
+              <td class="px-6 py-4 whitespace-nowrap" data-field="logo_link">
+                ${store.logo_link ? `<img src="${sanitize(store.logo_link)}" alt="Logo" class="h-10 w-10 object-contain" onerror="this.src='/MetaVrLogo.jpg'">` : '-'}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap" data-field="access">
+                <span class="access-value">${store.access ? 'Yes' : 'No'}</span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap" data-field="garment_limit">${store.garment_limit ? sanitize(store.garment_limit) : '-'}</td>
+              <td class="px-6 py-4 whitespace-nowrap" data-field="tryon_limit">${store.tryon_limit ? sanitize(store.tryon_limit) : '-'}</td>
+              <td class="px-6 py-4 whitespace-nowrap" data-field="actions">
+                <button class="edit-store-btn text-blue-600 hover:text-blue-800 mr-2" data-store-id="${sanitize(store.id || store.store_name)}">Edit</button>
+                <button class="save-store-btn text-green-600 hover:text-green-800 mr-2 hidden" data-store-id="${sanitize(store.id || store.store_name)}">Save</button>
+                <button class="cancel-store-btn text-gray-600 hover:text-gray-800 mr-2 hidden" data-store-id="${sanitize(store.id || store.store_name)}">Cancel</button>
+                <button class="delete-store-btn text-red-600 hover:text-red-800" data-store-id="${sanitize(store.id || store.store_name)}">Delete</button>
+              </td>
+            `;
+            storesTableBody.appendChild(row);
+          });
+          
+          document.querySelectorAll('.password-toggle-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+              const display = btn.previousElementSibling;
+              const isHidden = display.textContent === '••••••';
+              display.textContent = isHidden ? btn.dataset.password : '••••••';
+              btn.textContent = isHidden ? '🙈' : '👁️';
+              logClientAction('toggle_store_password_visibility', { store_name: btn.closest('tr').dataset.storeId, visible: isHidden });
+            });
+          });
+          
+          document.querySelectorAll('.edit-store-btn').forEach(btn => {
+            btn.addEventListener('click', () => toggleInlineEdit(btn.dataset.storeId));
+          });
+          
+          document.querySelectorAll('.save-store-btn').forEach(btn => {
+            btn.addEventListener('click', () => saveInlineEdit(btn.dataset.storeId));
+          });
+          
+          document.querySelectorAll('.cancel-store-btn').forEach(btn => {
+            btn.addEventListener('click', () => cancelInlineEdit(btn.dataset.storeId));
+          });
+          
+          document.querySelectorAll('.delete-store-btn').forEach(btn => {
+            btn.addEventListener('click', () => deleteStore(btn.dataset.storeId));
+          });
+          
+          showElement(storesTable);
+        }
+      } catch (err) {
+        console.error('Error fetching stores:', err);
+        showError(formError, `Failed to fetch stores: ${err.message}`);
+        
+        if (err.message.includes('401') || err.message.includes('Unauthorized') || err.message.includes('403') || err.message.includes('Forbidden')) {
+          debugLog('Authentication error detected, clearing token and showing login screen');
+          token = '';
+          localStorage.removeItem('adminToken');
+          showElement(loginScreen);
+          hideElement(dashboardScreen);
+        }
+      } finally {
+        hideElement(tableSpinner);
+      }
+    }
+
+    function sanitize(input) {
+      const div = document.createElement('div');
+      div.textContent = input;
+      return div.innerHTML;
+    }
+
+    function setupPasswordToggle(input, toggleButton) {
+      toggleButton.addEventListener('click', () => {
+        const isHidden = input.type === 'password';
+        input.type = isHidden ? 'text' : 'password';
+        toggleButton.classList.toggle('hidden', !isHidden);
+        logClientAction('toggle_password_visibility', { input: input.id, visible: isHidden });
+      });
+    }
+
+    setupPasswordToggle(loginPasswordInput, toggleLoginPassword);
+    setupPasswordToggle(passwordInput, togglePassword);
+    setupPasswordToggle(editPasswordInput, editTogglePassword);
+
+    async function openEditModal(storeId) {
+      clearMessages();
+      showElement(editStoreModal);
+      logClientAction('open_edit_store_modal', { store_name: storeId });
+
+      try {
+        const response = await fetch(`${API_URL}/stores`, {
+          method: 'GET',
+          headers: { 
+            'Authorization': `Bearer ${token}` 
+          },
+          credentials: 'include'
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch stores: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        const store = result.stores.find(s => s.store_name === storeId);
+        
+        if (store) {
+          document.getElementById('edit-store-id').value = store.store_name;
+          document.getElementById('edit-store_name').value = store.store_name;
+          document.getElementById('edit-email').value = store.email;
+          document.getElementById('edit-specialization').value = store.specialization;
+          document.getElementById('edit-country').value = store.country || '';
+          document.getElementById('edit-user_name').value = store.user_name || '';
+          document.getElementById('edit-garment_limit').value = store.garment_limit || '6';
+          document.getElementById('edit-tryon_limit').value = store.tryon_limit || '10';
+          
+          const accessCheckbox = document.getElementById('edit-access');
+          if (accessCheckbox) {
+            accessCheckbox.checked = store.access === true;
+          }
+        } else {
+          throw new Error('Store not found');
+        }
+      } catch (error) {
+        console.error('Error opening edit modal:', error);
+        showError(editFormError, `Error: ${error.message}`);
+      }
+    }
+
+    async function deleteStore(storeId) {
+      if (!confirm('Are you sure you want to delete this store account?')) {
+        return;
+      }
+      clearMessages();
+      logClientAction('delete_store_attempt', { store_name: storeId });
+      debugLog('Attempting to delete store:', storeId);
+
+      try {
+        const response = await fetch(`${API_URL}/stores/${storeId}`, {
+          method: 'DELETE',
+          headers: { 
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json'
+          },
+          credentials: 'include'
+        });
+        
+        debugLog('Delete response status:', response.status);
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          debugLog('Error response body:', errorText);
+          throw new Error(`HTTP error: ${response.status} - ${errorText || response.statusText}`);
+        }
+        
+        const result = await response.json();
+        debugLog('Delete result:', result);
+        
+        if (result.success) {
+          showSuccess(formSuccess, 'Store account deleted successfully');
+          logClientAction('delete_store_success', { store_name: storeId });
+          fetchStores();
+        } else {
+          throw new Error(result.error || 'Failed to delete store');
+        }
+      } catch (err) {
+        showError(formError, `Error deleting store account: ${err.message}`);
+        logClientAction('delete_store_error', { message: err.message, store_name: storeId });
+        
+        if (err.message.includes('401') || err.message.includes('Unauthorized') || err.message.includes('403') || err.message.includes('Forbidden')) {
+          debugLog('Authentication error detected during delete, clearing token and showing login screen');
+          token = '';
+          localStorage.removeItem('adminToken');
+          showElement(loginScreen);
+          hideElement(dashboardScreen);
+        }
+      }
+    }
+
+    // Login events
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      debugLog("Login form submitted");
+      
+      const email = document.getElementById('login-email').value;
+      const password = document.getElementById('login-password').value;
+      
+      if (!email || !password) {
+        debugLog("Email or password missing");
+        showError(errorMessage, "Please enter email and password");
+        return;
+      }
+      
+      clearMessages();
+      loginButton.disabled = true;
+      showElement(loginSpinner);
+      
+      try {
+        const result = await performLogin(email, password);
+        
+        if (result.success) {
+          logClientAction('login_success', { email });
+          debugLog("Showing dashboard screen");
+          hideElement(loginScreen);
+          showElement(dashboardScreen);
+          loginForm.reset();
+          
+          // Check localStorage
+          debugLog("Checking localStorage.adminToken after login", localStorage.getItem('adminToken'));
+          
+          // Try to fetch stores as a test
+          try {
+            debugLog("Fetching stores after login");
+            await fetchStores();
+          } catch (fetchError) {
+            debugLog("Error fetching stores after login:", fetchError);
+            alert("Login succeeded but failed to fetch stores: " + fetchError.message);
+          }
+        } else {
+          throw new Error('Login failed with unknown error');
+        }
+      } catch (err) {
+        console.error('Login error:', err);
+        showError(errorMessage, `Login failed: ${err.message}`);
+        logClientAction('login_error', { message: err.message });
+        
+        // Additional debugging
+        debugLog("Login failed with error:", err);
+        
+        // Check if we can access the admin endpoint
+        try {
+          const testResponse = await fetch(`${API_URL}/public-url`, { 
+            method: 'GET',
+            credentials: 'include'
+          });
+          debugLog("Test endpoint response:", { 
+            status: testResponse.status,
+            ok: testResponse.ok
+          });
+        } catch (testError) {
+          debugLog("Test endpoint error:", testError);
+        }
+      } finally {
+        loginButton.disabled = false;
+        hideElement(loginSpinner);
+      }
+    });
+
+    logoutButton.addEventListener('click', () => {
+      logClientAction('logout');
+      token = '';
+      localStorage.removeItem('adminToken');
+      hideElement(dashboardScreen);
+      showElement(loginScreen);
+      showSuccess(successMessage, 'Logged out successfully');
+      createStoreForm.reset();
+      storesTableBody.innerHTML = '';
+      hideElement(storesTable);
+      hideElement(noStores);
+    });
+
+    // Create store form submit handler
+    createStoreForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      clearMessages();
+      createStoreButton.disabled = true;
+      showElement(formSpinner);
+      logClientAction('create_store_attempt');
+
+      // Log form data for debugging
+      const formDataDebug = {
+        store_name: document.getElementById('store_name')?.value,
+        email: document.getElementById('email')?.value,
+        password: document.getElementById('password')?.value,
+        specialization: document.getElementById('specialization')?.value,
+        country: document.getElementById('country')?.value,
+        user_name: document.getElementById('user_name')?.value,
+        access: document.getElementById('access')?.checked,
+        garment_limit: document.getElementById('garment_limit')?.value,
+        tryon_limit: document.getElementById('tryon_limit')?.value
+      };
+      debugLog('Form data before validation:', formDataDebug);
+      
+      // Debug form elements
+      debugLog('Form fields found:', {
+        'store_name': !!document.getElementById('store_name'),
+        'email': !!document.getElementById('email'),
+        'password': !!document.getElementById('password'),
+        'specialization': !!document.getElementById('specialization'),
+        'country': !!document.getElementById('country'),
+        'user_name': !!document.getElementById('user_name'),
+        'access': !!document.getElementById('access'),
+        'garment_limit': !!document.getElementById('garment_limit'),
+        'tryon_limit': !!document.getElementById('tryon_limit'),
+        'logo': !!document.getElementById('logo')
+      });
+
+      if (!validateForm()) {
+        showError(formError, 'Please correct the errors in the form');
+        logClientAction('create_store_error', { message: 'Form validation failed' });
+        createStoreButton.disabled = false;
+        hideElement(formSpinner);
+        return;
+      }
+      
+      debugLog('Form validation passed, proceeding with store creation');
+
+      try {
+        // Get the logo file reference for later use
+        const logoFile = document.getElementById('logo')?.files[0];
+        
+        // FIRST: Create the store
+        debugLog('Creating new store with data:', formDataDebug);
+        
+        const response = await fetch(`${API_URL}/stores`, {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          credentials: 'include',
+          body: JSON.stringify(formDataDebug)
+        });
+        
+        debugLog('Create store response status:', response.status);
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          debugLog('Error response body:', errorText);
+          throw new Error(`Server error: ${response.status} - ${errorText || 'Unknown error'}`);
+        }
+        
+        const result = await response.json();
+        debugLog('Create store success:', result);
+        
+        // SECOND: Upload the logo (if one was provided) after store is created
+        if (logoFile) {
+          debugLog('Logo file found, uploading to server after store creation', { 
+            fileName: logoFile.name, 
+            fileSize: logoFile.size, 
+            fileType: logoFile.type 
+          });
+          
+          // Create form data for logo upload
+          const logoFormData = new FormData();
+          logoFormData.append('logo', logoFile);
+          logoFormData.append('storeName', formDataDebug.store_name || 'temp_store');
+          
+          try {
+            // Upload logo to server
+            debugLog('Sending logo upload request to endpoint', `${API_URL}/store/logo/${formDataDebug.store_name}`);
+            const logoResponse = await fetch(`${API_URL}/store/logo/${formDataDebug.store_name}`, {
+              method: 'PUT',
+              headers: {
+                'Authorization': `Bearer ${token}`
+              },
+              credentials: 'include',
+              body: logoFormData
+            });
+
+            debugLog('Logo upload response status:', logoResponse.status);
+            
+            // Check if upload was successful
+            if (logoResponse.ok) {
+              const logoResult = await logoResponse.json();
+              debugLog('Logo uploaded successfully, received URL:', logoResult.logo_link);
+            } else {
+              const logoError = await logoResponse.text();
+              debugLog('Logo upload failed with response:', logoError);
+              // Store is already created, so we'll continue despite logo upload failure
+            }
+          } catch (logoError) {
+            debugLog('Logo upload error:', logoError);
+            // Store is already created, so we'll continue despite logo upload failure
+          }
+        }
+        
+        showSuccess(formSuccess, `Store "${formDataDebug.store_name}" created successfully!`);
+        createStoreForm.reset();
+        await fetchStores();
+        logClientAction('create_store_success', { store_id: result.storeId });
+      } catch (err) {
+        console.error('Error creating store:', err);
+        showError(formError, `Failed to create store: ${err.message}`);
+        logClientAction('create_store_error', { message: err.message });
+        debugLog('Create store error:', err);
+      } finally {
+        createStoreButton.disabled = false;
+        hideElement(formSpinner);
+      }
+    });
+
+    editStoreForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      clearMessages();
+      saveEditButton.disabled = true;
+      showElement(editFormSpinner);
+      logClientAction('edit_store_attempt', { store_name: document.getElementById('edit-store-id').value });
+
+      if (!validateForm('edit-store-form')) {
+        showError(editFormError, 'Please correct the errors in the form');
+        logClientAction('edit_store_error', { message: 'Form validation failed' });
+        saveEditButton.disabled = false;
+        hideElement(editFormSpinner);
+        return;
+      }
+
+      const formData = {
+        store_name: document.getElementById('edit-store_name').value.trim(),
+        email: document.getElementById('edit-email').value.trim(),
+        password: document.getElementById('edit-password').value || undefined,
+        specialization: document.getElementById('edit-specialization').value.trim(),
+        country: document.getElementById('edit-country').value.trim(),
+        user_name: document.getElementById('edit-user_name').value.trim(),
+        access: document.getElementById('edit-access').checked,
+        garment_limit: document.getElementById('edit-garment_limit').value,
+        tryon_limit: document.getElementById('edit-tryon_limit').value
+      };
+
+      const originalStoreId = document.getElementById('edit-store-id').value;
+      const logoFile = document.getElementById('edit-logo').files[0];
+
+      try {
+        // FIRST: Update the store data
+        debugLog('Updating store data', { originalStoreId, formData });
+        
+        const response = await fetch(`${API_URL}/stores/${originalStoreId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          credentials: 'include',
+          body: JSON.stringify(formData)
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          debugLog('Error response body for store update:', errorText);
+          throw new Error(`Server error: ${response.status} - ${errorText || 'Unknown error'}`);
+        }
+        
+        const result = await response.json();
+        debugLog('Store update success:', result);
+        
+        // SECOND: Handle logo upload if a new file is selected
+        if (logoFile) {
+          debugLog('Logo file found for edit, uploading to server after store update', {
+            fileName: logoFile.name,
+            fileSize: logoFile.size,
+            fileType: logoFile.type
+          });
+          
+          // Create form data for logo upload
+          const logoFormData = new FormData();
+          logoFormData.append('logo', logoFile);
+          logoFormData.append('storeName', originalStoreId);
+          
+          // Upload logo to server
+          debugLog('Sending logo upload request for edit to endpoint', `${API_URL}/store/logo/${originalStoreId}`);
+          const logoResponse = await fetch(`${API_URL}/store/logo/${originalStoreId}`, {
+            method: 'PUT',
+            headers: {
+              'Authorization': `Bearer ${token}`
+            },
+            credentials: 'include',
+            body: logoFormData
+          });
+
+          debugLog('Logo upload response status:', logoResponse.status);
+          
+          // Check if upload was successful
+          if (logoResponse.ok) {
+            const logoResult = await logoResponse.json();
+            debugLog('Logo uploaded successfully for edit, received URL:', logoResult.logo_link);
+          } else {
+            const logoError = await logoResponse.text();
+            debugLog('Logo upload failed for edit with response:', logoError);
+            showError(editFormError, 'Logo upload failed, but store update was successful');
+          }
+        }
+
+        showSuccess(editFormSuccess, 'Store updated successfully');
+        logClientAction('edit_store_success', { store_name: formData.store_name });
+        hideElement(editStoreModal);
+        fetchStores();
+      } catch (error) {
+        console.error('Error updating store:', error);
+        showError(editFormError, `Error updating store: ${error.message}`);
+        logClientAction('edit_store_error', { message: error.message, store_name: originalStoreId });
+      } finally {
+        saveEditButton.disabled = false;
+        hideElement(editFormSpinner);
+      }
+    });
+
+    cancelEditButton.addEventListener('click', () => {
+      clearMessages();
+      hideElement(editStoreModal);
+      logClientAction('cancel_edit_store', { store_name: document.getElementById('edit-store-id').value });
+    });
+
+    function toggleInlineEdit(storeId) {
+      const row = document.querySelector(`tr[data-store-id="${storeId}"]`);
+      if (!row) return;
+
+      const cells = row.querySelectorAll('td[data-field]:not([data-field="actions"])');
+      const editBtn = row.querySelector('.edit-store-btn');
+      const saveBtn = row.querySelector('.save-store-btn');
+      const cancelBtn = row.querySelector('.cancel-store-btn');
+
+      if (currentlyEditing === storeId) {
+        // Cancel edit mode
+        cells.forEach(cell => {
+          const input = cell.querySelector('input, select');
+          if (input) {
+            const span = cell.querySelector('span');
+            if (span) span.textContent = input.value || (cell.dataset.field === 'access' ? (input.checked ? 'Yes' : 'No') : '-');
+            cell.innerHTML = span ? span.outerHTML : cell.innerHTML;
+          }
+        });
+        showElement(editBtn);
+        hideElement(saveBtn);
+        hideElement(cancelBtn);
+        currentlyEditing = null;
+        logClientAction('cancel_inline_edit', { store_name: storeId });
+      } else {
+        // Enter edit mode
+        if (currentlyEditing) toggleInlineEdit(currentlyEditing);
+        cells.forEach(cell => {
+          const value = cell.textContent.trim() || '-';
+          const field = cell.dataset.field;
+          let inputHtml = '';
+
+          if (field === 'access') {
+            inputHtml = `<select class="border p-1 rounded">
+              <option value="true" ${value === 'Yes' ? 'selected' : ''}>Yes</option>
+              <option value="false" ${value === 'No' ? 'selected' : ''}>No</option>
+            </select>`;
+          } else if (field === 'garment_limit' || field === 'tryon_limit') {
+            inputHtml = `<input type="number" class="border p-1 rounded w-full" value="${value === '-' ? '' : value}" min="${field === 'garment_limit' ? 1 : 0}">`;
+          } else if (field === 'password') {
+            // Special handling for password field
+            const passwordBtn = cell.querySelector('.password-toggle-btn');
+            const passwordText = passwordBtn ? passwordBtn.dataset.password : '';
+            inputHtml = `<input type="text" class="border p-1 rounded w-full" value="${passwordText || ''}">`;
+          } else if (field !== 'logo_link') { // Don't create an input for logo_link
+            inputHtml = `<input type="text" class="border p-1 rounded w-full" value="${value === '-' ? '' : value}">`;
+          }
+
+          if (inputHtml) {
+            cell.innerHTML = inputHtml;
+          }
+        });
+        hideElement(editBtn);
+        showElement(saveBtn);
+        showElement(cancelBtn);
+        currentlyEditing = storeId;
+        logClientAction('start_inline_edit', { store_name: storeId });
+      }
+    }
+
+    async function saveInlineEdit(storeId) {
+      const row = document.querySelector(`tr[data-store-id="${storeId}"]`);
+      if (!row) return;
+
+      const cells = row.querySelectorAll('td[data-field]:not([data-field="actions"])');
+      const editBtn = row.querySelector('.edit-store-btn');
+      const saveBtn = row.querySelector('.save-store-btn');
+      const cancelBtn = row.querySelector('.cancel-store-btn');
+
+      const updatedData = {};
+      cells.forEach(cell => {
+        const input = cell.querySelector('input, select');
+        if (input) {
+          const field = cell.dataset.field;
+          if (field === 'access') {
+            updatedData[field] = input.value === 'true';
+          } else if (input.value) { // Only include fields with values
+            updatedData[field] = input.value;
+          }
+        }
+      });
+
+      try {
+        // Skip fields that shouldn't be updated via inline edit
+        if (updatedData.hasOwnProperty('logo_link')) {
+          delete updatedData.logo_link;
+        }
+        
+        // Skip password field for inline edits
+        if (updatedData.hasOwnProperty('password')) {
+          delete updatedData.password;
+        }
+        
+        // Remove store_name field - server bug with this field
+        if (updatedData.hasOwnProperty('store_name')) {
+          delete updatedData.store_name;
+        }
+        
+        // Keep only allowed fields for inline editing
+        const allowedFields = ['email', 'specialization', 'country', 'user_name', 'access', 'garment_limit', 'tryon_limit'];
+        Object.keys(updatedData).forEach(key => {
+          if (!allowedFields.includes(key)) {
+            delete updatedData[key];
+          }
+        });
+        
+        debugLog('Sending update for store:', { storeId, data: updatedData });
+      
+        // Check if there are any fields to update
+        if (Object.keys(updatedData).length === 0) {
+          debugLog('No changes to save');
+          // Just cancel the edit mode
+          cells.forEach(cell => {
+            const input = cell.querySelector('input, select');
+            if (input) {
+              const field = cell.dataset.field;
+              let displayValue;
+              
+              if (field === 'access') {
+                displayValue = input.value === 'true' ? 'Yes' : 'No';
+              } else if (field === 'password') {
+                // Don't update password display
+                return;
+              } else {
+                displayValue = input.value || '-';
+              }
+              
+              const span = document.createElement('span');
+              if (field === 'access') {
+                span.className = 'access-value';
+              }
+              span.textContent = displayValue;
+              cell.innerHTML = span.outerHTML;
+            }
+          });
+          
+          showElement(editBtn);
+          hideElement(saveBtn);
+          hideElement(cancelBtn);
+          currentlyEditing = null;
+          return;
+        }
+        
+        const response = await fetch(`${API_URL}/stores/${storeId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          credentials: 'include',
+          body: JSON.stringify(updatedData)
+        });
+
+        debugLog('Update response status:', response.status);
+      
+        if (!response.ok) {
+          const errorText = await response.text();
+          debugLog('Error response body:', errorText);
+          throw new Error(`Server error: ${response.status} - ${errorText || 'Unknown error'}`);
+        }
+
+        const result = await response.json();
+        cells.forEach(cell => {
+          const input = cell.querySelector('input, select');
+          if (input) {
+            const field = cell.dataset.field;
+            let displayValue;
+            
+            if (field === 'access') {
+              displayValue = input.value === 'true' ? 'Yes' : 'No';
+            } else if (field === 'password') {
+              // Handle password field specially
+              displayValue = '••••••';
+              const span = document.createElement('span');
+              span.className = 'password-display';
+              span.textContent = displayValue;
+              
+              const button = document.createElement('button');
+              button.className = 'password-toggle-btn ml-2 text-gray-500 hover:text-blue-700';
+              button.dataset.password = input.value;
+              button.textContent = '👁️';
+              button.addEventListener('click', () => {
+                const isHidden = span.textContent === '••••••';
+                span.textContent = isHidden ? button.dataset.password : '••••••';
+                button.textContent = isHidden ? '🙈' : '👁️';
+              });
+              
+              cell.innerHTML = '';
+              cell.appendChild(span);
+              cell.appendChild(button);
+              return;
+            } else {
+              displayValue = input.value || '-';
+            }
+            
+            const span = document.createElement('span');
+            if (field === 'access') {
+              span.className = 'access-value';
+            }
+            span.textContent = displayValue;
+            cell.innerHTML = span.outerHTML;
+          }
+        });
+        
+        showElement(editBtn);
+        hideElement(saveBtn);
+        hideElement(cancelBtn);
+        currentlyEditing = null;
+        logClientAction('save_inline_edit_success', { store_name: storeId });
+        
+        // Refresh the store data to ensure consistency
+        await fetchStores();
+      } catch (error) {
+        showError(formError, `Error updating store: ${error.message}`);
+        logClientAction('save_inline_edit_error', { message: error.message, store_name: storeId });
+      }
+    }
+
+    function cancelInlineEdit(storeId) {
+      const row = document.querySelector(`tr[data-store-id="${storeId}"]`);
+      if (!row) return;
+
+      const cells = row.querySelectorAll('td[data-field]:not([data-field="actions"])');
+      const editBtn = row.querySelector('.edit-store-btn');
+      const saveBtn = row.querySelector('.save-store-btn');
+      const cancelBtn = row.querySelector('.cancel-store-btn');
+
+      cells.forEach(cell => {
+        const input = cell.querySelector('input, select');
+        if (input) {
+          const span = cell.querySelector('span');
+          if (span) cell.innerHTML = span.outerHTML;
+        }
+      });
+      showElement(editBtn);
+      hideElement(saveBtn);
+      hideElement(cancelBtn);
+      currentlyEditing = null;
+      logClientAction('cancel_inline_edit', { store_name: storeId });
+    }
+
+    // Debug initialization
+    debugLog("Script setup complete, checking for existing token");
+    
+    // Check for stored token on page load
+    document.addEventListener('DOMContentLoaded', async () => {
+      debugLog("DOM loaded, checking authentication state");
+      
+      const storedToken = localStorage.getItem('adminToken');
+      debugLog("Stored admin token:", { exists: !!storedToken });
+      
+      if (storedToken) {
+        token = storedToken;
+        // Try to validate the token by checking session
+        const hasSession = await checkSession();
+        
+        if (hasSession) {
+          debugLog("Valid admin session found, showing dashboard");
+          hideElement(loginScreen);
+          showElement(dashboardScreen);
+          fetchStores();
+        } else {
+          debugLog("No valid session found despite stored token");
+          localStorage.removeItem('adminToken');
+          token = null;
+          showElement(loginScreen);
+          hideElement(dashboardScreen);
+        }
+      } else {
+        debugLog("No stored token found, showing login screen");
+        showElement(loginScreen);
+        hideElement(dashboardScreen);
+      }
+    });
+
+    // Debug panel functionality
+    document.getElementById('show-debug').addEventListener('click', () => {
+      document.getElementById('debug-panel').style.display = 'block';
+    });
+    
+    document.getElementById('close-debug').addEventListener('click', () => {
+      document.getElementById('debug-panel').style.display = 'none';
+    });
+    
+    document.getElementById('clear-debug').addEventListener('click', () => {
+      document.getElementById('debug-output').innerHTML = '';
+    });
+    
+    // Override console.log and errors to also display in debug panel
+    const originalConsoleLog = console.log;
+    const originalConsoleError = console.error;
+    const originalConsoleWarn = console.warn;
+    
+    console.log = function() {
+      originalConsoleLog.apply(console, arguments);
+      addToDebugOutput('log', arguments);
+    };
+    
+    console.error = function() {
+      originalConsoleError.apply(console, arguments);
+      addToDebugOutput('error', arguments);
+    };
+    
+    console.warn = function() {
+      originalConsoleWarn.apply(console, arguments);
+      addToDebugOutput('warn', arguments);
+    };
+    
+    function addToDebugOutput(type, args) {
+      const debugOutput = document.getElementById('debug-output');
+      const div = document.createElement('div');
+      
+      let color = '#aaa';
+      if (type === 'error') color = '#f66';
+      if (type === 'warn') color = '#fc6';
+      if (String(args[0]).includes('[DEBUG]')) color = '#6cf';
+      
+      div.style.color = color;
+      div.style.borderBottom = '1px solid #333';
+      div.style.padding = '3px 0';
+      
+      const time = new Date().toTimeString().split(' ')[0];
+      const argsArray = Array.from(args);
+      let text = `[${time}] ${argsArray.map(arg => {
+        if (typeof arg === 'object') {
+          try {
+            return JSON.stringify(arg);
+          } catch (e) {
+            return String(arg);
+          }
+        }
+        return String(arg);
+      }).join(' ')}`;
+      
+      div.textContent = text;
+      debugOutput.appendChild(div);
+      
+      // Auto-scroll to bottom
+      debugOutput.scrollTop = debugOutput.scrollHeight;
+    }
+  </script>
+</body>
+</html>
