@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Dashboard</title>
+  <title>Admin Dashboard - Garment Management</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     .spinner {
@@ -120,7 +120,7 @@
   <!-- Login Screen -->
   <div id="login-screen" class="flex items-center justify-center min-h-screen">
     <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-      <img src="/MetaVrLogo.jpg" alt="MetaVR Logo" class="header-logo">
+      <img src="https://res.cloudinary.com/dj3ewvbqm/image/upload/v1756493219/VTON%20Web%20site/WebSite_media/landing_page/bbdecb3ojynnf9y4zqzj.jpg" alt="MetaVR Logo" class="header-logo">
       <h2 class="text-2xl font-bold mb-6 text-center">Admin Login</h2>
       <p id="error-message" class="text-red-500 mb-4"></p>
       <p id="success-message" class="text-green-500 mb-4"></p>
@@ -166,8 +166,8 @@
     <div class="max-w-7xl mx-auto">
       <div class="flex justify-between items-center mb-6">
         <div>
-          <img src="/MetaVrLogo.jpg" alt="MetaVR Logo" class="header-logo">
-          <h1 class="text-3xl font-bold text-gray-800">Admin Dashboard</h1>
+          <img src="https://res.cloudinary.com/dj3ewvbqm/image/upload/v1756493219/VTON%20Web%20site/WebSite_media/landing_page/bbdecb3ojynnf9y4zqzj.jpg" alt="MetaVR Logo" class="header-logo">
+          <h1 class="text-3xl font-bold text-gray-800">Admin Dashboard - Garment Management</h1>
         </div>
         <button
           id="logout-button"
@@ -177,248 +177,300 @@
         </button>
       </div>
 
-      <!-- Create Store Form -->
+      <!-- Create Garment Form -->
       <div class="bg-white p-6 rounded-lg shadow-md mb-8">
-        <h2 class="text-xl font-semibold mb-4">Create New Store Account</h2>
+        <h2 class="text-xl font-semibold mb-4">Add New Garment</h2>
         <p id="form-error" class="text-red-500 mb-4"></p>
         <p id="form-success" class="text-green-500 mb-4"></p>
-        <form id="create-store-form" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <form id="create-garment-form" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
           <div>
-            <label class="block text-sm font-medium text-gray-700">Store Name *</label>
+            <label class="block text-sm font-medium text-gray-700">Category *</label>
+            <select
+              id="category"
+              class="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500"
+              required
+            >
+              <option value="">Select Category</option>
+              <option value="upperbody">Upper Body</option>
+              <option value="lowerbody">Lower Body</option>
+              <option value="dresses">Dresses</option>
+            </select>
+            <p id="category-error" class="form-error"></p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Type *</label>
+            <select
+              id="garment_type"
+              class="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500"
+              required
+            >
+              <option value="">Select Type</option>
+              <option value="T-shirt">T-shirt</option>
+              <option value="Shirt">Shirt</option>
+              <option value="Blouse">Blouse</option>
+              <option value="Tank Top">Tank Top</option>
+              <option value="Polo">Polo</option>
+              <option value="Sweater">Sweater</option>
+              <option value="Hoodie">Hoodie</option>
+              <option value="Cardigan">Cardigan</option>
+              <option value="Jacket">Jacket</option>
+              <option value="Blazer">Blazer</option>
+              <option value="Coat">Coat</option>
+              <option value="Jeans">Jeans</option>
+              <option value="Pants">Pants</option>
+              <option value="Trousers">Trousers</option>
+              <option value="Shorts">Shorts</option>
+              <option value="Skirt">Skirt</option>
+              <option value="Dress">Dress</option>
+              <option value="Jumpsuit">Jumpsuit</option>
+              <option value="Suit">Suit</option>
+              <option value="Leggings">Leggings</option>
+              <option value="Joggers">Joggers</option>
+              <option value="Other">Other</option>
+            </select>
+            <p id="garment_type-error" class="form-error"></p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Color *</label>
+            <div class="flex items-center space-x-3">
+            <input
+                type="color"
+                id="color-picker"
+                class="h-10 w-16 border border-gray-300 rounded cursor-pointer"
+                value="#000000"
+              >
             <input
               type="text"
-              id="store_name"
-              class="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500"
+                id="color"
+                class="flex-1 p-2 border rounded-md focus:ring-2 focus:ring-blue-500 bg-gray-50"
+                placeholder="Color name will appear here"
+                readonly
               required
             >
-            <p id="store_name-error" class="form-error"></p>
           </div>
+            <p class="text-xs text-gray-500 mt-1">Pick a color and the name will be automatically detected</p>
+            <p id="color-error" class="form-error"></p>
+          </div>
+
           <div>
-            <label class="block text-sm font-medium text-gray-700">Email *</label>
-            <input
-              type="email"
-              id="email"
-              class="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500"
-              required
-            >
-            <p id="email-error" class="form-error"></p>
-          </div>
-          <div class="password-container">
-            <label class="block text-sm font-medium text-gray-700">Password *</label>
-            <input
-              type="password"
-              id="password"
-              class="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 pr-10"
-              required
-            >
-            <button
-              type="button"
-              id="toggle-password"
-              class="password-toggle"
-              aria-label="Toggle password visibility"
-            ></button>
-            <p id="password-error" class="form-error"></p>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700">Specialization *</label>
-            <input
-              type="text"
-              id="specialization"
-              class="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500"
-              required
-            >
-            <p id="specialization-error" class="form-error"></p>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700">Country</label>
-            <input
-              type="text"
-              id="country"
+            <label class="block text-sm font-medium text-gray-700">Size</label>
+            <select
+              id="size"
               class="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500"
             >
+              <option value="">Select Size</option>
+              <option value="XXS">XXS</option>
+              <option value="XS">XS</option>
+              <option value="S">S</option>
+              <option value="M">M</option>
+              <option value="L">L</option>
+              <option value="XL">XL</option>
+              <option value="XXL">XXL</option>
+              <option value="XXXL">XXXL</option>
+              <option value="One Size">One Size</option>
+              <option value="Free Size">Free Size</option>
+              <option value="28">28</option>
+              <option value="30">30</option>
+              <option value="32">32</option>
+              <option value="34">34</option>
+              <option value="36">36</option>
+              <option value="38">38</option>
+              <option value="40">40</option>
+              <option value="42">42</option>
+              <option value="44">44</option>
+              <option value="Other">Other</option>
+            </select>
           </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700">User Name</label>
-            <input
-              type="text"
-              id="user_name"
+
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-gray-700">Description</label>
+            <textarea
+              id="description"
               class="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500"
-            >
+              rows="3"
+              placeholder="Describe the garment..."
+            ></textarea>
           </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700">Access *</label>
-            <input
-              type="checkbox"
-              id="access"
-              class="mt-1 h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-              checked
-            >
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700">Garment Limit *</label>
-            <input
-              type="number"
-              id="garment_limit"
-              class="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500"
-              min="1"
-              max="100"
-              value="6"
-              required
-            >
-            <p id="garment_limit-error" class="form-error"></p>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700">TryOn Limit *</label>
-            <input
-              type="number"
-              id="tryon_limit"
-              class="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500"
-              min="0"
-              max="1000"
-              value="10"
-              required
-            >
-            <p id="tryon_limit-error" class="form-error"></p>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700">Store Logo</label>
+
+                     <div class="md:col-span-2">
+             <label class="block text-sm font-medium text-gray-700">Garment Image *</label>
             <div class="mt-1 flex items-center">
               <input
                 type="file"
-                id="logo"
+                 id="garment_image"
                 accept="image/*"
                 class="p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500"
+                 required
               >
             </div>
-            <p class="text-xs text-gray-500 mt-1">Upload a logo image for the store. Will be displayed on the store selection page.</p>
-            <p id="logo-error" class="form-error"></p>
+             <p class="text-xs text-gray-500 mt-1">Upload a high-quality image of the garment for virtual try-on.</p>
+             <p id="garment_image-error" class="form-error"></p>
+             
+             <!-- Image Preview -->
+             <div id="image-preview-container" class="mt-3 hidden">
+               <label class="block text-sm font-medium text-gray-700 mb-2">Image Preview:</label>
+               <div class="relative inline-block">
+                 <img id="image-preview" src="" alt="Image Preview" class="max-w-xs max-h-48 rounded-lg border border-gray-300 shadow-sm">
+                 <button type="button" id="remove-image-preview" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600 transition-colors">
+                   ×
+                 </button>
+               </div>
+             </div>
           </div>
           <div class="md:col-span-2 flex items-center">
             <button
               type="submit"
-              id="create-store-button"
+              id="create-garment-button"
               class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 disabled:bg-blue-300"
             >
-              Create Store
+              Add Garment
             </button>
             <div id="form-spinner" class="spinner ml-4"></div>
           </div>
         </form>
       </div>
 
-      <!-- Edit Store Modal -->
-      <div id="edit-store-modal" class="modal">
+      <!-- Edit Garment Modal -->
+      <div id="edit-garment-modal" class="modal">
         <div class="modal-content">
-          <h2>Edit Store Account</h2>
+          <h2>Edit Garment</h2>
           <p id="edit-form-error" class="text-red-500 mb-4"></p>
           <p id="edit-form-success" class="text-green-500 mb-4"></p>
-          <form id="edit-store-form" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <input type="hidden" id="edit-store-id">
+          <form id="edit-garment-form" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <input type="hidden" id="edit-garment-id">
+
             <div>
-              <label class="block text-sm font-medium text-gray-700">Store Name *</label>
+              <label class="block text-sm font-medium text-gray-700">Category *</label>
+              <select
+                id="edit-category"
+                class="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500"
+                required
+              >
+                <option value="">Select Category</option>
+                <option value="upperbody">Upper Body</option>
+                <option value="lowerbody">Lower Body</option>
+                <option value="dresses">Dresses</option>
+              </select>
+              <p id="edit-category-error" class="form-error"></p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Type *</label>
+              <select
+                id="edit-garment_type"
+                class="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500"
+                required
+              >
+                <option value="">Select Type</option>
+                <option value="T-shirt">T-shirt</option>
+                <option value="Shirt">Shirt</option>
+                <option value="Blouse">Blouse</option>
+                <option value="Tank Top">Tank Top</option>
+                <option value="Polo">Polo</option>
+                <option value="Sweater">Sweater</option>
+                <option value="Hoodie">Hoodie</option>
+                <option value="Cardigan">Cardigan</option>
+                <option value="Jacket">Jacket</option>
+                <option value="Blazer">Blazer</option>
+                <option value="Coat">Coat</option>
+                <option value="Jeans">Jeans</option>
+                <option value="Pants">Pants</option>
+                <option value="Trousers">Trousers</option>
+                <option value="Shorts">Shorts</option>
+                <option value="Skirt">Skirt</option>
+                <option value="Dress">Dress</option>
+                <option value="Jumpsuit">Jumpsuit</option>
+                <option value="Suit">Suit</option>
+                <option value="Leggings">Leggings</option>
+                <option value="Joggers">Joggers</option>
+                <option value="Other">Other</option>
+              </select>
+              <p id="edit-garment_type-error" class="form-error"></p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Color *</label>
+              <div class="flex items-center space-x-3">
+              <input
+                  type="color"
+                  id="edit-color-picker"
+                  class="h-10 w-16 border border-gray-300 rounded cursor-pointer"
+                  value="#000000"
+                >
               <input
                 type="text"
-                id="edit-store_name"
-                class="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500"
+                  id="edit-color"
+                  class="flex-1 p-2 border rounded-md focus:ring-2 focus:ring-blue-500 bg-gray-50"
+                  placeholder="Color name will appear here"
+                  readonly
                 required
               >
-              <p id="edit-store_name-error" class="form-error"></p>
             </div>
+              <p class="text-xs text-gray-500 mt-1">Pick a color and the name will be automatically detected</p>
+              <p id="edit-color-error" class="form-error"></p>
+            </div>
+
             <div>
-              <label class="block text-sm font-medium text-gray-700">Email *</label>
-              <input
-                type="email"
-                id="edit-email"
-                class="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500"
-                required
-              >
-              <p id="edit-email-error" class="form-error"></p>
-            </div>
-            <div class="password-container">
-              <label class="block text-sm font-medium text-gray-700">Password</label>
-              <input
-                type="password"
-                id="edit-password"
-                class="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 pr-10"
-              >
-              <button
-                type="button"
-                id="edit-toggle-password"
-                class="password-toggle"
-                aria-label="Toggle password visibility"
-              ></button>
-              <p id="edit-password-error" class="form-error"></p>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700">Specialization *</label>
-              <input
-                type="text"
-                id="edit-specialization"
-                class="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500"
-                required
-              >
-              <p id="edit-specialization-error" class="form-error"></p>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700">Country</label>
-              <input
-                type="text"
-                id="edit-country"
+              <label class="block text-sm font-medium text-gray-700">Size</label>
+              <select
+                id="edit-size"
                 class="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500"
               >
+                <option value="">Select Size</option>
+                <option value="XXS">XXS</option>
+                <option value="XS">XS</option>
+                <option value="S">S</option>
+                <option value="M">M</option>
+                <option value="L">L</option>
+                <option value="XL">XL</option>
+                <option value="XXL">XXL</option>
+                <option value="XXXL">XXXL</option>
+                <option value="One Size">One Size</option>
+                <option value="Free Size">Free Size</option>
+                <option value="28">28</option>
+                <option value="30">30</option>
+                <option value="32">32</option>
+                <option value="34">34</option>
+                <option value="36">36</option>
+                <option value="38">38</option>
+                <option value="40">40</option>
+                <option value="42">42</option>
+                <option value="44">44</option>
+                <option value="Other">Other</option>
+              </select>
             </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700">User Name</label>
-              <input
-                type="text"
-                id="edit-user_name"
+
+            <div class="md:col-span-2">
+              <label class="block text-sm font-medium text-gray-700">Description</label>
+              <textarea
+                id="edit-description"
                 class="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500"
-              >
+                rows="3"
+              ></textarea>
             </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700">Access *</label>
-              <input
-                type="checkbox"
-                id="edit-access"
-                class="mt-1 h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-              >
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700">Garment Limit *</label>
-              <input
-                type="number"
-                id="edit-garment_limit"
-                class="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500"
-                min="1"
-                max="100"
-                required
-              >
-              <p id="edit-garment_limit-error" class="form-error"></p>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700">TryOn Limit *</label>
-              <input
-                type="number"
-                id="edit-tryon_limit"
-                class="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500"
-                min="0"
-                max="1000"
-                required
-              >
-              <p id="edit-tryon_limit-error" class="form-error"></p>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700">Store Logo</label>
+
+                         <div class="md:col-span-2">
+               <label class="block text-sm font-medium text-gray-700">Update Garment Image</label>
               <div class="mt-1 flex items-center">
                 <input
                   type="file"
-                  id="edit-logo"
+                   id="edit-garment_image"
                   accept="image/*"
                   class="p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500"
                 >
               </div>
-              <p class="text-xs text-gray-500 mt-1">Upload a new logo image for the store.</p>
-              <p id="edit-logo-error" class="form-error"></p>
+               <p class="text-xs text-gray-500 mt-1">Upload a new image to replace the current one (optional).</p>
+               <p id="edit-garment_image-error" class="form-error"></p>
+               
+               <!-- Image Preview -->
+               <div id="edit-image-preview-container" class="mt-3 hidden">
+                 <label class="block text-sm font-medium text-gray-700 mb-2">New Image Preview:</label>
+                 <div class="relative inline-block">
+                   <img id="edit-image-preview" src="" alt="Image Preview" class="max-w-xs max-h-48 rounded-lg border border-gray-300 shadow-sm">
+                   <button type="button" id="remove-edit-image-preview" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600 transition-colors">
+                     ×
+                   </button>
+                 </div>
+               </div>
             </div>
             <div class="md:col-span-2 flex justify-end gap-4">
               <button
@@ -441,30 +493,104 @@
         </div>
       </div>
 
-      <!-- Stores Table -->
+      <!-- Garments Cards -->
       <div class="bg-white p-6 rounded-lg shadow-md">
-        <h2 class="text-xl font-semibold mb-4">Existing Stores</h2>
+        <h2 class="text-xl font-semibold mb-4">All Garments</h2>
         <div id="table-spinner" class="spinner active mb-4"></div>
-        <p id="no-stores" class="text-gray-500 hidden">No stores found.</p>
-        <div id="stores-table" class="overflow-x-auto hidden">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-              <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Store Name</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Password</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Specialization</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Country</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User Name</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Logo</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Access</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Garment Limit</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">TryOn Limit</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-              </tr>
-            </thead>
-            <tbody id="stores-table-body" class="bg-white divide-y divide-gray-200"></tbody>
-          </table>
+        <p id="no-garments" class="text-gray-500 hidden text-center py-8">No garments found.</p>
+        <div id="garments-cards" class="hidden">
+          <div id="garments-cards-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+            <!-- Garment cards will be dynamically inserted here -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Garment Detail Popup Modal -->
+  <div id="garment-detail-modal" class="modal">
+    <div class="modal-content max-w-4xl">
+      <div class="flex justify-between items-center mb-4">
+        <h2 id="garment-detail-title" class="text-2xl font-bold text-gray-800">Garment Details</h2>
+        <button id="close-garment-detail" class="text-gray-500 hover:text-gray-700 text-2xl font-bold">&times;</button>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Garment Image -->
+        <div class="space-y-4">
+          <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden">
+            <img id="garment-detail-image" src="" alt="Garment Image" class="w-full h-full object-cover">
+          </div>
+          
+          <!-- Action Buttons -->
+          <div class="flex space-x-3">
+            <button id="edit-garment-detail-btn" class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
+              <span class="flex items-center justify-center">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                </svg>
+                Edit
+              </span>
+            </button>
+            <button id="delete-garment-detail-btn" class="flex-1 bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors">
+              <span class="flex items-center justify-center">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+                Delete
+              </span>
+            </button>
+          </div>
+        </div>
+        
+        <!-- Garment Details -->
+        <div class="space-y-4">
+          <div>
+            <h3 id="garment-detail-type" class="text-xl font-semibold text-gray-800 mb-2"></h3>
+            <div id="garment-detail-status" class="inline-block px-3 py-1 rounded-full text-sm font-medium"></div>
+          </div>
+          
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <span class="text-sm font-medium text-gray-500">Category</span>
+              <p id="garment-detail-category" class="text-gray-800 capitalize"></p>
+            </div>
+            <div>
+              <span class="text-sm font-medium text-gray-500">Type</span>
+              <p id="garment-detail-type" class="text-gray-800"></p>
+            </div>
+            <div>
+              <span class="text-sm font-medium text-gray-500">Color</span>
+              <p id="garment-detail-color" class="text-gray-800"></p>
+            </div>
+            <div>
+              <span class="text-sm font-medium text-gray-500">Size</span>
+              <p id="garment-detail-size" class="text-gray-800"></p>
+            </div>
+            
+            <div>
+              <span class="text-sm font-medium text-gray-500">Views</span>
+              <p id="garment-detail-views" class="text-gray-800"></p>
+            </div>
+          </div>
+          
+          <div>
+            <span class="text-sm font-medium text-gray-500">Description</span>
+            <p id="garment-detail-description" class="text-gray-800 mt-1"></p>
+          </div>
+          
+          
+          
+          <div class="grid grid-cols-2 gap-4 text-sm text-gray-500">
+            <div>
+              <span class="font-medium">Created:</span>
+              <p id="garment-detail-created" class="text-gray-800"></p>
+            </div>
+            <div>
+              <span class="font-medium">Updated:</span>
+              <p id="garment-detail-updated" class="text-gray-800"></p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -514,7 +640,7 @@
       
       // Only send logs if we're not in a login error state
       if (log.action !== 'login_error' || details?.source !== 'network') {
-        fetch(`${API_URL}/client-logs`, {
+        fetch(`${API_URL}/api/client-logs`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ logs: [log] })
@@ -695,35 +821,40 @@
     const loginButton = document.getElementById('login-button');
     const loginSpinner = document.getElementById('login-spinner');
     const logoutButton = document.getElementById('logout-button');
-    const createStoreForm = document.getElementById('create-store-form');
-    const createStoreButton = document.getElementById('create-store-button');
+    const createGarmentForm = document.getElementById('create-garment-form');
+    const createGarmentButton = document.getElementById('create-garment-button');
     const formSpinner = document.getElementById('form-spinner');
     const formError = document.getElementById('form-error');
     const formSuccess = document.getElementById('form-success');
     const tableSpinner = document.getElementById('table-spinner');
-    const noStores = document.getElementById('no-stores');
-    const storesTable = document.getElementById('stores-table');
-    const storesTableBody = document.getElementById('stores-table-body');
+    const noGarments = document.getElementById('no-garments');
+    const garmentsCards = document.getElementById('garments-cards');
+    const garmentsCardsContainer = document.getElementById('garments-cards-container');
+    const garmentDetailModal = document.getElementById('garment-detail-modal');
+    const closeGarmentDetail = document.getElementById('close-garment-detail');
     const loginPasswordInput = document.getElementById('login-password');
     const toggleLoginPassword = document.getElementById('toggle-login-password');
-    const passwordInput = document.getElementById('password');
-    const togglePassword = document.getElementById('toggle-password');
-    const editStoreModal = document.getElementById('edit-store-modal');
-    const editStoreForm = document.getElementById('edit-store-form');
+    const editGarmentModal = document.getElementById('edit-garment-modal');
+    const editGarmentForm = document.getElementById('edit-garment-form');
     const editFormError = document.getElementById('edit-form-error');
     const editFormSuccess = document.getElementById('edit-form-success');
     const editFormSpinner = document.getElementById('edit-form-spinner');
     const saveEditButton = document.getElementById('save-edit-button');
     const cancelEditButton = document.getElementById('cancel-edit-button');
-    const editPasswordInput = document.getElementById('edit-password');
-    const editTogglePassword = document.getElementById('edit-toggle-password');
 
     let token = localStorage.getItem('adminToken') || '';
     let currentlyEditing = null;
 
     function showElement(element) {
+      console.log('Showing element:', element.id || element.className);
       element.classList.remove('hidden');
-      element.style.display = '';
+      // Special handling for modals to ensure they display as flex
+      if (element.classList.contains('modal') || element.id.includes('modal')) {
+        element.style.display = 'flex';
+        console.log('Modal display set to flex for:', element.id);
+      } else {
+        element.style.display = '';
+      }
     }
 
     function hideElement(element) {
@@ -756,117 +887,60 @@
       editFormSuccess.textContent = '';
     }
 
-    function validateForm(formId = 'create-store-form') {
-      debugLog(`Starting form validation for ${formId}`);
+    // Load external garment management functions
+    function loadGarmentManagementFunctions() {
+      const script = document.createElement('script');
+      script.src = '/admin/AdminDashBoard_JS.js';
+      script.onload = function() {
+        debugLog('Garment management functions loaded');
+      };
+      script.onerror = function() {
+        debugLog('Failed to load garment management functions, using inline functions');
+        // Fallback inline validation function
+        window.validateGarmentForm = function(formId = 'create-garment-form') {
       const errors = {};
-      const prefix = formId === 'edit-store-form' ? 'edit-' : '';
-      
-      // Safely get form field values
-      debugLog(`Looking for form fields with prefix: "${prefix}"`);
-      const storeNameField = document.getElementById(`${prefix}store_name`);
-      const emailField = document.getElementById(`${prefix}email`);
-      const passwordField = document.getElementById(`${prefix}password`);
-      const specializationField = document.getElementById(`${prefix}specialization`);
-      const logoLinkField = document.getElementById(`${prefix}logo_link`); // This may be null now
-      const garmentLimitField = document.getElementById(`${prefix}garment_limit`);
-      const tryonLimitField = document.getElementById(`${prefix}tryon_limit`);
-      
-      debugLog('Form fields found:', {
-        storeNameField: !!storeNameField,
-        emailField: !!emailField,
-        passwordField: !!passwordField,
-        specializationField: !!specializationField,
-        logoLinkField: !!logoLinkField,
-        garmentLimitField: !!garmentLimitField,
-        tryonLimitField: !!tryonLimitField
-      });
-
-      // Check if fields exist to avoid null errors
-      if (!storeNameField) errors.store_name = 'Store name field not found';
-      if (!emailField) errors.email = 'Email field not found';
-      if (!passwordField) errors.password = 'Password field not found';
-      if (!specializationField) errors.specialization = 'Specialization field not found';
-      if (!garmentLimitField) errors.garment_limit = 'Garment limit field not found';
-      if (!tryonLimitField) errors.tryon_limit = 'TryOn limit field not found';
-      // Don't require logo_link field as it's been removed
-      
-      const requiredFieldsPresent = Object.keys(errors).length === 0;
-      debugLog(`Required fields present: ${requiredFieldsPresent}`, errors);
-
-      if (!requiredFieldsPresent) {
-        logClientAction('form_validation_error', { form: formId, errors, stage: 'missing_fields' });
+          const prefix = formId === 'edit-garment-form' ? 'edit-' : '';
+          
+          const categoryField = document.getElementById(`${prefix}category`);
+          const typeField = document.getElementById(`${prefix}garment_type`);
+          const colorField = document.getElementById(`${prefix}color`);
+          const imageField = document.getElementById(`${prefix}garment_image`);
+          
+          if (!categoryField || !categoryField.value) errors.category = 'Category is required';
+          if (!typeField || !typeField.value.trim()) errors.garment_type = 'Type is required';
+          if (!colorField || !colorField.value.trim()) errors.color = 'Color is required';
+          if (formId === 'create-garment-form' && (!imageField || imageField.files.length === 0)) {
+            errors.garment_image = 'Garment image is required';
+          }
+          
         document.querySelectorAll(`#${formId} .form-error`).forEach(el => el.textContent = '');
         Object.keys(errors).forEach(key => {
           const errorElement = document.getElementById(`${prefix}${key}-error`);
           if (errorElement) errorElement.textContent = errors[key];
         });
-        return false;
-      }
 
-      // Now we know all required fields exist, extract values
-      debugLog('Extracting values from form fields');
-      const storeName = storeNameField.value.trim();
-      const email = emailField.value.trim();
-      const password = passwordField.value;
-      const specialization = specializationField.value.trim();
-      // Only get logoLink if the field exists
-      const logoLink = logoLinkField ? logoLinkField.value.trim() : '';
-      const garmentLimit = garmentLimitField.value;
-      const tryonLimit = tryonLimitField.value;
-      
-      debugLog('Values extracted:', {
-        storeName,
-        email,
-        passwordLength: password ? password.length : 0,
-        specialization,
-        logoLink,
-        garmentLimit,
-        tryonLimit
-      });
-
-      // Validate values
-      debugLog('Validating field values');
-      if (!storeName) errors.store_name = 'Store name is required';
-      if (!email) errors.email = 'Email is required';
-      else if (!/\S+@\S+\.\S+/.test(email)) errors.email = 'Invalid email format';
-      if (formId === 'create-store-form' && !password) errors.password = 'Password is required';
-      if (formId === 'create-store-form' && password && password.length < 6) errors.password = 'Password must be at least 6 characters';
-      if (formId === 'edit-store-form' && password && password.length < 6) errors.password = 'Password must be at least 6 characters';
-      if (!specialization) errors.specialization = 'Specialization is required';
-      // Only validate logoLink if it exists and has a value
-      if (logoLink && !/^https?:\/\/[^\s$.?#].[^\s]*$/.test(logoLink)) {
-        errors.logo_link = 'Invalid URL format';
-      }
-      if (!garmentLimit) errors.garment_limit = 'Garment limit is required';
-      else if (isNaN(garmentLimit) || parseInt(garmentLimit) < 1) errors.garment_limit = 'Garment limit must be at least 1';
-      if (!tryonLimit) errors.tryon_limit = 'TryOn limit is required';
-      else if (isNaN(tryonLimit) || parseInt(tryonLimit) < 0) errors.tryon_limit = 'TryOn limit must be at least 0';
-
-      const validationPassed = Object.keys(errors).length === 0;
-      debugLog(`Validation passed: ${validationPassed}`, errors);
-      
-      if (!validationPassed) {
-        logClientAction('form_validation_error', { form: formId, errors, stage: 'validation' });
-      }
-
-      document.querySelectorAll(`#${formId} .form-error`).forEach(el => el.textContent = '');
-      Object.keys(errors).forEach(key => {
-        const errorElement = document.getElementById(`${prefix}${key}-error`);
-        if (errorElement) errorElement.textContent = errors[key];
-      });
-
-      return validationPassed;
+          return Object.keys(errors).length === 0;
+        };
+      };
+      document.head.appendChild(script);
+    }
+    
+    // Load the functions when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', loadGarmentManagementFunctions);
+    } else {
+      loadGarmentManagementFunctions();
     }
 
-    async function fetchStores() {
+    async function fetchGarmentsInline() {
       showElement(tableSpinner);
-      hideElement(noStores);
-      hideElement(storesTable);
-      storesTableBody.innerHTML = '';
-      debugLog('Fetching stores with token:', token ? `${token.substring(0, 5)}...` : 'none');
-
+      hideElement(noGarments);
+      hideElement(garmentsCards);
+      garmentsCardsContainer.innerHTML = '';
+      debugLog('Fetching garments with token:', token ? `${token.substring(0, 5)}...` : 'none');
+      
       try {
-        const response = await fetch(`${API_URL}/stores`, {
+        const response = await fetch(`${API_URL}/garments/admin/all`, {
           method: 'GET',
           headers: { 
             'Accept': 'application/json',
@@ -875,113 +949,154 @@
           credentials: 'include'
         });
         
-        debugLog('Fetch stores response status:', response.status);
-        
         if (!response.ok) {
           const errorText = await response.text();
-          debugLog('Error response body:', errorText);
           throw new Error(`HTTP error: ${response.status} - ${errorText || response.statusText}`);
         }
         
-        let result;
-        try {
-          const responseText = await response.text();
-          debugLog('Raw response:', responseText);
-          result = JSON.parse(responseText);
-          debugLog('Parsed stores result:', result);
-        } catch (parseError) {
-          debugLog('Failed to parse response:', parseError);
-          throw new Error(`Failed to parse response: ${parseError.message}`);
-        }
+        const result = await response.json();
+        const garments = result.garments || [];
         
-        if (!result || !Array.isArray(result.stores)) {
-          debugLog('Invalid response format:', result);
-          throw new Error('Invalid response format - stores data not found');
-        }
-        
-        const stores = result.stores || [];
-        if (stores.length === 0) {
-          showElement(noStores);
+        if (garments.length === 0) {
+          showElement(noGarments);
         } else {
-          stores.forEach(store => {
-            const row = document.createElement('tr');
-            row.dataset.storeId = store.id || store.store_name;
+          garments.forEach(garment => {
+            const card = document.createElement('div');
+            card.className = 'bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 cursor-pointer overflow-hidden';
+            card.dataset.garmentId = garment.id;
             
-            // Determine if password is available
-            const hasPassword = store.password || store.plain_password;
-            const passwordToShow = store.plain_password || '';
-            const maskedPassword = hasPassword ? '••••••' : '-';
+            const createdDate = new Date(garment.created_at).toLocaleDateString();
             
-            row.innerHTML = `
-              <td class="px-6 py-4 whitespace-nowrap" data-field="store_name">${sanitize(store.store_name)}</td>
-              <td class="px-6 py-4 whitespace-nowrap" data-field="email">${sanitize(store.email)}</td>
-              <td class="px-6 py-4 whitespace-nowrap" data-field="password">
-                <span class="password-display">${maskedPassword}</span>
-                ${passwordToShow ? `<button class="password-toggle-btn ml-2 text-gray-500 hover:text-blue-700" data-password="${sanitize(passwordToShow)}">👁️</button>` : ''}
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap" data-field="specialization">${sanitize(store.specialization)}</td>
-              <td class="px-6 py-4 whitespace-nowrap" data-field="country">${store.country ? sanitize(store.country) : '-'}</td>
-              <td class="px-6 py-4 whitespace-nowrap" data-field="user_name">${store.user_name ? sanitize(store.user_name) : '-'}</td>
-              <td class="px-6 py-4 whitespace-nowrap" data-field="logo_link">
-                ${store.logo_link ? `<img src="${sanitize(store.logo_link)}" alt="Logo" class="h-10 w-10 object-contain" onerror="this.src='/MetaVrLogo.jpg'">` : '-'}
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap" data-field="access">
-                <span class="access-value">${store.access ? 'Yes' : 'No'}</span>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap" data-field="garment_limit">${store.garment_limit ? sanitize(store.garment_limit) : '-'}</td>
-              <td class="px-6 py-4 whitespace-nowrap" data-field="tryon_limit">${store.tryon_limit ? sanitize(store.tryon_limit) : '-'}</td>
-              <td class="px-6 py-4 whitespace-nowrap" data-field="actions">
-                <button class="edit-store-btn text-blue-600 hover:text-blue-800 mr-2" data-store-id="${sanitize(store.id || store.store_name)}">Edit</button>
-                <button class="save-store-btn text-green-600 hover:text-green-800 mr-2 hidden" data-store-id="${sanitize(store.id || store.store_name)}">Save</button>
-                <button class="cancel-store-btn text-gray-600 hover:text-gray-800 mr-2 hidden" data-store-id="${sanitize(store.id || store.store_name)}">Cancel</button>
-                <button class="delete-store-btn text-red-600 hover:text-red-800" data-store-id="${sanitize(store.id || store.store_name)}">Delete</button>
-              </td>
+            let statusClass = 'bg-gray-100 text-gray-800';
+            if (garment.status === 'approved') statusClass = 'bg-green-100 text-green-800';
+            else if (garment.status === 'pending') statusClass = 'bg-yellow-100 text-yellow-800';
+            else if (garment.status === 'rejected') statusClass = 'bg-red-100 text-red-800';
+            
+            card.innerHTML = `
+              <div class="aspect-square bg-gray-100 overflow-hidden">
+                ${garment.url ? 
+                  `<img src="${sanitize(garment.url)}" alt="${sanitize(garment.name)}" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300" onerror="this.src='https://via.placeholder.com/300x300?text=No+Image'">` : 
+                  '<div class="w-full h-full bg-gray-200 flex items-center justify-center text-gray-500"><svg class="w-16 h-16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path></svg></div>'
+                }
+              </div>
+              <div class="p-4">
+                <div class="flex justify-between items-start mb-2">
+                  <h3 class="font-semibold text-gray-800 truncate flex-1 pr-2 capitalize">${sanitize(garment.type)}</h3>
+                  <span class="px-2 py-1 text-xs font-medium rounded-full ${statusClass} flex-shrink-0">${sanitize(garment.status)}</span>
+                </div>
+                <p class="text-sm text-gray-600 mb-1 capitalize">${sanitize(garment.category)} • ${sanitize(garment.color)}</p>
+                <div class="flex justify-between items-center">
+                  <span class="text-xs text-gray-500">${garment.views || 0} views</span>
+                </div>
+                <div class="flex items-center mt-2 text-xs text-gray-500">
+                  <span class="flex items-center">
+                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path>
+                    </svg>
+                    ${createdDate}
+                  </span>
+                </div>
+                <div class="flex space-x-2 mt-3">
+                  <button class="edit-garment-card-btn flex-1 bg-blue-50 text-blue-600 px-3 py-1 rounded text-sm hover:bg-blue-100 transition-colors" data-garment-id="${sanitize(garment.id)}">
+                    Edit
+                  </button>
+                  <button class="delete-garment-card-btn flex-1 bg-red-50 text-red-600 px-3 py-1 rounded text-sm hover:bg-red-100 transition-colors" data-garment-id="${sanitize(garment.id)}">
+                    Delete
+                  </button>
+                </div>
+              </div>
             `;
-            storesTableBody.appendChild(row);
+            
+            // Add click event to open detail modal
+            card.addEventListener('click', (e) => {
+              console.log('Card clicked:', garment.id);
+              // Don't open modal if clicking on edit/delete buttons
+              if (!e.target.closest('.edit-garment-card-btn') && !e.target.closest('.delete-garment-card-btn')) {
+                console.log('Opening detail modal for garment:', garment.id);
+                openGarmentDetailModal(garment);
+              }
+            });
+            
+            garmentsCardsContainer.appendChild(card);
           });
           
-          document.querySelectorAll('.password-toggle-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-              const display = btn.previousElementSibling;
-              const isHidden = display.textContent === '••••••';
-              display.textContent = isHidden ? btn.dataset.password : '••••••';
-              btn.textContent = isHidden ? '🙈' : '👁️';
-              logClientAction('toggle_store_password_visibility', { store_name: btn.closest('tr').dataset.storeId, visible: isHidden });
+          // Add event listeners for action buttons
+          document.querySelectorAll('.edit-garment-card-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+              console.log('Edit button clicked for garment:', btn.dataset.garmentId);
+              e.stopPropagation();
+              if (window.openEditGarmentModal) {
+                console.log('Calling openEditGarmentModal');
+                window.openEditGarmentModal(btn.dataset.garmentId);
+              } else {
+                console.error('openEditGarmentModal not found');
+                alert('Edit functionality not loaded');
+              }
             });
           });
           
-          document.querySelectorAll('.edit-store-btn').forEach(btn => {
-            btn.addEventListener('click', () => toggleInlineEdit(btn.dataset.storeId));
+          document.querySelectorAll('.delete-garment-card-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+              e.stopPropagation();
+              if (window.deleteGarment) {
+                window.deleteGarment(btn.dataset.garmentId);
+              } else {
+                alert('Delete functionality not loaded');
+              }
+            });
           });
           
-          document.querySelectorAll('.save-store-btn').forEach(btn => {
-            btn.addEventListener('click', () => saveInlineEdit(btn.dataset.storeId));
-          });
-          
-          document.querySelectorAll('.cancel-store-btn').forEach(btn => {
-            btn.addEventListener('click', () => cancelInlineEdit(btn.dataset.storeId));
-          });
-          
-          document.querySelectorAll('.delete-store-btn').forEach(btn => {
-            btn.addEventListener('click', () => deleteStore(btn.dataset.storeId));
-          });
-          
-          showElement(storesTable);
+          showElement(garmentsCards);
         }
       } catch (err) {
-        console.error('Error fetching stores:', err);
-        showError(formError, `Failed to fetch stores: ${err.message}`);
-        
-        if (err.message.includes('401') || err.message.includes('Unauthorized') || err.message.includes('403') || err.message.includes('Forbidden')) {
-          debugLog('Authentication error detected, clearing token and showing login screen');
-          token = '';
-          localStorage.removeItem('adminToken');
-          showElement(loginScreen);
-          hideElement(dashboardScreen);
-        }
+        console.error('Error fetching garments:', err);
+        showError(formError, `Failed to fetch garments: ${err.message}`);
       } finally {
         hideElement(tableSpinner);
       }
+    }
+    
+    // Function to open garment detail modal
+    function openGarmentDetailModal(garment) {
+      console.log('Opening garment detail modal for:', garment);
+      // Populate modal with garment data
+      document.getElementById('garment-detail-image').src = garment.url || 'https://via.placeholder.com/400x400?text=No+Image';
+      document.getElementById('garment-detail-type').textContent = garment.type;
+      document.getElementById('garment-detail-category').textContent = garment.category;
+             document.getElementById('garment-detail-color').textContent = garment.color;
+       document.getElementById('garment-detail-size').textContent = garment.size || 'Not specified';
+       document.getElementById('garment-detail-views').textContent = garment.views || 0;
+       document.getElementById('garment-detail-description').textContent = garment.description || 'No description available';
+       document.getElementById('garment-detail-created').textContent = new Date(garment.created_at).toLocaleDateString();
+       document.getElementById('garment-detail-updated').textContent = new Date(garment.updated_at).toLocaleDateString();
+       
+       // Set status badge
+       const statusElement = document.getElementById('garment-detail-status');
+       statusElement.textContent = garment.status;
+       statusElement.className = 'inline-block px-3 py-1 rounded-full text-sm font-medium ';
+       if (garment.status === 'approved') statusElement.className += 'bg-green-100 text-green-800';
+       else if (garment.status === 'pending') statusElement.className += 'bg-yellow-100 text-yellow-800';
+       else if (garment.status === 'rejected') statusElement.className += 'bg-red-100 text-red-800';
+       else statusElement.className += 'bg-gray-100 text-gray-800';
+      
+      // Set up action buttons
+      document.getElementById('edit-garment-detail-btn').onclick = () => {
+        hideElement(garmentDetailModal);
+        if (window.openEditGarmentModal) {
+          window.openEditGarmentModal(garment.id);
+        }
+      };
+      
+      document.getElementById('delete-garment-detail-btn').onclick = () => {
+        hideElement(garmentDetailModal);
+        if (window.deleteGarment) {
+          window.deleteGarment(garment.id);
+        }
+      };
+      
+      // Show modal
+      showElement(garmentDetailModal);
+      logClientAction('view_garment_details', { garment_id: garment.id, garment_type: garment.type });
     }
 
     function sanitize(input) {
@@ -1000,8 +1115,285 @@
     }
 
     setupPasswordToggle(loginPasswordInput, toggleLoginPassword);
-    setupPasswordToggle(passwordInput, togglePassword);
-    setupPasswordToggle(editPasswordInput, editTogglePassword);
+    
+    // Add event listener for closing garment detail modal
+    closeGarmentDetail.addEventListener('click', () => {
+      hideElement(garmentDetailModal);
+    });
+    
+    // Close modal when clicking outside of it
+    garmentDetailModal.addEventListener('click', (e) => {
+      if (e.target === garmentDetailModal) {
+        hideElement(garmentDetailModal);
+      }
+    });
+
+    // Color picker and mapping functionality
+    const colorPicker = document.getElementById('color-picker');
+    const colorInput = document.getElementById('color');
+    
+    // Color mapping from hex to name
+    const colorMap = {
+      '#000000': 'Black',
+      '#FFFFFF': 'White',
+      '#FF0000': 'Red',
+      '#00FF00': 'Lime',
+      '#0000FF': 'Blue',
+      '#FFFF00': 'Yellow',
+      '#FF00FF': 'Magenta',
+      '#00FFFF': 'Cyan',
+      '#800000': 'Maroon',
+      '#808000': 'Olive',
+      '#008000': 'Green',
+      '#800080': 'Purple',
+      '#008080': 'Teal',
+      '#000080': 'Navy',
+      '#C0C0C0': 'Silver',
+      '#808080': 'Gray',
+      '#FFA500': 'Orange',
+      '#FFB6C1': 'Light Pink',
+      '#FF69B4': 'Hot Pink',
+      '#FF1493': 'Deep Pink',
+      '#DC143C': 'Crimson',
+      '#B22222': 'Fire Brick',
+      '#8B0000': 'Dark Red',
+      '#CD5C5C': 'Indian Red',
+      '#F08080': 'Light Coral',
+      '#FA8072': 'Salmon',
+      '#E9967A': 'Dark Salmon',
+      '#FFA07A': 'Light Salmon',
+      '#FF7F50': 'Coral',
+      '#FF6347': 'Tomato',
+      '#FF4500': 'Orange Red',
+      '#FF8C00': 'Dark Orange',
+      '#FFD700': 'Gold',
+      '#FFFFE0': 'Light Yellow',
+      '#FFFACD': 'Lemon Chiffon',
+      '#FFEFD5': 'Papaya Whip',
+      '#FFE4B5': 'Moccasin',
+      '#FFDAB9': 'Peach Puff',
+      '#F5DEB3': 'Wheat',
+      '#DEB887': 'Burlywood',
+      '#D2B48C': 'Tan',
+      '#BC8F8F': 'Rosy Brown',
+      '#F4A460': 'Sandy Brown',
+      '#DAA520': 'Goldenrod',
+      '#B8860B': 'Dark Goldenrod',
+      '#CD853F': 'Peru',
+      '#D2691E': 'Chocolate',
+      '#8B4513': 'Saddle Brown',
+      '#A0522D': 'Sienna',
+      '#A52A2A': 'Brown',
+      '#800000': 'Maroon',
+      '#556B2F': 'Dark Olive Green',
+      '#808000': 'Olive',
+      '#6B8E23': 'Olive Drab',
+      '#9ACD32': 'Yellow Green',
+      '#32CD32': 'Lime Green',
+      '#00FF32': 'Lime',
+      '#00FF7F': 'Spring Green',
+      '#00FA9A': 'Medium Spring Green',
+      '#90EE90': 'Light Green',
+      '#98FB98': 'Pale Green',
+      '#8FBC8F': 'Dark Sea Green',
+      '#00FF7F': 'Spring Green',
+      '#7CFC00': 'Lawn Green',
+      '#7FFF00': 'Chartreuse',
+      '#ADFF2F': 'Green Yellow',
+      '#228B22': 'Forest Green',
+      '#008000': 'Green',
+      '#006400': 'Dark Green',
+      '#9ACD32': 'Yellow Green',
+      '#00CED1': 'Dark Turquoise',
+      '#40E0D0': 'Turquoise',
+      '#48D1CC': 'Medium Turquoise',
+      '#00FFFF': 'Cyan',
+      '#E0FFFF': 'Light Cyan',
+      '#AFEEEE': 'Pale Turquoise',
+      '#7FFFD4': 'Aquamarine',
+      '#66CDAA': 'Medium Aquamarine',
+      '#5F9EA0': 'Cadet Blue',
+      '#4682B4': 'Steel Blue',
+      '#6495ED': 'Cornflower Blue',
+      '#00BFFF': 'Deep Sky Blue',
+      '#87CEEB': 'Sky Blue',
+      '#87CEFA': 'Light Sky Blue',
+      '#ADD8E6': 'Light Blue',
+      '#B0C4DE': 'Light Steel Blue',
+      '#B0E0E6': 'Powder Blue',
+      '#F0F8FF': 'Alice Blue',
+      '#1E90FF': 'Dodger Blue',
+      '#4169E1': 'Royal Blue',
+      '#0000FF': 'Blue',
+      '#0000CD': 'Medium Blue',
+      '#00008B': 'Dark Blue',
+      '#000080': 'Navy',
+      '#191970': 'Midnight Blue',
+      '#8A2BE2': 'Blue Violet',
+      '#4B0082': 'Indigo',
+      '#483D8B': 'Dark Slate Blue',
+      '#6A5ACD': 'Slate Blue',
+      '#7B68EE': 'Medium Slate Blue',
+      '#9370DB': 'Medium Purple',
+      '#8B008B': 'Dark Magenta',
+      '#9400D3': 'Dark Violet',
+      '#9932CC': 'Dark Orchid',
+      '#BA55D3': 'Medium Orchid',
+      '#DA70D6': 'Orchid',
+      '#EE82EE': 'Violet',
+      '#DDA0DD': 'Plum',
+      '#D8BFD8': 'Thistle',
+      '#FFE4E1': 'Misty Rose',
+      '#FFF0F5': 'Lavender Blush',
+      '#FAEBD7': 'Antique White',
+      '#F5F5DC': 'Beige',
+      '#FFE4C4': 'Bisque',
+      '#FFEBCD': 'Blanched Almond',
+      '#F5F5F5': 'White Smoke',
+      '#F8F8FF': 'Ghost White',
+      '#F0F0F0': 'Gray',
+      '#DCDCDC': 'Gainsboro',
+      '#D3D3D3': 'Light Gray',
+      '#A9A9A9': 'Dark Gray',
+      '#696969': 'Dim Gray',
+      '#778899': 'Light Slate Gray',
+      '#708090': 'Slate Gray',
+      '#2F4F4F': 'Dark Slate Gray'
+    };
+
+    // Function to find closest color name
+    function getClosestColorName(hex) {
+      hex = hex.toUpperCase();
+      
+      // Direct match
+      if (colorMap[hex]) {
+        return colorMap[hex];
+      }
+      
+      // Convert hex to RGB
+      const hexToRgb = (hex) => {
+        const r = parseInt(hex.slice(1, 3), 16);
+        const g = parseInt(hex.slice(3, 5), 16);
+        const b = parseInt(hex.slice(5, 7), 16);
+        return { r, g, b };
+      };
+      
+      const targetRgb = hexToRgb(hex);
+      let closestColor = 'Unknown';
+      let minDistance = Infinity;
+      
+      // Find closest color by calculating RGB distance
+      for (const [colorHex, colorName] of Object.entries(colorMap)) {
+        const colorRgb = hexToRgb(colorHex);
+        const distance = Math.sqrt(
+          Math.pow(targetRgb.r - colorRgb.r, 2) +
+          Math.pow(targetRgb.g - colorRgb.g, 2) +
+          Math.pow(targetRgb.b - colorRgb.b, 2)
+        );
+        
+        if (distance < minDistance) {
+          minDistance = distance;
+          closestColor = colorName;
+        }
+      }
+      
+      return closestColor;
+    }
+    
+    // Update color name when color picker changes
+    colorPicker.addEventListener('input', (e) => {
+      const hexColor = e.target.value;
+      const colorName = getClosestColorName(hexColor);
+      colorInput.value = colorName;
+      debugLog('Color picked:', { hex: hexColor, name: colorName });
+    });
+    
+    // Initialize with default color (Black)
+    colorInput.value = getClosestColorName(colorPicker.value);
+
+    // Edit modal color picker functionality
+    const editColorPicker = document.getElementById('edit-color-picker');
+    const editColorInput = document.getElementById('edit-color');
+    
+    if (editColorPicker && editColorInput) {
+      // Update color name when edit color picker changes
+      editColorPicker.addEventListener('input', (e) => {
+        const hexColor = e.target.value;
+        const colorName = getClosestColorName(hexColor);
+        editColorInput.value = colorName;
+        debugLog('Edit color picked:', { hex: hexColor, name: colorName });
+      });
+      
+           // Initialize edit modal with default color (Black)
+     editColorInput.value = getClosestColorName(editColorPicker.value);
+   }
+
+   // Image preview functionality
+   const garmentImageInput = document.getElementById('garment_image');
+   const imagePreviewContainer = document.getElementById('image-preview-container');
+   const imagePreview = document.getElementById('image-preview');
+   const removeImagePreview = document.getElementById('remove-image-preview');
+
+   const editGarmentImageInput = document.getElementById('edit-garment_image');
+   const editImagePreviewContainer = document.getElementById('edit-image-preview-container');
+   const editImagePreview = document.getElementById('edit-image-preview');
+   const removeEditImagePreview = document.getElementById('remove-edit-image-preview');
+
+   // Function to show image preview
+   function showImagePreview(file, previewImg, container) {
+     if (file && file.type.startsWith('image/')) {
+       const reader = new FileReader();
+       reader.onload = function(e) {
+         previewImg.src = e.target.result;
+         container.classList.remove('hidden');
+       };
+       reader.readAsDataURL(file);
+     }
+   }
+
+   // Function to hide image preview
+   function hideImagePreview(container) {
+     container.classList.add('hidden');
+   }
+
+   // Create form image preview
+   if (garmentImageInput) {
+     garmentImageInput.addEventListener('change', function(e) {
+       const file = e.target.files[0];
+       if (file) {
+         showImagePreview(file, imagePreview, imagePreviewContainer);
+       } else {
+         hideImagePreview(imagePreviewContainer);
+       }
+     });
+   }
+
+   // Edit form image preview
+   if (editGarmentImageInput) {
+     editGarmentImageInput.addEventListener('change', function(e) {
+       const file = e.target.files[0];
+       if (file) {
+         showImagePreview(file, editImagePreview, editImagePreviewContainer);
+       } else {
+         hideImagePreview(editImagePreviewContainer);
+       }
+     });
+   }
+
+   // Remove image preview functionality
+   if (removeImagePreview) {
+     removeImagePreview.addEventListener('click', function() {
+       garmentImageInput.value = '';
+       hideImagePreview(imagePreviewContainer);
+     });
+   }
+
+   if (removeEditImagePreview) {
+     removeEditImagePreview.addEventListener('click', function() {
+       editGarmentImageInput.value = '';
+       hideImagePreview(editImagePreviewContainer);
+     });
+   }
 
     async function openEditModal(storeId) {
       clearMessages();
@@ -1128,13 +1520,17 @@
           // Check localStorage
           debugLog("Checking localStorage.adminToken after login", localStorage.getItem('adminToken'));
           
-          // Try to fetch stores as a test
+          // Try to fetch garments as a test
           try {
-            debugLog("Fetching stores after login");
-            await fetchStores();
+            debugLog("Fetching garments after login");
+            if (window.fetchGarments) {
+              await window.fetchGarments();
+            } else {
+              await fetchGarmentsInline();
+            }
           } catch (fetchError) {
-            debugLog("Error fetching stores after login:", fetchError);
-            alert("Login succeeded but failed to fetch stores: " + fetchError.message);
+            debugLog("Error fetching garments after login:", fetchError);
+            alert("Login succeeded but failed to fetch garments: " + fetchError.message);
           }
         } else {
           throw new Error('Login failed with unknown error');
@@ -1173,76 +1569,73 @@
       hideElement(dashboardScreen);
       showElement(loginScreen);
       showSuccess(successMessage, 'Logged out successfully');
-      createStoreForm.reset();
-      storesTableBody.innerHTML = '';
-      hideElement(storesTable);
-      hideElement(noStores);
+       createGarmentForm.reset();
+       
+       // Clear image previews
+       hideImagePreview(imagePreviewContainer);
+       hideImagePreview(editImagePreviewContainer);
+       
+       garmentsCardsContainer.innerHTML = '';
+       hideElement(garmentsCards);
+       hideElement(noGarments);
     });
 
-    // Create store form submit handler
-    createStoreForm.addEventListener('submit', async (e) => {
+    // Create garment form submit handler
+    createGarmentForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       clearMessages();
-      createStoreButton.disabled = true;
+      createGarmentButton.disabled = true;
       showElement(formSpinner);
-      logClientAction('create_store_attempt');
+      logClientAction('create_garment_attempt');
 
-      // Log form data for debugging
-      const formDataDebug = {
-        store_name: document.getElementById('store_name')?.value,
-        email: document.getElementById('email')?.value,
-        password: document.getElementById('password')?.value,
-        specialization: document.getElementById('specialization')?.value,
-        country: document.getElementById('country')?.value,
-        user_name: document.getElementById('user_name')?.value,
-        access: document.getElementById('access')?.checked,
-        garment_limit: document.getElementById('garment_limit')?.value,
-        tryon_limit: document.getElementById('tryon_limit')?.value
+      // Use external validation function if available, otherwise fallback
+      const validateFunction = window.validateGarmentForm || function() {
+        debugLog('Using fallback validation function');
+        return true; // Basic fallback
       };
-      debugLog('Form data before validation:', formDataDebug);
-      
-      // Debug form elements
-      debugLog('Form fields found:', {
-        'store_name': !!document.getElementById('store_name'),
-        'email': !!document.getElementById('email'),
-        'password': !!document.getElementById('password'),
-        'specialization': !!document.getElementById('specialization'),
-        'country': !!document.getElementById('country'),
-        'user_name': !!document.getElementById('user_name'),
-        'access': !!document.getElementById('access'),
-        'garment_limit': !!document.getElementById('garment_limit'),
-        'tryon_limit': !!document.getElementById('tryon_limit'),
-        'logo': !!document.getElementById('logo')
-      });
 
-      if (!validateForm()) {
+      if (!validateFunction('create-garment-form')) {
         showError(formError, 'Please correct the errors in the form');
-        logClientAction('create_store_error', { message: 'Form validation failed' });
-        createStoreButton.disabled = false;
+        logClientAction('create_garment_error', { message: 'Form validation failed' });
+        createGarmentButton.disabled = false;
         hideElement(formSpinner);
         return;
       }
       
-      debugLog('Form validation passed, proceeding with store creation');
+      debugLog('Form validation passed, proceeding with garment creation');
 
       try {
-        // Get the logo file reference for later use
-        const logoFile = document.getElementById('logo')?.files[0];
+        // Create FormData for garment with image
+        const formData = new FormData();
+        // Garment name is no longer required - using category + type + color as identifier
+        formData.append('category', document.getElementById('category').value);
+        formData.append('type', document.getElementById('garment_type').value);
+        formData.append('color', document.getElementById('color').value);
+        formData.append('size', document.getElementById('size').value || '');
+        formData.append('status', 'approved'); // Default status for admin-created garments
         
-        // FIRST: Create the store
-        debugLog('Creating new store with data:', formDataDebug);
+        // Auto-generate description if empty: {color} {type}
+        const description = document.getElementById('description').value.trim();
+        const autoDescription = description || `${document.getElementById('color').value} ${document.getElementById('garment_type').value}`;
+        formData.append('description', autoDescription);
         
-        const response = await fetch(`${API_URL}/stores`, {
+        const imageFile = document.getElementById('garment_image').files[0];
+        if (imageFile) {
+          formData.append('garment_image', imageFile);
+        }
+        
+        debugLog('Creating new garment');
+        
+        const response = await fetch(`${API_URL}/garments/admin/create`, {
           method: 'POST',
           headers: { 
-            'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
           },
           credentials: 'include',
-          body: JSON.stringify(formDataDebug)
+          body: formData
         });
         
-        debugLog('Create store response status:', response.status);
+        debugLog('Create garment response status:', response.status);
         
         if (!response.ok) {
           const errorText = await response.text();
@@ -1251,163 +1644,104 @@
         }
         
         const result = await response.json();
-        debugLog('Create store success:', result);
+        debugLog('Create garment success:', result);
         
-        // SECOND: Upload the logo (if one was provided) after store is created
-        if (logoFile) {
-          debugLog('Logo file found, uploading to server after store creation', { 
-            fileName: logoFile.name, 
-            fileSize: logoFile.size, 
-            fileType: logoFile.type 
-          });
-          
-          // Create form data for logo upload
-          const logoFormData = new FormData();
-          logoFormData.append('logo', logoFile);
-          logoFormData.append('storeName', formDataDebug.store_name || 'temp_store');
-          
-          try {
-            // Upload logo to server
-            debugLog('Sending logo upload request to endpoint', `${API_URL}/store/logo/${formDataDebug.store_name}`);
-            const logoResponse = await fetch(`${API_URL}/store/logo/${formDataDebug.store_name}`, {
-              method: 'PUT',
-              headers: {
-                'Authorization': `Bearer ${token}`
-              },
-              credentials: 'include',
-              body: logoFormData
-            });
-
-            debugLog('Logo upload response status:', logoResponse.status);
-            
-            // Check if upload was successful
-            if (logoResponse.ok) {
-              const logoResult = await logoResponse.json();
-              debugLog('Logo uploaded successfully, received URL:', logoResult.logo_link);
+                 showSuccess(formSuccess, `Garment created successfully!`);
+         createGarmentForm.reset();
+         
+         // Clear image preview after successful creation
+         hideImagePreview(imagePreviewContainer);
+         
+         // Fetch garments to refresh the table
+        if (window.fetchGarments) {
+          await window.fetchGarments();
             } else {
-              const logoError = await logoResponse.text();
-              debugLog('Logo upload failed with response:', logoError);
-              // Store is already created, so we'll continue despite logo upload failure
-            }
-          } catch (logoError) {
-            debugLog('Logo upload error:', logoError);
-            // Store is already created, so we'll continue despite logo upload failure
-          }
+          await fetchGarmentsInline();
         }
         
-        showSuccess(formSuccess, `Store "${formDataDebug.store_name}" created successfully!`);
-        createStoreForm.reset();
-        await fetchStores();
-        logClientAction('create_store_success', { store_id: result.storeId });
+        logClientAction('create_garment_success', { garment_id: result.garment?.id });
       } catch (err) {
-        console.error('Error creating store:', err);
-        showError(formError, `Failed to create store: ${err.message}`);
-        logClientAction('create_store_error', { message: err.message });
-        debugLog('Create store error:', err);
+        console.error('Error creating garment:', err);
+        showError(formError, `Failed to create garment: ${err.message}`);
+        logClientAction('create_garment_error', { message: err.message });
+        debugLog('Create garment error:', err);
       } finally {
-        createStoreButton.disabled = false;
+        createGarmentButton.disabled = false;
         hideElement(formSpinner);
       }
     });
 
-    editStoreForm.addEventListener('submit', async (e) => {
+    editGarmentForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       clearMessages();
       saveEditButton.disabled = true;
       showElement(editFormSpinner);
-      logClientAction('edit_store_attempt', { store_name: document.getElementById('edit-store-id').value });
+      logClientAction('edit_garment_attempt', { garment_id: document.getElementById('edit-garment-id').value });
 
-      if (!validateForm('edit-store-form')) {
+      const validateFunction = window.validateGarmentForm || function() { return true; };
+      if (!validateFunction('edit-garment-form')) {
         showError(editFormError, 'Please correct the errors in the form');
-        logClientAction('edit_store_error', { message: 'Form validation failed' });
+        logClientAction('edit_garment_error', { message: 'Form validation failed' });
         saveEditButton.disabled = false;
         hideElement(editFormSpinner);
         return;
       }
 
-      const formData = {
-        store_name: document.getElementById('edit-store_name').value.trim(),
-        email: document.getElementById('edit-email').value.trim(),
-        password: document.getElementById('edit-password').value || undefined,
-        specialization: document.getElementById('edit-specialization').value.trim(),
-        country: document.getElementById('edit-country').value.trim(),
-        user_name: document.getElementById('edit-user_name').value.trim(),
-        access: document.getElementById('edit-access').checked,
-        garment_limit: document.getElementById('edit-garment_limit').value,
-        tryon_limit: document.getElementById('edit-tryon_limit').value
-      };
-
-      const originalStoreId = document.getElementById('edit-store-id').value;
-      const logoFile = document.getElementById('edit-logo').files[0];
+      const formData = new FormData();
+      const garmentId = document.getElementById('edit-garment-id').value;
+      
+      // Garment name is no longer required - using category + type + color as identifier
+      formData.append('category', document.getElementById('edit-category').value);
+      formData.append('type', document.getElementById('edit-garment_type').value.trim());
+      formData.append('color', document.getElementById('edit-color').value.trim());
+      formData.append('size', document.getElementById('edit-size').value || '');
+      // Status is automatically maintained by the server (no change needed)
+      
+      // Auto-generate description if empty: {color} {type}
+      const editDescription = document.getElementById('edit-description').value.trim();
+      const editAutoDescription = editDescription || `${document.getElementById('edit-color').value} ${document.getElementById('edit-garment_type').value}`;
+      formData.append('description', editAutoDescription);
+      
+      const imageFile = document.getElementById('edit-garment_image').files[0];
+      if (imageFile) {
+        formData.append('garment_image', imageFile);
+      }
 
       try {
-        // FIRST: Update the store data
-        debugLog('Updating store data', { originalStoreId, formData });
+        debugLog('Updating garment data', { garmentId });
         
-        const response = await fetch(`${API_URL}/stores/${originalStoreId}`, {
+        const response = await fetch(`${API_URL}/garments/admin/${garmentId}`, {
           method: 'PUT',
           headers: {
-            'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
           },
           credentials: 'include',
-          body: JSON.stringify(formData)
+          body: formData
         });
 
         if (!response.ok) {
           const errorText = await response.text();
-          debugLog('Error response body for store update:', errorText);
+          debugLog('Error response body for garment update:', errorText);
           throw new Error(`Server error: ${response.status} - ${errorText || 'Unknown error'}`);
         }
         
         const result = await response.json();
-        debugLog('Store update success:', result);
+        debugLog('Garment update success:', result);
         
-        // SECOND: Handle logo upload if a new file is selected
-        if (logoFile) {
-          debugLog('Logo file found for edit, uploading to server after store update', {
-            fileName: logoFile.name,
-            fileSize: logoFile.size,
-            fileType: logoFile.type
-          });
-          
-          // Create form data for logo upload
-          const logoFormData = new FormData();
-          logoFormData.append('logo', logoFile);
-          logoFormData.append('storeName', originalStoreId);
-          
-          // Upload logo to server
-          debugLog('Sending logo upload request for edit to endpoint', `${API_URL}/store/logo/${originalStoreId}`);
-          const logoResponse = await fetch(`${API_URL}/store/logo/${originalStoreId}`, {
-            method: 'PUT',
-            headers: {
-              'Authorization': `Bearer ${token}`
-            },
-            credentials: 'include',
-            body: logoFormData
-          });
-
-          debugLog('Logo upload response status:', logoResponse.status);
-          
-          // Check if upload was successful
-          if (logoResponse.ok) {
-            const logoResult = await logoResponse.json();
-            debugLog('Logo uploaded successfully for edit, received URL:', logoResult.logo_link);
+        showSuccess(editFormSuccess, 'Garment updated successfully');
+        logClientAction('edit_garment_success', { garment_id: garmentId });
+        hideElement(editGarmentModal);
+        
+        // Refresh garments table
+        if (window.fetchGarments) {
+          await window.fetchGarments();
           } else {
-            const logoError = await logoResponse.text();
-            debugLog('Logo upload failed for edit with response:', logoError);
-            showError(editFormError, 'Logo upload failed, but store update was successful');
-          }
+          await fetchGarmentsInline();
         }
-
-        showSuccess(editFormSuccess, 'Store updated successfully');
-        logClientAction('edit_store_success', { store_name: formData.store_name });
-        hideElement(editStoreModal);
-        fetchStores();
       } catch (error) {
-        console.error('Error updating store:', error);
-        showError(editFormError, `Error updating store: ${error.message}`);
-        logClientAction('edit_store_error', { message: error.message, store_name: originalStoreId });
+        console.error('Error updating garment:', error);
+        showError(editFormError, `Error updating garment: ${error.message}`);
+        logClientAction('edit_garment_error', { message: error.message, garment_id: garmentId });
       } finally {
         saveEditButton.disabled = false;
         hideElement(editFormSpinner);
@@ -1416,8 +1750,8 @@
 
     cancelEditButton.addEventListener('click', () => {
       clearMessages();
-      hideElement(editStoreModal);
-      logClientAction('cancel_edit_store', { store_name: document.getElementById('edit-store-id').value });
+      hideElement(editGarmentModal);
+      logClientAction('cancel_edit_garment', { garment_id: document.getElementById('edit-garment-id').value });
     });
 
     function toggleInlineEdit(storeId) {
@@ -1677,10 +2011,20 @@
         const hasSession = await checkSession();
         
         if (hasSession) {
-          debugLog("Valid admin session found, showing dashboard");
+          debugLog("Valid admin session found, automatically redirecting to dashboard");
           hideElement(loginScreen);
           showElement(dashboardScreen);
-          fetchStores();
+          showSuccess(successMessage, 'Welcome back! Session restored.');
+          // Clear the success message after a short delay
+          setTimeout(() => {
+            hideElement(successMessage);
+          }, 3000);
+          // Fetch garments
+          if (window.fetchGarments) {
+            window.fetchGarments();
+          } else {
+            fetchGarmentsInline();
+          }
         } else {
           debugLog("No valid session found despite stored token");
           localStorage.removeItem('adminToken');

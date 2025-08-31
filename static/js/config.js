@@ -18,10 +18,10 @@ window.AppConfig = {
     measurementId: ""
   },
 
-  // Cloudinary Configuration
+  // Cloudinary Configuration - will be loaded from server
   CLOUDINARY: {
-    cloud_name: 'mediaflows',
-    api_key: '168548754285954',
+    cloud_name: '', // Will be loaded from server
+    api_key: '', // Will be loaded from server
     upload_preset: 'ml_default',
     secure: true
   },
@@ -78,4 +78,14 @@ fetch('/api/config/firebase')
   })
   .catch(error => {
     console.error('Failed to load Firebase config:', error);
+  });
+
+// Load Cloudinary config from server-provided environment
+fetch('/api/config/cloudinary')
+  .then(response => response.json())
+  .then(config => {
+    window.AppConfig.CLOUDINARY = { ...window.AppConfig.CLOUDINARY, ...config };
+  })
+  .catch(error => {
+    console.error('Failed to load Cloudinary config:', error);
   }); 

@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register - MetaVR Virtual Try-On</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --success: #10b981;
+      --danger: #dc3545;
+      --warning: #f59e0b;
+      --info: #3b82f6;
+      --light: #f1f5f9;
+      --dark: #1e293b;
+      --text-primary: #1e293b;
+      --text-light: #64748b;
+      --border-radius: 8px;
+      --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      --transition: all 0.3s ease;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-primary);
+      padding: 20px 0;
+    }
+
+    .register-container {
+      background: white;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      width: 100%;
+      max-width: 450px;
+      margin: 20px;
+    }
+
+    .register-header {
+      background: var(--success);
+      color: white;
+      text-align: center;
+      padding: 30px 20px;
+    }
+
+    .register-header h1 {
+      font-size: 1.8rem;
+      margin-bottom: 10px;
+    }
+
+    .register-header p {
+      opacity: 0.9;
+      font-size: 0.9rem;
+    }
+
+    .trials-info {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 8px 16px;
+      border-radius: 20px;
+      margin-top: 15px;
+      font-size: 0.9rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .trials-info i {
+      color: #fbbf24;
+    }
+
+    .register-form {
+      padding: 30px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #e9ecef;
+      border-radius: var(--border-radius);
+      font-size: 1rem;
+      transition: var(--transition);
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--success);
+      box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1);
+    }
+
+    /* Password input container styles */
+    .password-input-container {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .password-input-container input {
+      flex: 1;
+      padding-right: 50px;
+    }
+
+    .show-password-btn {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: #666;
+      cursor: pointer;
+      padding: 5px;
+      border-radius: 4px;
+      transition: color 0.3s ease;
+    }
+
+    .show-password-btn:hover {
+      color: #333;
+    }
+
+    .show-password-btn:focus {
+      outline: none;
+      color: #007bff;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+
+    .btn {
+      background-color: var(--success);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: var(--border-radius);
+      font-size: 1rem;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      margin-bottom: 20px;
+    }
+
+    .btn:hover {
+      background-color: #1e7e34;
+      transform: translateY(-2px);
+    }
+
+    .btn:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .divider {
+      text-align: center;
+      margin: 20px 0;
+      position: relative;
+      color: var(--text-light);
+    }
+
+    .divider::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: #dee2e6;
+    }
+
+    .divider span {
+      background: white;
+      padding: 0 15px;
+    }
+
+    .auth-links {
+      text-align: center;
+    }
+
+    .auth-links a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+      transition: var(--transition);
+    }
+
+    .auth-links a:hover {
+      text-decoration: underline;
+    }
+
+    .error-message {
+      background-color: #f8d7da;
+      color: #721c24;
+      padding: 12px;
+      border-radius: var(--border-radius);
+      margin-bottom: 20px;
+      border: 1px solid #f5c6cb;
+      display: none;
+    }
+
+    .success-message {
+      background-color: #d4edda;
+      color: #155724;
+      padding: 12px;
+      border-radius: var(--border-radius);
+      margin-bottom: 20px;
+      border: 1px solid #c3e6cb;
+      display: none;
+    }
+
+    .loading {
+      opacity: 0.7;
+      pointer-events: none;
+    }
+
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border: 2px solid #ffffff;
+      border-top: 2px solid transparent;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .form-help {
+      font-size: 0.85rem;
+      color: var(--text-light);
+      margin-top: 5px;
+    }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      .register-container {
+        margin: 10px;
+      }
+      
+      .register-header {
+        padding: 20px;
+      }
+      
+      .register-form {
+        padding: 20px;
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+        gap: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="register-container">
+          <div class="register-header">
+        <h1><i class="fas fa-user-plus"></i> Join MetaVR</h1>
+        <p>Create your account for Virtual Try-On</p>
+        <div class="trials-info">
+          <i class="fas fa-magic"></i> Get 50 Free Trials
+        </div>
+      </div>
+
+    <div class="register-form">
+      <div id="errorMessage" class="error-message"></div>
+      <div id="successMessage" class="success-message"></div>
+
+      <form id="registerForm">
+        <div class="form-group">
+          <label for="username">Username *</label>
+          <input type="text" id="username" required placeholder="Choose a unique username" autocomplete="username">
+          <div class="form-help">Minimum 3 characters</div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="firstName">First Name *</label>
+            <input type="text" id="firstName" required placeholder="John" autocomplete="given-name">
+          </div>
+          <div class="form-group">
+            <label for="lastName">Last Name *</label>
+            <input type="text" id="lastName" required placeholder="Doe" autocomplete="family-name">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email Address *</label>
+          <input type="email" id="email" required placeholder="john@example.com" autocomplete="email">
+        </div>
+
+        <div class="form-group">
+          <label for="phone">Phone Number *</label>
+          <input type="tel" id="phone" required placeholder="+1 234 567 8900" autocomplete="tel">
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password *</label>
+          <div class="password-input-container">
+            <input type="password" id="password" required placeholder="Create a secure password" autocomplete="new-password">
+            <button type="button" class="show-password-btn" onclick="togglePassword('password')">
+              <i class="fas fa-eye"></i>
+            </button>
+          </div>
+          <div class="form-help">Minimum 6 characters</div>
+        </div>
+
+        <div class="form-group">
+          <label for="confirmPassword">Confirm Password *</label>
+          <div class="password-input-container">
+            <input type="password" id="confirmPassword" required placeholder="Confirm your password" autocomplete="new-password">
+            <button type="button" class="show-password-btn" onclick="togglePassword('confirmPassword')">
+              <i class="fas fa-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" class="btn" id="registerBtn">
+          <i class="fas fa-user-plus"></i>
+          <span>Create Account</span>
+        </button>
+      </form>
+
+      <div class="divider">
+        <span>Already have an account?</span>
+      </div>
+
+      <div class="auth-links">
+        <a href="/login">
+          <i class="fas fa-sign-in-alt"></i> Login Here
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // DOM elements
+    const registerForm = document.getElementById('registerForm');
+    const registerBtn = document.getElementById('registerBtn');
+    const errorMessage = document.getElementById('errorMessage');
+    const successMessage = document.getElementById('successMessage');
+
+    // Show error message
+    function showError(message) {
+      errorMessage.textContent = message;
+      errorMessage.style.display = 'block';
+      successMessage.style.display = 'none';
+    }
+
+    // Show success message
+    function showSuccess(message) {
+      successMessage.textContent = message;
+      successMessage.style.display = 'block';
+      errorMessage.style.display = 'none';
+    }
+
+    // Hide messages
+    function hideMessages() {
+      errorMessage.style.display = 'none';
+      successMessage.style.display = 'none';
+    }
+
+    // Set loading state
+    function setLoading(loading) {
+      if (loading) {
+        registerBtn.disabled = true;
+        registerBtn.innerHTML = '<div class="spinner"></div> <span>Creating Account...</span>';
+        registerForm.classList.add('loading');
+      } else {
+        registerBtn.disabled = false;
+        registerBtn.innerHTML = '<i class="fas fa-user-plus"></i> <span>Create Account</span>';
+        registerForm.classList.remove('loading');
+      }
+    }
+
+    // Toggle password visibility
+    function togglePassword(inputId) {
+      const input = document.getElementById(inputId);
+      const button = input.nextElementSibling;
+      const icon = button.querySelector('i');
+      
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'fas fa-eye-slash';
+        button.title = 'Hide password';
+      } else {
+        input.type = 'password';
+        icon.className = 'fas fa-eye';
+        button.title = 'Show password';
+      }
+    }
+
+    // Registration function
+    async function registerUser(userData) {
+      try {
+        const response = await fetch('/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(userData)
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || error.message || 'Registration failed');
+        }
+
+        const result = await response.json();
+        showSuccess('Account created successfully! Redirecting to login...');
+        
+        // Redirect to login page after a short delay
+        setTimeout(() => {
+          window.location.href = '/login';
+        }, 2000);
+
+        return result;
+      } catch (error) {
+        throw error;
+      }
+    }
+
+    // Form validation
+    function validateForm() {
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+      const username = document.getElementById('username').value;
+
+      // Check password match
+      if (password !== confirmPassword) {
+        showError('Passwords do not match');
+        return false;
+      }
+
+      // Check password length
+      if (password.length < 6) {
+        showError('Password must be at least 6 characters long');
+        return false;
+      }
+
+      // Check username length
+      if (username.length < 3) {
+        showError('Username must be at least 3 characters long');
+        return false;
+      }
+
+      return true;
+    }
+
+    // Form submission
+    registerForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      hideMessages();
+
+      // Validate form
+      if (!validateForm()) {
+        return;
+      }
+
+      setLoading(true);
+
+      const firstName = document.getElementById('firstName').value;
+      const lastName = document.getElementById('lastName').value;
+
+      const userData = {
+        username: document.getElementById('username').value,
+        name: `${firstName} ${lastName}`.trim(),
+        email: document.getElementById('email').value,
+        phone: document.getElementById('phone').value,
+        password: document.getElementById('password').value
+      };
+
+      try {
+        await registerUser(userData);
+        // Clear form on success
+        registerForm.reset();
+      } catch (error) {
+        showError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    });
+
+    // Check if user is already logged in
+    window.addEventListener('DOMContentLoaded', function() {
+      const session = localStorage.getItem('userSession');
+      if (session) {
+        const sessionData = JSON.parse(session);
+        if (sessionData.expires > Date.now()) {
+          // User is already logged in, redirect to try-on
+          window.location.href = '/tryon';
+        } else {
+          // Session expired, remove it
+          localStorage.removeItem('userSession');
+        }
+      }
+    });
+
+    // Real-time password confirmation validation
+    document.getElementById('confirmPassword').addEventListener('input', function() {
+      const password = document.getElementById('password').value;
+      const confirmPassword = this.value;
+      
+      if (confirmPassword && password !== confirmPassword) {
+        this.style.borderColor = 'var(--danger)';
+      } else {
+        this.style.borderColor = '#e9ecef';
+      }
+    });
+  </script>
+</body>
+</html>

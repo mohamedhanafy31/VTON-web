@@ -1,7 +1,0 @@
-version: 2
-authtoken: 2wcciWfs77HIGrfvoevL47MGqHE_42p2fUVB9sGh9RLJsQrsq
-tunnels:
-  vton-app:
-    proto: http
-    addr: 3000
-    inspect: true 

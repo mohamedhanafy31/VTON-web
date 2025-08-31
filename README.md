@@ -102,7 +102,8 @@ The project is organized into two main components:
 
 - Node.js (v16 or higher)
 - Firebase account (for Firestore database)
-- Cloudinary account (for image storage)
+- Cloudinary account (for image storage, optional but recommended)
+- Artificial Studio API key (for virtual try-on functionality)
 
 ## Environment Variables
 
@@ -134,19 +135,39 @@ PUBLIC_URL=https://your-production-url.com
 
 ## Installation
 
-1. Install dependencies:
-   ```
+1. **Clone the repository and navigate to the project directory**
+
+2. **Install dependencies:**
+   ```bash
    npm install
    ```
 
-2. Place your Firebase service account key (serviceAccountKey.json) in the root directory.
-
-3. Start the development server:
+3. **Set up environment variables:**
+   ```bash
+   cp .env.example .env
+   # Edit .env with your actual configuration values
    ```
+
+4. **Set up Firebase:**
+   - Create a Firebase project
+   - Download the service account key as `serviceAccountKey.json`
+   - Place it in the root directory
+
+5. **Set up Cloudinary (optional but recommended):**
+   - Create a Cloudinary account
+   - Add your credentials to the `.env` file
+
+6. **Get Artificial Studio API key:**
+   - Visit [Artificial Studio](https://www.artificialstudio.ai/)
+   - Create an account and get your API key
+   - Add it to the `.env` file
+
+7. **Start the development server:**
+   ```bash
    npm run dev
    ```
 
-The server will start on the specified port (default: 3000).
+The server will start on the specified port (default: 3000) and automatically validate your configuration.
 
 ## Production Deployment
 

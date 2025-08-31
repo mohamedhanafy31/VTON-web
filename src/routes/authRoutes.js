@@ -6,7 +6,15 @@ import {
   adminLogout, 
   adminLoginTest, 
   adminAuthTest,
-  resetStorePassword
+  resetStorePassword,
+  userRegister,
+  userLogin,
+  userLogout,
+  userProfile,
+  validateUserSession,
+  createSession,
+  getUserTrials,
+  decreaseUserTrials
 } from '../controllers/authController.js';
 import { authenticateSession, restrictTo } from '../middleware/auth.js';
 
@@ -28,5 +36,18 @@ router.post('/admin/reset-store-password/:storeName',
   restrictTo('admin'), 
   resetStorePassword
 );
+
+// User authentication routes (for TryOn system)
+router.post('/register', userRegister);
+router.post('/login', userLogin);
+router.post('/logout', userLogout);
+router.get('/profile', authenticateSession, userProfile);
+router.get('/validate-session', validateUserSession);
+router.post('/create-session', createSession);
+
+// User trials management routes
+// For demo purposes, make trials public
+router.get('/trials', getUserTrials);
+router.post('/decrease-trials', authenticateSession, decreaseUserTrials);
 
 export default router; 

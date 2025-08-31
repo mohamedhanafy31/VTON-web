@@ -16,6 +16,8 @@ export const authenticateSession = (req, res, next) => {
     }
   }
 
+
+
   if (!req.session.user && !req.session.userAddress) {
     console.log('Authentication failed: No user in session');
     

@@ -1,95 +1,274 @@
-import db from '../config/db.js';
-import admin from 'firebase-admin';
+import { OrderModel } from '../models/OrderModel.js';
 import logger from '../utils/logger.js';
 
-// Save a new order
-export const saveOrder = async (req, res) => {
-  console.log('POST /save-order called with body:', req.body);
+// Create a new order
+export const createOrder = async (req, res) => {
+  const operationId = logger.startOperation('order-creation', {
+    userId: req.session.user?.userId,
+    garmentId: req.body.garment_id
+  });
+  
   try {
-    if (!db) {
-      throw new Error('Firestore is unavailable');
-    }
-    const { name, phone, garmentName, storeName } = req.body;
-    if (!name || !phone || !garmentName) {
-      return res.status(400).json({ error: 'Missing required fields' });
-    }
+    const orderData = {
+      ...req.body,
+      user_id: req.session.user.userId
+    };
 
-    const ordersRef = db.collection('stores').doc('orders');
-    const orderDoc = await ordersRef.get();
-    let orders = orderDoc.exists ? orderDoc.data() : {};
-    let orderId = Object.keys(orders).length + 1;
-
-    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
-    const existingOrder = Object.entries(orders).find(([id, order]) => {
-      const timestamp = order.timestamp?.toDate();
-      return (
-        order.name === name &&
-        order.phone === phone &&
-        order.garmentName === garmentName &&
-        order.storeName === (storeName || 'Unknown') &&
-        timestamp && timestamp > fiveMinutesAgo
-      );
+    const order = await OrderModel.create(orderData);
+    
+    logger.succeedOperation(operationId, 'order-creation', {
+      orderId: order.id,
+      statusCode: 201
     });
 
-    if (existingOrder) {
-      const [existingId] = existingOrder;
-      console.log(`Duplicate order detected, returning existing orderId: ${existingId}`);
-      return res.json({ success: true, orderId: existingId });
-    }
+    res.status(201).json({
+      success: true,
+      message: 'Order created successfully',
+      order: order
+    });
 
-    await ordersRef.set({
-      [orderId]: {
-        name,
-        phone,
-        garmentName,
-        storeName: storeName || 'Unknown',
-        wanted: false,
-        timestamp: admin.firestore.FieldValue.serverTimestamp()
-      }
-    }, { merge: true });
-
-    console.log(`Order saved with ID: ${orderId}, wanted: false, Garment: ${garmentName}, Store: ${storeName}`);
-    res.json({ success: true, orderId });
   } catch (error) {
-    console.error('Error saving order:', error);
-    logger.error('Save order error', { error: error.message, stack: error.stack });
-    res.status(500).json({ error: 'Failed to save order. Please try again later.' });
+    logger.failOperation(operationId, 'order-creation', error, {
+      statusCode: 400
+    });
+    
+    res.status(400).json({
+      success: false,
+      error: error.message
+    });
   }
 };
 
-// Update order wanted status
-export const updateOrderWanted = async (req, res) => {
-  console.log('POST /update-order-wanted called with body:', req.body);
+// Get order by ID
+export const getOrder = async (req, res) => {
+  const operationId = logger.startOperation('order-retrieval', {
+    orderId: req.params.id,
+    userId: req.session.user?.userId
+  });
+  
   try {
-    if (!db) {
-      throw new Error('Firestore is unavailable');
-    }
-    const { orderId } = req.body;
-    if (!orderId || isNaN(parseInt(orderId))) {
-      return res.status(400).json({ error: 'Invalid or missing orderId' });
-    }
-
-    const ordersRef = db.collection('stores').doc('orders');
-    const orderDoc = await ordersRef.get();
-    if (!orderDoc.exists || !orderDoc.data()[orderId]) {
-      return res.status(404).json({ error: `Order with ID ${orderId} not found` });
-    }
-
-    const order = orderDoc.data()[orderId];
-    if (order.wanted === true) {
-      console.log(`Order ${orderId} already has wanted: true, no update needed`);
-      return res.json({ success: true, message: 'Order already marked as wanted' });
+    const { id } = req.params;
+    const order = await OrderModel.findById(id);
+    
+    if (!order) {
+      logger.failOperation(operationId, 'order-retrieval', new Error('Order not found'), {
+        statusCode: 404
+      });
+      return res.status(404).json({
+        success: false,
+        error: 'Order not found'
+      });
     }
 
-    await ordersRef.update({
-      [`${orderId}.wanted`]: true
+    // Check if user has permission to view this order
+    if (order.user_id !== req.session.user.userId) {
+      logger.failOperation(operationId, 'order-retrieval', new Error('Unauthorized access'), {
+        statusCode: 403
+      });
+      return res.status(403).json({
+        success: false,
+        error: 'Unauthorized to access this order'
+      });
+    }
+
+    logger.succeedOperation(operationId, 'order-retrieval', {
+      orderId: order.id,
+      statusCode: 200
     });
 
-    console.log(`Order ${orderId} updated with wanted: true, Garment: ${order.garmentName}, Store: ${order.storeName}`);
-    res.json({ success: true });
+    res.json({
+      success: true,
+      order: order
+    });
+
   } catch (error) {
-    console.error('Error updating order status:', error);
-    logger.error('Update order status error', { orderId: req.params.orderId, error: error.message, stack: error.stack });
-    res.status(500).json({ error: 'Failed to update order status. Please try again later.' });
+    logger.failOperation(operationId, 'order-retrieval', error, {
+      statusCode: 500
+    });
+    
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
   }
-}; 
+};
+
+// Update order
+export const updateOrder = async (req, res) => {
+  const operationId = logger.startOperation('order-update', {
+    orderId: req.params.id,
+    userId: req.session.user?.userId
+  });
+  
+  try {
+    const { id } = req.params;
+    const updateData = req.body;
+
+    // First check if order exists and user has permission
+    const existingOrder = await OrderModel.findById(id);
+    if (!existingOrder) {
+      logger.failOperation(operationId, 'order-update', new Error('Order not found'), {
+        statusCode: 404
+      });
+      return res.status(404).json({
+        success: false,
+        error: 'Order not found'
+      });
+    }
+
+    if (existingOrder.user_id !== req.session.user.userId) {
+      logger.failOperation(operationId, 'order-update', new Error('Unauthorized access'), {
+        statusCode: 403
+      });
+      return res.status(403).json({
+        success: false,
+        error: 'Unauthorized to update this order'
+      });
+    }
+
+    const updatedOrder = await OrderModel.update(id, updateData);
+    
+    logger.succeedOperation(operationId, 'order-update', {
+      orderId: updatedOrder.id,
+      statusCode: 200
+    });
+
+    res.json({
+      success: true,
+      message: 'Order updated successfully',
+      order: updatedOrder
+    });
+
+  } catch (error) {
+    logger.failOperation(operationId, 'order-update', error, {
+      statusCode: 400
+    });
+    
+    res.status(400).json({
+      success: false,
+      error: error.message
+    });
+  }
+};
+
+// Get orders for current user
+export const getUserOrders = async (req, res) => {
+  const operationId = logger.startOperation('user-orders-retrieval', {
+    userId: req.session.user?.userId
+  });
+  
+  try {
+    const userId = req.session.user.userId;
+    const { limit = 50, offset = 0 } = req.query;
+
+    const orders = await OrderModel.findByUserId(userId, parseInt(limit), parseInt(offset));
+    
+    logger.succeedOperation(operationId, 'user-orders-retrieval', {
+      userId,
+      ordersCount: orders.length,
+      statusCode: 200
+    });
+
+    res.json({
+      success: true,
+      orders: orders,
+      count: orders.length
+    });
+
+  } catch (error) {
+    logger.failOperation(operationId, 'user-orders-retrieval', error, {
+      statusCode: 500
+    });
+    
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+};
+
+// Delete order
+export const deleteOrder = async (req, res) => {
+  const operationId = logger.startOperation('order-deletion', {
+    orderId: req.params.id,
+    userId: req.session.user?.userId
+  });
+  
+  try {
+    const { id } = req.params;
+
+    // First check if order exists and user has permission
+    const existingOrder = await OrderModel.findById(id);
+    if (!existingOrder) {
+      logger.failOperation(operationId, 'order-deletion', new Error('Order not found'), {
+        statusCode: 404
+      });
+      return res.status(404).json({
+        success: false,
+        error: 'Order not found'
+      });
+    }
+
+    if (existingOrder.user_id !== req.session.user.userId) {
+      logger.failOperation(operationId, 'order-deletion', new Error('Unauthorized access'), {
+        statusCode: 403
+      });
+      return res.status(403).json({
+        success: false,
+        error: 'Unauthorized to delete this order'
+      });
+    }
+
+    await OrderModel.delete(id);
+    
+    logger.succeedOperation(operationId, 'order-deletion', {
+      orderId: id,
+      statusCode: 200
+    });
+
+    res.json({
+      success: true,
+      message: 'Order deleted successfully'
+    });
+
+  } catch (error) {
+    logger.failOperation(operationId, 'order-deletion', error, {
+      statusCode: 500
+    });
+    
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+};
+
+// Get order statistics (admin only)
+export const getOrderStats = async (req, res) => {
+  const operationId = logger.startOperation('order-stats-retrieval', {
+    userId: req.session.user?.userId
+  });
+  
+  try {
+    const stats = await OrderModel.getStats();
+    
+    logger.succeedOperation(operationId, 'order-stats-retrieval', {
+      statusCode: 200
+    });
+
+    res.json({
+      success: true,
+      stats: stats
+    });
+
+  } catch (error) {
+    logger.failOperation(operationId, 'order-stats-retrieval', error, {
+      statusCode: 500
+    });
+    
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+};

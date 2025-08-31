@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tab Isolation Test - MetaVR</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .tab-info {
+            background: #e3f2fd;
+            border: 1px solid #2196f3;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .tab-id {
+            font-family: monospace;
+            background: #f0f0f0;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .controls {
+            margin: 20px 0;
+        }
+        button {
+            background: #2196f3;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #1976d2;
+        }
+        .state-display {
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .instructions {
+            background: #fff3e0;
+            border: 1px solid #ff9800;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .step {
+            margin: 10px 0;
+            padding: 10px;
+            background: #f0f0f0;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Tab Isolation Test</h1>
+        <p>This page demonstrates how each tab maintains its own separate state.</p>
+        
+        <div class="instructions">
+            <h3>📋 How to Test:</h3>
+            <div class="step">1. Open this page in multiple tabs</div>
+            <div class="step">2. Each tab will have a unique ID</div>
+            <div class="step">3. Change the state in one tab (it won't affect others)</div>
+            <div class="step">4. Refresh a tab (state will be restored)</div>
+            <div class="step">5. Close a tab (its state will be cleaned up)</div>
+        </div>
+        
+        <div class="tab-info">
+            <h3>🆔 Current Tab Information</h3>
+            <p><strong>Tab ID:</strong> <span class="tab-id" id="tabIdDisplay">Loading...</span></p>
+            <p><strong>Created:</strong> <span id="tabCreated">Loading...</span></p>
+        </div>
+        
+        <div class="controls">
+            <h3>🎮 State Controls</h3>
+            <button onclick="setState('step1')">Set to Step 1</button>
+            <button onclick="setState('step2')">Set to Step 2</button>
+            <button onclick="setState('step3')">Set to Step 3</button>
+            <button onclick="setCustomData()">Set Custom Data</button>
+            <button onclick="clearState()">Clear State</button>
+            <button onclick="refreshPage()">Refresh Page</button>
+        </div>
+        
+        <div class="state-display">
+            <h3>📊 Current State</h3>
+            <p><strong>Current Step:</strong> <span id="currentStep">1</span></p>
+            <p><strong>Custom Data:</strong> <span id="customData">None</span></p>
+            <p><strong>Last Updated:</strong> <span id="lastUpdated">Never</span></p>
+        </div>
+        
+        <div class="state-display">
+            <h3>💾 Storage Info</h3>
+            <p><strong>Local Storage Key:</strong> <span id="storageKey">Loading...</span></p>
+            <p><strong>Storage Size:</strong> <span id="storageSize">0 bytes</span></p>
+            <button onclick="exportState()">Export State</button>
+            <button onclick="importState()">Import State</button>
+        </div>
+        
+        <div class="instructions">
+            <h3>🔍 What to Observe:</h3>
+            <ul>
+                <li>Each tab has a different Tab ID</li>
+                <li>Changing state in one tab doesn't affect others</li>
+                <li>Refreshing a tab restores its previous state</li>
+                <li>Opening a new tab starts with fresh state</li>
+                <li>Closing a tab cleans up its storage</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Tab-specific state management
+        const TAB_ID = generateTabId();
+        const TAB_STORAGE_KEY = `test_tab_${TAB_ID}`;
+        
+        function generateTabId() {
+            return 'tab_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        }
+        
+        function getTabStorage() {
+            const stored = localStorage.getItem(TAB_STORAGE_KEY);
+            return stored ? JSON.parse(stored) : {};
+        }
+        
+        function setTabStorage(data) {
+            localStorage.setItem(TAB_STORAGE_KEY, JSON.stringify(data));
+            updateStorageInfo();
+        }
+        
+        function clearTabStorage() {
+            localStorage.removeItem(TAB_STORAGE_KEY);
+            updateStorageInfo();
+        }
+        
+        // Initialize tab state
+        let currentStep = 1;
+        let customData = null;
+        let lastUpdated = new Date().toLocaleTimeString();
+        
+        function initializeTabState() {
+            const stored = getTabStorage();
+            if (stored.currentStep) currentStep = stored.currentStep;
+            if (stored.customData) customData = stored.customData;
+            if (stored.lastUpdated) lastUpdated = stored.lastUpdated;
+            
+            updateDisplay();
+            updateStorageInfo();
+        }
+        
+        function saveTabState() {
+            const state = {
+                currentStep,
+                customData,
+                lastUpdated: new Date().toLocaleTimeString()
+            };
+            setTabStorage(state);
+            lastUpdated = state.lastUpdated;
+            updateDisplay();
+        }
+        
+        function updateDisplay() {
+            document.getElementById('currentStep').textContent = currentStep;
+            document.getElementById('customData').textContent = customData || 'None';
+            document.getElementById('lastUpdated').textContent = lastUpdated;
+        }
+        
+        function updateStorageInfo() {
+            document.getElementById('storageKey').textContent = TAB_STORAGE_KEY;
+            const size = localStorage.getItem(TAB_STORAGE_KEY)?.length || 0;
+            document.getElementById('storageSize').textContent = size + ' bytes';
+        }
+        
+        // State control functions
+        function setState(step) {
+            switch(step) {
+                case 'step1': currentStep = 1; break;
+                case 'step2': currentStep = 2; break;
+                case 'step3': currentStep = 3; break;
+            }
+            saveTabState();
+        }
+        
+        function setCustomData() {
+            customData = 'Custom data for tab ' + TAB_ID.substring(0, 8) + '...';
+            saveTabState();
+        }
+        
+        function clearState() {
+            currentStep = 1;
+            customData = null;
+            clearTabStorage();
+            updateDisplay();
+        }
+        
+        function refreshPage() {
+            location.reload();
+        }
+        
+        function exportState() {
+            const state = getTabStorage();
+            const dataStr = JSON.stringify(state, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `tab-state-${TAB_ID}.json`;
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        function importState() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const state = JSON.parse(e.target.result);
+                        setTabStorage(state);
+                        initializeTabState();
+                        alert('State imported successfully!');
+                    } catch (error) {
+                        alert('Failed to import state: ' + error.message);
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('tabIdDisplay').textContent = TAB_ID;
+            document.getElementById('tabCreated').textContent = new Date().toLocaleString();
+            
+            initializeTabState();
+            
+            // Clean up on tab close
+            window.addEventListener('beforeunload', function() {
+                clearTabStorage();
+            });
+        });
+    </script>
+</body>
+</html>

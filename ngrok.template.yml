@@ -1,0 +1,7 @@
+version: 2
+authtoken: YOUR_NGROK_AUTHTOKEN_HERE
+tunnels:
+  vton-app:
+    proto: http
+    addr: 3000
+    inspect: true

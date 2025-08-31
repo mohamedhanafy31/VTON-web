@@ -1,0 +1,274 @@
+/* Enhanced Color Palette for VTON (Virtual Try-On) Web Application
+ * Modern, vibrant, and cohesive color scheme optimized for virtual try-on experience
+ * Emphasizes Indigo/Blue branding with enhanced accessibility and e-commerce focus
+ */
+
+:root {
+  /* ===== PRIMARY COLORS (MAIN THEME) ===== */
+  --primary-blue: #4f46e5;          /* Darker Indigo for stronger branding */
+  --primary-light: #818cf8;         /* Lighter Indigo for accents */
+  --primary-dark: #312e81;          /* Deeper Indigo for depth */
+  --primary-tryon: #007bff;         /* Bootstrap Blue for Try-On button */
+
+  /* ===== SECONDARY COLORS ===== */
+  --secondary: #e11d48;             /* Vibrant Rose for contrast */
+  --success: #10b981;                /* Emerald Green for confirmations */
+  --warning: #f59e0b;                /* Warm Yellow for caution */
+  --danger: #dc3545;                 /* Red for errors */
+
+  /* ===== BACKGROUND COLORS ===== */
+  --background: #f1f5f9;            /* Softer Light Gray for better contrast */
+  --surface: #ffffff;                /* White for clean surfaces */
+  --card-background: #ffffff;        /* White for cards */
+  --background-tryon: #e0e7ff;      /* Light Indigo for Try-On section */
+
+  /* ===== TEXT COLORS ===== */
+  --text: #1e293b;                  /* Darker Gray for readability */
+  --text-light: #64748b;            /* Medium Gray for secondary text */
+  --text-tryon: #1e40af;            /* Dark Blue for Try-On text */
+  --text-light-tryon: #60a5fa;      /* Light Blue for Try-On accents */
+
+  /* ===== BORDER & SHADOW COLORS ===== */
+  --border: #cbd5e1;                /* Lighter Gray for borders */
+  --border-light: #e2e8f0;          /* Very Light Gray for subtle borders */
+  --shadow: rgba(0, 0, 0, 0.1);    /* Consistent shadow */
+
+  /* ===== INTERACTIVE ELEMENTS ===== */
+  --button-hover: #be123c;          /* Darker Rose for hover */
+  --button-hover-tryon: #0056b3;    /* Darker Blue for Try-On hover */
+  --disabled: #d1d5db;              /* Softer Gray for disabled states */
+  --success-hover: #047857;          /* Darker Green for hover */
+  --warning-hover: #b45309;          /* Darker Yellow for hover */
+
+  /* ===== DARK THEME COLORS ===== */
+  --primary-dark-theme: #66b0ff;    /* Light Blue */
+  --success-dark: #4cd964;           /* Light Green */
+  --warning-dark: #ffca2c;           /* Light Yellow */
+  --danger-dark: #f14668;            /* Light Red */
+  --background-dark: #1e293b;        /* Very Dark Gray */
+  --card-dark: #2d3748;              /* Darker Gray for cards */
+  --text-dark: #f9fafb;              /* Light Gray */
+  --text-light-dark: #94a3b8;        /* Medium Gray */
+
+  /* ===== GRADIENT & SPECIAL EFFECTS ===== */
+  --shimmer-loading: linear-gradient(90deg, #e0e7ff 25%, #f0f9ff 50%, #e0e7ff 75%);
+  --skeleton-loading: #e0e7ff;
+  --flash-effect: #ffffff;           /* White flash for touch feedback */
+  --camera-background: #000000;
+
+  /* ===== STATUS & FEEDBACK COLORS ===== */
+  --success-border: #10b981;
+  --error-border: #dc2626;
+  --info-border: #3b82f6;
+  --warning-border: #f59e0b;
+
+  /* ===== LEGACY COMPATIBILITY ===== */
+  /* Maintain backward compatibility with existing variable names */
+  --primary-brand: var(--primary-blue);
+  --primary-brand-light: var(--primary-light);
+  --primary-brand-dark: var(--primary-dark);
+  --secondary-accent: var(--secondary);
+  --success-primary: var(--success);
+  --warning-primary: var(--warning);
+  --error-primary: var(--danger);
+  --background-primary: var(--background);
+  --surface-primary: var(--surface);
+  --text-primary: var(--text);
+  --text-secondary: var(--text-light);
+  --text-inverse: #ffffff;
+  --border-primary: var(--border);
+  --tryon-background: var(--background-tryon);
+  --tryon-accent: var(--background-tryon);
+  --tryon-success: #dcfce7;
+  --tryon-processing: #fef3c7;
+  --state-selected: rgba(79, 70, 229, 0.15);
+  --state-disabled: rgba(148, 163, 184, 0.3);
+  --shimmer-light: #f8fafc;
+  --shimmer-dark: #e2e8f0;
+  --pulse-color: rgba(79, 70, 229, 0.6);
+
+  /* ===== GRADIENT COLORS ===== */
+  --gradient-primary: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-light) 100%);
+  --gradient-secondary: linear-gradient(135deg, var(--secondary) 0%, #f472b6 100%);
+  --gradient-success: linear-gradient(135deg, var(--success) 0%, #34d399 100%);
+  --gradient-brand: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary) 100%);
+
+  /* ===== SHADOW & ELEVATION ===== */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-brand: 0 4px 14px 0 rgba(79, 70, 229, 0.25);
+
+  /* ===== FOCUS STATES ===== */
+  --focus-ring: 0 0 0 3px rgba(79, 70, 229, 0.5);
+  --focus-ring-error: 0 0 0 3px rgba(220, 38, 38, 0.5);
+  --focus-ring-success: 0 0 0 3px rgba(16, 185, 129, 0.5);
+
+  /* ===== ERROR COLORS ===== */
+  --error-lighter: #fef2f2;
+  --error-light: #fca5a5;
+  --error-dark: #b91c1c;
+}
+
+/* ===== DARK THEME VARIABLES ===== */
+[data-theme="dark"] {
+  /* Primary Colors - Adjusted for dark theme */
+  --primary-blue: #6366f1;
+  --primary-light: #818cf8;
+  --primary-dark: #4f46e5;
+  --primary-tryon: #3b82f6;
+
+  /* Secondary Colors */
+  --secondary: #f472b6;
+  --success: #34d399;
+  --warning: #fbbf24;
+  --danger: #f87171;
+
+  /* Background Colors */
+  --background: #0f172a;
+  --surface: #1e293b;
+  --card-background: #2d3748;
+  --background-tryon: #1e40af;
+
+  /* Text Colors */
+  --text: #f8fafc;
+  --text-light: #e2e8f0;
+  --text-tryon: #93c5fd;
+  --text-light-tryon: #60a5fa;
+
+  /* Border Colors */
+  --border: #475569;
+  --border-light: #64748b;
+
+  /* Interactive Elements */
+  --button-hover: #f9a8d4;
+  --button-hover-tryon: #60a5fa;
+  --disabled: #64748b;
+  --success-hover: #6ee7b7;
+  --warning-hover: #fcd34d;
+
+  /* Dark Theme Specific */
+  --primary-dark-theme: #66b0ff;
+  --success-dark: #4cd964;
+  --warning-dark: #ffca2c;
+  --danger-dark: #f14668;
+  --background-dark: #1e293b;
+  --card-dark: #2d3748;
+  --text-dark: #f9fafb;
+  --text-light-dark: #94a3b8;
+
+  /* Shadows for dark theme */
+  --shadow: rgba(0, 0, 0, 0.3);
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
+  --shadow-brand: 0 4px 14px 0 rgba(99, 102, 241, 0.4);
+
+  /* Legacy compatibility for dark theme */
+  --primary-brand: var(--primary-blue);
+  --primary-brand-light: var(--primary-light);
+  --primary-brand-dark: var(--primary-dark);
+  --secondary-accent: var(--secondary);
+  --success-primary: var(--success);
+  --warning-primary: var(--warning);
+  --error-primary: var(--danger);
+  --background-primary: var(--background);
+  --surface-primary: var(--surface);
+  --text-primary: var(--text);
+  --text-secondary: var(--text-light);
+  --text-inverse: #0f172a;
+  --border-primary: var(--border);
+  --tryon-background: var(--background-tryon);
+  --tryon-accent: var(--background-tryon);
+  --tryon-success: #065f46;
+  --tryon-processing: #92400e;
+  --state-selected: rgba(99, 102, 241, 0.25);
+  --state-disabled: rgba(148, 163, 184, 0.4);
+  --shimmer-light: #1e293b;
+  --shimmer-dark: #334155;
+  --pulse-color: rgba(99, 102, 241, 0.6);
+}
+
+/* ===== UTILITY CLASSES ===== */
+/* Quick access to commonly used colors */
+
+/* Background Colors */
+.bg-primary { background-color: var(--primary-blue); }
+.bg-primary-light { background-color: var(--primary-light); }
+.bg-primary-dark { background-color: var(--primary-dark); }
+.bg-secondary { background-color: var(--secondary); }
+.bg-success { background-color: var(--success); }
+.bg-warning { background-color: var(--warning); }
+.bg-error { background-color: var(--danger); }
+.bg-tryon { background-color: var(--background-tryon); }
+
+/* Text Colors */
+.text-primary { color: var(--primary-blue); }
+.text-primary-light { color: var(--primary-light); }
+.text-primary-dark { color: var(--primary-dark); }
+.text-secondary { color: var(--secondary); }
+.text-success { color: var(--success); }
+.text-warning { color: var(--warning); }
+.text-error { color: var(--danger); }
+.text-tryon { color: var(--background-tryon); }
+
+/* Border Colors */
+.border-primary { border-color: var(--primary-blue); }
+.border-secondary { border-color: var(--secondary); }
+.border-success { border-color: var(--success); }
+.border-warning { border-color: var(--warning); }
+.border-error { border-color: var(--danger); }
+.border-tryon { border-color: var(--background-tryon); }
+
+/* Focus States */
+.focus-ring-primary:focus { box-shadow: var(--focus-ring); }
+.focus-ring-error:focus { box-shadow: var(--focus-ring-error); }
+.focus-ring-success:focus { box-shadow: var(--focus-ring-success); }
+
+/* Gradients */
+.gradient-primary { background: var(--gradient-primary); }
+.gradient-secondary { background: var(--gradient-secondary); }
+.gradient-success { background: var(--gradient-success); }
+.gradient-brand { background: var(--gradient-brand); }
+
+/* ===== RESPONSIVE COLOR ADJUSTMENTS ===== */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    /* Auto-apply dark theme if user prefers it */
+    --background: #0f172a;
+    --text: #f8fafc;
+    --surface: #1e293b;
+    --card-background: #2d3748;
+    /* Add other dark theme overrides as needed */
+  }
+}
+
+/* ===== HIGH CONTRAST MODE SUPPORT ===== */
+@media (prefers-contrast: high) {
+  :root {
+    /* Enhanced contrast for accessibility */
+    --text: #000000;
+    --text-light: #1a1a1a;
+    --background: #ffffff;
+    --border: #000000;
+    --primary-blue: #0000ff;
+    --success: #008000;
+    --danger: #ff0000;
+  }
+}
+
+/* ===== PRINT STYLES ===== */
+@media print {
+  :root {
+    /* Optimized colors for printing */
+    --background: #ffffff;
+    --text: #000000;
+    --border: #000000;
+    --shadow-sm: none;
+    --shadow-md: none;
+    --shadow-lg: none;
+    --shadow-xl: none;
+  }
+}

@@ -14,6 +14,145 @@ const router = Router();
 router.get('/public-url', getPublicUrl);
 router.post('/client-logs', processClientLogs);
 
+// Configuration endpoints
+router.get('/config/cloudinary', (req, res) => {
+  res.json({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    secure: true
+  });
+});
+
+// Session check endpoint
+router.get('/check-session', (req, res) => {
+  // Check if user has an active session
+  if (req.session.user || req.session.userAddress) {
+    res.json({
+      authenticated: true,
+      user: req.session.user || { role: 'user', userAddress: req.session.userAddress }
+    });
+  } else {
+    res.json({
+      authenticated: false,
+      message: 'No active session found'
+    });
+  }
+});
+
+// Get garments from database
+router.get('/cloudinary/garments', async (req, res) => {
+  try {
+    // Import Firebase admin
+    const admin = await import('firebase-admin');
+    const db = admin.default.firestore();
+    
+    console.log('Firebase admin imported successfully');
+    console.log('Firestore database instance created');
+    console.log('Fetching garments from Firestore database...');
+    
+    // Try to get approved garments first, fallback to all garments if needed
+    let garmentsSnapshot;
+    try {
+      // First try: get approved garments
+      garmentsSnapshot = await db.collection('garments')
+        .where('status', '==', 'approved')
+        .limit(100)
+        .get();
+      console.log('Successfully fetched approved garments');
+    } catch (indexError) {
+      if (indexError.code === 9) {
+        console.log('Index not available, fetching all garments instead...');
+        // Fallback: get all garments without complex queries
+        garmentsSnapshot = await db.collection('garments')
+          .limit(100)
+          .get();
+      } else {
+        throw indexError; // Re-throw if it's not an index error
+      }
+    }
+    
+    if (garmentsSnapshot.empty) {
+      console.log('No garments found in database');
+      return res.json({
+        success: true,
+        garments: [],
+        count: 0
+      });
+    }
+    
+    const garments = [];
+    garmentsSnapshot.forEach(doc => {
+      const garmentData = doc.data();
+      garments.push({
+        id: doc.id,
+        public_id: garmentData.public_id || doc.id,
+        secure_url: garmentData.url || '',
+        original_filename: garmentData.name || 'Unknown Garment',
+        category: garmentData.category || 'General',
+        type: garmentData.type || 'Unknown',
+        price: garmentData.price || 0,
+        size: garmentData.size || '',
+        description: garmentData.description || '',
+        format: 'image', // Default format since we're not getting this from Cloudinary
+        bytes: 0, // Default size since we're not getting this from Cloudinary
+        created_at: garmentData.created_at ? garmentData.created_at.toDate().toISOString() : new Date().toISOString(),
+        status: garmentData.status || 'unknown'
+      });
+    });
+    
+    // Sort garments by creation date (newest first) on the client side
+    garments.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    
+    console.log(`Found ${garments.length} approved garments in database`);
+    
+    // Log each garment for debugging
+    garments.forEach((garment, index) => {
+      console.log(`Garment ${index + 1}:`, {
+        id: garment.id,
+        name: garment.original_filename,
+        category: garment.category,
+        type: garment.type,
+        url: garment.secure_url,
+        status: garment.status
+      });
+    });
+    
+    res.json({
+      success: true,
+      garments: garments,
+      count: garments.length
+    });
+    
+  } catch (error) {
+    console.error('Error fetching garments from database:', error);
+    
+    // Log more details about the error
+    if (error.code === 9) {
+      console.error('Firestore index error - this query requires a composite index');
+      console.error('Error details:', error.details);
+    }
+    
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      message: 'Failed to fetch garments from database',
+      details: error.code === 9 ? 'Index required - please create the required Firestore index' : error.message
+    });
+  }
+});
+
+router.get('/config/firebase', (req, res) => {
+  res.json({
+    apiKey: process.env.FIREBASE_API_KEY || '',
+    authDomain: process.env.FIREBASE_AUTH_DOMAIN || '',
+    projectId: process.env.FIREBASE_PROJECT_ID || '',
+    storageBucket: process.env.FIREBASE_STORAGE_BUCKET || '',
+    messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID || '',
+    appId: process.env.FIREBASE_APP_ID || '',
+    measurementId: process.env.FIREBASE_MEASUREMENT_ID || ''
+  });
+});
+
 // HTML Routes
 router.get('/Admin', (req, res) => {
   res.redirect('/VTON/Admin');
@@ -48,19 +187,35 @@ router.get('/VTON/Store', (req, res) => {
 });
 
 router.get('/TryOn', (req, res) => {
-  res.redirect('/VTON/TryOn');
+  // Check if user has an active session
+  if (req.session.user || req.session.userAddress) {
+    // User is authenticated, redirect to the VTON TryOn page
+    res.redirect('/VTON/TryOn');
+  } else {
+    // User is not authenticated, redirect to login page
+    logger.info('Unauthenticated user accessing /TryOn, redirecting to /login');
+    res.redirect('/login');
+  }
 });
 
 router.get('/VTON/TryOn', (req, res) => {
-  const filePath = path.join(__dirname, '../../static/pages/main/tryon.html');
-  
-  fs.access(filePath, fs.constants.F_OK, (err) => {
-    if (err) {
-      logger.warn('tryon.html file not found', { path: filePath, error: err.message });
-      return res.status(404).json({ error: 'tryon.html file not found' });
-    }
-    res.sendFile(filePath);
-  });
+  // Check if user has an active session
+  if (req.session.user || req.session.userAddress) {
+    // User is authenticated, serve the try-on page
+    const filePath = path.join(__dirname, '../../static/pages/main/tryon.html');
+    
+    fs.access(filePath, fs.constants.F_OK, (err) => {
+      if (err) {
+        logger.warn('tryon.html file not found', { path: filePath, error: err.message });
+        return res.status(404).json({ error: 'tryon.html file not found' });
+      }
+      res.sendFile(filePath);
+    });
+  } else {
+    // User is not authenticated, redirect to login page
+    logger.info('Unauthenticated user accessing /VTON/TryOn, redirecting to /login');
+    res.redirect('/login');
+  }
 });
 
 router.get('/VTON.html', (req, res) => {
@@ -68,15 +223,18 @@ router.get('/VTON.html', (req, res) => {
 });
 
 router.get('/VTON', (req, res) => {
-  const filePath = path.join(__dirname, '../../static/pages/main/VTON.html');
-  
-  fs.access(filePath, fs.constants.F_OK, (err) => {
-    if (err) {
-      logger.warn('VTON.html file not found', { path: filePath, error: err.message });
-      return res.status(404).json({ error: 'VTON.html file not found' });
-    }
-    res.sendFile(filePath);
-  });
+  // Check if user has an active session
+  if (req.session.user || req.session.userAddress) {
+    // User is authenticated, redirect to try-on page
+    logger.info('Authenticated user accessing /VTON, redirecting to /TryOn', { 
+      user: req.session.user || { userAddress: req.session.userAddress } 
+    });
+    res.redirect('/TryOn');
+  } else {
+    // User is not authenticated, redirect to login page
+    logger.info('Unauthenticated user accessing /VTON, redirecting to /login');
+    res.redirect('/login');
+  }
 });
 
 router.get('/Debug', (req, res) => {
@@ -175,21 +333,5 @@ router.get('/trials', getTrials);
 router.post('/update-trial', updateTrials);
 router.post('/update-trials', authenticateSession, updateTrialCounts);
 router.post('/reset-trials', authenticateSession, restrictTo('admin'), resetTrialCounts);
-
-// Add a route to serve Firebase configuration
-router.get('/api/config/firebase', (req, res) => {
-  // Only provide public Firebase config keys (not secrets)
-  const firebaseConfig = {
-    apiKey: process.env.FIREBASE_API_KEY || '',
-    authDomain: process.env.FIREBASE_AUTH_DOMAIN || '',
-    projectId: process.env.FIREBASE_PROJECT_ID || '',
-    storageBucket: process.env.FIREBASE_STORAGE_BUCKET || '',
-    messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID || '',
-    appId: process.env.FIREBASE_APP_ID || '',
-    measurementId: process.env.FIREBASE_MEASUREMENT_ID || ''
-  };
-  
-  res.json(firebaseConfig);
-});
 
 export default router; 

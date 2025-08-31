@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - MetaVR Virtual Try-On</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --success: #10b981;
+      --danger: #dc3545;
+      --warning: #f59e0b;
+      --info: #3b82f6;
+      --light: #f1f5f9;
+      --dark: #1e293b;
+      --text-primary: #1e293b;
+      --text-light: #64748b;
+      --border-radius: 8px;
+      --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      --transition: all 0.3s ease;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-primary);
+    }
+
+    .login-container {
+      background: white;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      width: 100%;
+      max-width: 400px;
+      margin: 20px;
+    }
+
+    .login-header {
+      background: var(--primary);
+      color: white;
+      text-align: center;
+      padding: 30px 20px;
+    }
+
+    .login-header h1 {
+      font-size: 1.8rem;
+      margin-bottom: 10px;
+    }
+
+    .login-header p {
+      opacity: 0.9;
+      font-size: 0.9rem;
+    }
+
+    .login-form {
+      padding: 30px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #e9ecef;
+      border-radius: var(--border-radius);
+      font-size: 1rem;
+      transition: var(--transition);
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+    }
+
+    /* Password input container styles */
+    .password-input-container {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .password-input-container input {
+      flex: 1;
+      padding-right: 50px;
+    }
+
+    .show-password-btn {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: #666;
+      cursor: pointer;
+      padding: 5px;
+      border-radius: 4px;
+      transition: color 0.3s ease;
+    }
+
+    .show-password-btn:hover {
+      color: #333;
+    }
+
+    .show-password-btn:focus {
+      outline: none;
+      color: #007bff;
+    }
+
+    .btn {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: var(--border-radius);
+      font-size: 1rem;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      margin-bottom: 20px;
+    }
+
+    .btn:hover {
+      background-color: #0056b3;
+      transform: translateY(-2px);
+    }
+
+    .btn:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .divider {
+      text-align: center;
+      margin: 20px 0;
+      position: relative;
+      color: var(--text-light);
+    }
+
+    .divider::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: #dee2e6;
+    }
+
+    .divider span {
+      background: white;
+      padding: 0 15px;
+    }
+
+    .auth-links {
+      text-align: center;
+    }
+
+    .auth-links a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+      transition: var(--transition);
+    }
+
+    .auth-links a:hover {
+      text-decoration: underline;
+    }
+
+    .error-message {
+      background-color: #f8d7da;
+      color: #721c24;
+      padding: 12px;
+      border-radius: var(--border-radius);
+      margin-bottom: 20px;
+      border: 1px solid #f5c6cb;
+      display: none;
+    }
+
+    .success-message {
+      background-color: #d4edda;
+      color: #155724;
+      padding: 12px;
+      border-radius: var(--border-radius);
+      margin-bottom: 20px;
+      border: 1px solid #c3e6cb;
+      display: none;
+    }
+
+    .loading {
+      opacity: 0.7;
+      pointer-events: none;
+    }
+
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border: 2px solid #ffffff;
+      border-top: 2px solid transparent;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      .login-container {
+        margin: 10px;
+      }
+      
+      .login-header {
+        padding: 20px;
+      }
+      
+      .login-form {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-header">
+      <h1><i class="fas fa-magic"></i> MetaVR</h1>
+      <p>Virtual Try-On Experience</p>
+    </div>
+
+    <div class="login-form">
+      <div id="errorMessage" class="error-message"></div>
+      <div id="successMessage" class="success-message"></div>
+
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input type="text" id="username" required placeholder="Enter your username" autocomplete="username">
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <div class="password-input-container">
+            <input type="password" id="password" required placeholder="Enter your password" autocomplete="current-password">
+            <button type="button" class="show-password-btn" onclick="togglePassword('password')">
+              <i class="fas fa-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" class="btn" id="loginBtn">
+          <i class="fas fa-sign-in-alt"></i>
+          <span>Login</span>
+        </button>
+      </form>
+
+      <div class="divider">
+        <span>Don't have an account?</span>
+      </div>
+
+      <div class="auth-links">
+        <a href="/register">
+          <i class="fas fa-user-plus"></i> Create Account
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // DOM elements
+    const loginForm = document.getElementById('loginForm');
+    const loginBtn = document.getElementById('loginBtn');
+    const errorMessage = document.getElementById('errorMessage');
+    const successMessage = document.getElementById('successMessage');
+
+    // Show error message
+    function showError(message) {
+      errorMessage.textContent = message;
+      errorMessage.style.display = 'block';
+      successMessage.style.display = 'none';
+    }
+
+    // Show success message
+    function showSuccess(message) {
+      successMessage.textContent = message;
+      successMessage.style.display = 'block';
+      errorMessage.style.display = 'none';
+    }
+
+    // Hide messages
+    function hideMessages() {
+      errorMessage.style.display = 'none';
+      successMessage.style.display = 'none';
+    }
+
+    // Set loading state
+    function setLoading(loading) {
+      if (loading) {
+        loginBtn.disabled = true;
+        loginBtn.innerHTML = '<div class="spinner"></div> <span>Logging in...</span>';
+        loginForm.classList.add('loading');
+      } else {
+        loginBtn.disabled = false;
+        loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> <span>Login</span>';
+        loginForm.classList.remove('loading');
+      }
+    }
+
+    // Toggle password visibility
+    function togglePassword(inputId) {
+      const input = document.getElementById(inputId);
+      const button = input.nextElementSibling;
+      const icon = button.querySelector('i');
+      
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'fas fa-eye-slash';
+        button.title = 'Hide password';
+      } else {
+        input.type = 'password';
+        icon.className = 'fas fa-eye';
+        button.title = 'Show password';
+      }
+    }
+
+    // Login function
+    async function loginUser(credentials) {
+      try {
+        const response = await fetch('/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(credentials)
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || error.message || 'Login failed');
+        }
+
+        const result = await response.json();
+        
+        // Store user session
+        localStorage.setItem('userSession', JSON.stringify({
+          user: result.user,
+          expires: Date.now() + (24 * 60 * 60 * 1000) // 24 hours
+        }));
+
+        showSuccess('Login successful! Redirecting...');
+        
+        // Redirect to try-on page with success parameter after a short delay
+        setTimeout(() => {
+          window.location.href = '/tryon?login=success';
+        }, 1500);
+
+        return result;
+      } catch (error) {
+        throw error;
+      }
+    }
+
+    // Form submission
+    loginForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      hideMessages();
+      setLoading(true);
+
+      const credentials = {
+        username: document.getElementById('username').value,
+        password: document.getElementById('password').value
+      };
+
+      try {
+        await loginUser(credentials);
+      } catch (error) {
+        showError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    });
+
+    // Check if user is already logged in
+    window.addEventListener('DOMContentLoaded', function() {
+      const session = localStorage.getItem('userSession');
+      if (session) {
+        const sessionData = JSON.parse(session);
+        if (sessionData.expires > Date.now()) {
+          // User is already logged in, redirect to try-on with success parameter
+          window.location.href = '/tryon?login=success';
+        } else {
+          // Session expired, remove it
+          localStorage.removeItem('userSession');
+        }
+      }
+    });
+  </script>
+</body>
+</html>

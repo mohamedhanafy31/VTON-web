@@ -1,10 +1,15 @@
 import dotenv from 'dotenv';
+import { validateConfigOrExit } from './utils/validateConfig.js';
+
 const result = dotenv.config();
 if (result.error) {
   console.error('Error loading .env file:', result.error);
 } else {
   console.log('Environment variables loaded successfully');
 }
+
+// Validate configuration before starting server
+const config = validateConfigOrExit();
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
@@ -17,11 +22,11 @@ import { Server } from 'socket.io';
 import './config/db.js';
 import sessionMiddleware from './config/session.js';
 import { startNgrok } from './config/ngrok.js';
-import cloudinary from './config/cloudinary.js';
 
 // Import middleware
 import { requestLogger } from './utils/logger.js';
 import logger from './utils/logger.js';
+import { globalErrorHandler, notFoundHandler } from './middleware/errorHandler.js';
 
 // Import routes
 import authRoutes from './routes/authRoutes.js';
@@ -30,6 +35,7 @@ import imageRoutes from './routes/imageRoutes.js';
 import tryonRoutes from './routes/tryonRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
 import miscRoutes from './routes/miscRoutes.js';
+import garmentRoutes from './routes/garmentRoutes.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -43,6 +49,9 @@ const io = new Server(httpServer, {
 
 // Store io instance in app for use in routes
 app.set('io', io);
+
+// Make io globally accessible for enhanced polling
+global.io = io;
 
 // Socket.IO connection handling
 io.on('connection', (socket) => {
@@ -61,51 +70,25 @@ logger.info('Application starting', {
 });
 
 // Middleware
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // Request logging middleware should be early in the chain
 app.use(requestLogger);
 
-// Add cloudinary to app for middleware access
-app.set('cloudinary', cloudinary);
+// Import Cloudinary after environment variables are loaded
+let cloudinary;
+try {
+  const cloudinaryModule = await import('./config/cloudinary.js');
+  cloudinary = cloudinaryModule.default;
+  app.set('cloudinary', cloudinary);
+  logger.info('Cloudinary configured successfully');
+} catch (error) {
+  logger.error('Failed to load Cloudinary configuration:', { error: error.message });
+  throw new Error('Cloudinary configuration is required but failed to load');
+}
 
-// Static files - serve from organized directories
-app.use(express.static(path.join(__dirname, '../static')));
-app.use('/VTON', express.static(path.join(__dirname, '../static')));
-
-// Log static file configuration
-logger.debug('Static directories configured', {
-  mainStaticPath: path.join(__dirname, '../static'),
-  vtonPath: '/VTON'
-});
-
-// Serve specific page types from their organized directories
-app.use('/admin', express.static(path.join(__dirname, '../static/pages/admin')));
-app.use('/main', express.static(path.join(__dirname, '../static/pages/main')));
-app.use('/other', express.static(path.join(__dirname, '../static/pages/other')));
-
-// Define routes for main HTML pages
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../static/pages/main/index.html'));
-});
-
-app.get('/tryon', (req, res) => {
-  res.sendFile(path.join(__dirname, '../static/pages/main/tryon.html'));
-});
-
-app.get('/vton', (req, res) => {
-  res.sendFile(path.join(__dirname, '../static/pages/main/VTON.html'));
-});
-
-// Define routes for admin pages
-app.get('/admin/dashboard', (req, res) => {
-  res.sendFile(path.join(__dirname, '../static/pages/admin/AdminDashBoard.html'));
-});
-
-app.get('/store/dashboard', (req, res) => {
-  res.sendFile(path.join(__dirname, '../static/pages/admin/StoreDashBoard.html'));
-});
-
+// Session middleware - must be before any routes that need session access
 app.use(sessionMiddleware);
 
 // CORS configuration
@@ -122,27 +105,99 @@ logger.debug('CORS configured', {
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
 });
 
-// API Routes
+// API Routes - MUST come BEFORE HTML routes to avoid conflicts
 app.use(authRoutes);
 app.use(storeRoutes);
 app.use('/api', imageRoutes);
-app.use(tryonRoutes);
-app.use(orderRoutes);
-app.use(miscRoutes);
+app.use('/api', miscRoutes); // Mount misc routes under /api
+app.use('/garments', garmentRoutes);
+app.use('/tryon', tryonRoutes);
+app.use('/api/orders', orderRoutes);
 
-// Add global error handler
-app.use((err, req, res, next) => {
-  logger.error('Unhandled application error', { 
-    error: err.message,
-    stack: err.stack,
-    url: req.originalUrl
-  });
-  
-  res.status(500).json({
-    error: 'Internal Server Error',
-    message: process.env.NODE_ENV === 'production' ? 'Something went wrong' : err.message
+// Static files - serve from organized directories (MUST come BEFORE page routes)
+const staticPath = path.join(__dirname, '../static');
+console.log('Static path:', staticPath);
+console.log('__dirname:', __dirname);
+
+// Try different static middleware configurations
+app.use('/static', express.static(staticPath));
+app.use(express.static(staticPath));
+
+// Test static file serving
+app.get('/test-static', (req, res) => {
+  res.send('Static middleware is working');
+});
+
+// Test static file serving with explicit route
+app.get('/test-css', (req, res) => {
+  res.sendFile(path.join(__dirname, '../static/css/index.css'));
+});
+
+// Log static file configuration
+logger.debug('Static directories configured', {
+  mainStaticPath: path.join(__dirname, '../static'),
+  vtonPath: '/VTON'
+});
+
+// Serve specific page types from their organized directories
+app.use('/admin', express.static(path.join(__dirname, '../static/pages/admin')));
+app.use('/main', express.static(path.join(__dirname, '../static/pages/main')));
+app.use('/other', express.static(path.join(__dirname, '../static/pages/other')));
+
+// Define routes for main HTML pages (MUST come AFTER static middleware)
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '../static/pages/main/index.html'));
+});
+
+app.get('/login', (req, res) => {
+  res.sendFile(path.join(__dirname, '../static/pages/main/login.html'));
+});
+
+app.get('/register', (req, res) => {
+  res.sendFile(path.join(__dirname, '../static/pages/main/register.html'));
+});
+
+app.get('/tryon', (req, res) => {
+  res.sendFile(path.join(__dirname, '../static/pages/main/tryon.html'));
+});
+
+app.get('/vton', (req, res) => {
+  res.sendFile(path.join(__dirname, '../static/pages/main/VTON.html'));
+});
+
+app.get('/dashboard', (req, res) => {
+  res.sendFile(path.join(__dirname, '../static/pages/main/user-dashboard.html'));
+});
+
+app.get('/test-upload', (req, res) => {
+  res.sendFile(path.join(__dirname, '../static/test-upload.html'));
+});
+
+// Health check endpoint for monitoring
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    environment: process.env.NODE_ENV,
+    version: process.env.npm_package_version || '1.0.0'
   });
 });
+
+// Define routes for admin pages
+app.get('/admin/dashboard', (req, res) => {
+  res.sendFile(path.join(__dirname, '../static/pages/admin/AdminDashBoard.html'));
+});
+
+app.get('/store/dashboard', (req, res) => {
+  res.sendFile(path.join(__dirname, '../static/pages/admin/StoreDashBoard.html'));
+});
+
+// Handle 404 errors for undefined routes
+app.use(notFoundHandler);
+
+// Global error handler (must be last)
+app.use(globalErrorHandler);
 
 // Start server
 httpServer.listen(process.env.PORT || 3000, async () => {
@@ -157,6 +212,15 @@ httpServer.listen(process.env.PORT || 3000, async () => {
     try {
       const ngrokUrl = await startNgrok(process.env.PORT || 3000);
       logger.info('Ngrok tunnel established', { ngrokUrl });
+      
+      // Automatically set PUBLIC_URL to current ngrok URL for webhooks
+      if (ngrokUrl) {
+        process.env.PUBLIC_URL = ngrokUrl;
+        logger.info('PUBLIC_URL automatically set to current ngrok URL', { 
+          publicUrl: process.env.PUBLIC_URL,
+          ngrokUrl: ngrokUrl 
+        });
+      }
     } catch (error) {
       logger.error('Failed to start ngrok tunnel', { 
         error: error.message, 

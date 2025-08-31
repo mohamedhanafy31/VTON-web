@@ -6,6 +6,44 @@
     <title>Store Dashboard - Garment Management</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/index.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        /* Password input container styles */
+        .password-input-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .password-input-container input {
+            flex: 1;
+            padding-right: 50px;
+        }
+
+        .show-password-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 4px;
+            transition: color 0.3s ease;
+        }
+
+        .show-password-btn:hover {
+            color: #333;
+        }
+
+        .show-password-btn:focus {
+            outline: none;
+            color: #007bff;
+        }
+    </style>
     
     <!-- Firebase scripts -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -67,6 +105,23 @@
             return false;
         }
             return true;
+    }
+
+    // Toggle password visibility
+    function togglePassword(inputId) {
+        const input = document.getElementById(inputId);
+        const button = input.nextElementSibling;
+        const icon = button.querySelector('i');
+        
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.className = 'fas fa-eye-slash';
+            button.title = 'Hide password';
+        } else {
+            input.type = 'password';
+            icon.className = 'fas fa-eye';
+            button.title = 'Show password';
+        }
     }
 
     // Login function
@@ -178,19 +233,19 @@
             
             switch(type) {
                 case 'success':
-                    notificationBar.style.backgroundColor = '#4CAF50';
+                    notificationBar.style.backgroundColor = '#10b981';
                     notificationBar.style.color = 'white';
                     break;
                 case 'error':
-                    notificationBar.style.backgroundColor = '#f44336';
+                    notificationBar.style.backgroundColor = '#dc3545';
                     notificationBar.style.color = 'white';
                     break;
                 case 'warning':
-                    notificationBar.style.backgroundColor = '#ff9800';
+                    notificationBar.style.backgroundColor = '#f59e0b';
                     notificationBar.style.color = 'white';
                     break;
                 default:
-                    notificationBar.style.backgroundColor = '#2196F3';
+                    notificationBar.style.backgroundColor = '#4f46e5';
                     notificationBar.style.color = 'white';
             }
             
@@ -744,11 +799,16 @@
 
     <div class="login-container" id="loginContainer">
         <div class="logo-container">
-            <img src="/MetaVrLogo.jpg" alt="MetaVR Logo" class="header-logo">
+                            <img src="https://res.cloudinary.com/dj3ewvbqm/image/upload/v1756493219/VTON%20Web%20site/WebSite_media/landing_page/bbdecb3ojynnf9y4zqzj.jpg" alt="MetaVR Logo" class="header-logo">
         </div>
         <h2>Store Login</h2>
         <input type="email" id="emailInput" placeholder="Email" required>
-        <input type="password" id="passwordInput" placeholder="Password" required>
+        <div class="password-input-container">
+          <input type="password" id="passwordInput" placeholder="Password" required>
+          <button type="button" class="show-password-btn" onclick="togglePassword('passwordInput')">
+            <i class="fas fa-eye"></i>
+          </button>
+        </div>
         <button onclick="login()">Login</button>
         <div class="error-message" id="errorMessage"></div>
         <div style="margin-top: 20px; text-align: center;">
@@ -758,7 +818,7 @@
 
     <div class="container" id="mainContainer">
         <div class="logo-container">
-            <img src="/MetaVrLogo.jpg" alt="MetaVR Logo" class="header-logo" id="storeLogo">
+                            <img src="https://res.cloudinary.com/dj3ewvbqm/image/upload/v1756493219/VTON%20Web%20site/WebSite_media/landing_page/bbdecb3ojynnf9y4zqzj.jpg" alt="MetaVR Logo" class="header-logo" id="storeLogo">
             <div class="logo-upload" id="logoUploadContainer">
                 <input type="file" id="logoInput" accept="image/*" style="display: none;">
                 <button id="logoUploadBtn" class="upload-logo-btn">Change Logo</button>

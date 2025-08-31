@@ -3,8 +3,113 @@ import db from '../config/db.js';
 import admin from 'firebase-admin';
 import fs from 'fs/promises';
 import busboy from 'busboy';
+import { uploadMultiple, handleMulterError } from '../config/multer.js';
+import logger from '../utils/logger.js';
 
-// Upload image
+// Upload image using Multer (recommended for new implementations)
+export const uploadImageMulter = async (req, res) => {
+  const operationId = logger.startOperation('image-upload-multer');
+  
+  try {
+    // Files are already processed by multer middleware
+    const files = req.files;
+    const {
+      storeName,
+      color = 'Unknown',
+      garmentType = 'Unknown', 
+      garmentCategory = 'upper_body',
+      garmentName,
+      isUserPhoto = 'false',
+      folder
+    } = req.body;
+
+    if (!files || files.length === 0) {
+      logger.failOperation(operationId, 'image-upload-multer', new Error('No files provided'));
+      return res.status(400).json({ error: 'No image files provided' });
+    }
+
+    const uploadedImages = [];
+    
+    for (const file of files) {
+      const finalGarmentName = garmentName || `${color} ${garmentType}`;
+      const sanitizedStoreName = storeName ? storeName.toLowerCase().replace(/\s+/g, '_') : 'unknown';
+      const sanitizedGarmentName = finalGarmentName.replace(/[^a-zA-Z0-9_-]/g, '_');
+      const garmentId = `${sanitizedStoreName}_${sanitizedGarmentName}`;
+
+      // If using cloudinary storage, file info is available
+      const imageData = {
+        url: file.path, // Cloudinary URL
+        public_id: file.filename, // Cloudinary public_id
+        originalName: file.originalname,
+        size: file.size,
+        mimetype: file.mimetype
+      };
+
+      // Save to Firestore if needed
+      if (db && storeName) {
+        try {
+          const garmentData = {
+            color,
+            name: finalGarmentName,
+            store: storeName,
+            type: garmentType,
+            category: garmentCategory,
+            url: imageData.url,
+            public_id: imageData.public_id,
+            uploadedAt: admin.firestore.FieldValue.serverTimestamp()
+          };
+
+          await db.collection('garments').doc('information').set({
+            [garmentId]: garmentData
+          }, { merge: true });
+
+          await db.collection(garmentId).doc('information').set(garmentData);
+
+          const safeDocId = imageData.public_id.replace(/\//g, '_');
+          await db.collection('image_descriptions').doc(safeDocId).set({
+            color,
+            garmentType,
+            garmentCategory,
+            folder: folder || `garment/${sanitizedStoreName}`,
+            storeId: storeName,
+            garmentName: finalGarmentName
+          });
+
+          logger.info('Garment data saved to Firestore', { garmentId, storeName });
+        } catch (dbError) {
+          logger.error('Error saving garment information to Firestore', { error: dbError.message });
+          // Continue processing even if Firestore save fails
+        }
+      }
+
+      uploadedImages.push({
+        ...imageData,
+        garmentId,
+        folder: folder || `garment/${sanitizedStoreName}`
+      });
+    }
+
+    logger.succeedOperation(operationId, 'image-upload-multer', {
+      uploadCount: uploadedImages.length,
+      storeName
+    });
+
+    res.json({
+      message: 'Images uploaded successfully',
+      images: uploadedImages
+    });
+
+  } catch (error) {
+    logger.failOperation(operationId, 'image-upload-multer', error);
+    console.error('Upload error:', error);
+    res.status(500).json({
+      error: 'Upload failed',
+      message: error.message
+    });
+  }
+};
+
+// Upload image using Busboy (legacy support)
 export const uploadImage = async (req, res) => {
   if (!req.headers['content-type'] || !req.headers['content-type'].includes('multipart/form-data')) {
     return res.status(400).json({ error: 'Content-Type must be multipart/form-data' });
