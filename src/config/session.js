@@ -36,12 +36,16 @@ if (db) {
 const sessionOptions = {
   store: sessionStore,
   secret: process.env.SESSION_SECRET || 'your_session_secret_key',
-  resave: false,
-  saveUninitialized: false,
+  resave: true, // Changed to true for debugging
+  saveUninitialized: true, // Changed to true for debugging
+  name: 'connect.sid',
   cookie: {
-    secure: process.env.NODE_ENV === 'production',
+    secure: process.env.NODE_ENV === 'production', // Only require secure in production
     maxAge: SESSION_MAX_AGE,
-    httpOnly: true
+    httpOnly: true,
+    sameSite: 'lax',
+    path: '/'
+    // Removed domain restriction to allow cookies to work properly
   }
 };
 

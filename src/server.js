@@ -88,8 +88,13 @@ try {
   throw new Error('Cloudinary configuration is required but failed to load');
 }
 
+// Trust proxy for secure cookies behind Nginx
+app.set('trust proxy', 1);
+
 // Session middleware - must be before any routes that need session access
 app.use(sessionMiddleware);
+
+
 
 // CORS configuration
 app.use(cors({
@@ -121,6 +126,9 @@ console.log('__dirname:', __dirname);
 
 // Try different static middleware configurations
 app.use('/static', express.static(staticPath));
+app.use('/js', express.static(path.join(staticPath, 'js')));
+app.use('/css', express.static(path.join(staticPath, 'css')));
+app.use('/Media', express.static(path.join(staticPath, 'Media')));
 app.use(express.static(staticPath));
 
 // Test static file serving
@@ -191,6 +199,15 @@ app.get('/admin/dashboard', (req, res) => {
 
 app.get('/store/dashboard', (req, res) => {
   res.sendFile(path.join(__dirname, '../static/pages/admin/StoreDashBoard.html'));
+});
+
+// Socket.IO endpoint for health check
+app.get('/socket.io/', (req, res) => {
+  res.json({ 
+    code: 0, 
+    message: 'Socket.IO server is running',
+    timestamp: new Date().toISOString()
+  });
 });
 
 // Handle 404 errors for undefined routes

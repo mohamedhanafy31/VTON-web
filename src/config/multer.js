@@ -125,7 +125,7 @@ const upload = multer({
   storage: memoryStorage,
   fileFilter: fileFilter,
   limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB max file size
+    fileSize: 50 * 1024 * 1024, // 50MB max file size (increased for large images)
     files: 5 // Maximum 5 files per request
   }
 });
@@ -146,7 +146,7 @@ export const handleMulterError = (error, req, res, next) => {
     if (error.code === 'LIMIT_FILE_SIZE') {
       return res.status(400).json({
         error: 'File too large',
-        message: 'File size cannot exceed 10MB'
+        message: 'File size cannot exceed 50MB'
       });
     }
     if (error.code === 'LIMIT_FILE_COUNT') {

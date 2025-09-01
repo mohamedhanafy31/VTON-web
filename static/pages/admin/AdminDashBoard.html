@@ -4,7 +4,373 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Dashboard - Garment Management</title>
+  <!-- Tailwind CSS with multiple fallbacks -->
+  <!-- Main application CSS -->
+  <link rel="stylesheet" href="/css/index.css">
+  <link rel="stylesheet" href="/css/color-palette.css">
+  
+  <!-- Tailwind CSS with multiple fallbacks -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    // Apply critical styles immediately
+    document.addEventListener('DOMContentLoaded', function() {
+      // Add critical styles class to body immediately
+      document.body.classList.add('admin-login-critical');
+    });
+    
+    // Check if Tailwind CSS loaded properly and provide fallback
+    window.addEventListener('load', function() {
+      // Show loading state
+      document.body.style.opacity = '0.8';
+      
+      setTimeout(function() {
+        try {
+          // Check if Tailwind CSS is working by testing a simple style
+          const testElement = document.createElement('div');
+          testElement.className = 'bg-gray-100';
+          testElement.style.display = 'none';
+          document.body.appendChild(testElement);
+          
+          const computedStyle = window.getComputedStyle(testElement);
+          const isTailwindWorking = computedStyle.backgroundColor !== 'rgba(0, 0, 0, 0)' && 
+                                   computedStyle.backgroundColor !== 'transparent';
+          
+          document.body.removeChild(testElement);
+          
+          if (!window.tailwind || !isTailwindWorking) {
+            console.warn('Tailwind CSS failed to load, using fallback styles');
+            document.body.classList.add('fallback-styles');
+            
+            // Try alternative CDN
+            if (!window.tailwind) {
+              const altScript = document.createElement('script');
+              altScript.src = 'https://unpkg.com/tailwindcss@^3/dist/tailwind.min.js';
+              altScript.onload = function() {
+                console.log('Alternative Tailwind CSS loaded successfully');
+                document.body.classList.remove('fallback-styles');
+                document.body.style.opacity = '1';
+              };
+              altScript.onerror = function() {
+                console.error('Alternative Tailwind CSS also failed to load');
+                document.body.style.opacity = '1';
+              };
+              document.head.appendChild(altScript);
+            } else {
+              document.body.style.opacity = '1';
+            }
+          } else {
+            console.log('Tailwind CSS loaded successfully');
+            document.body.style.opacity = '1';
+          }
+        } catch (error) {
+          console.error('Error checking Tailwind CSS:', error);
+          document.body.classList.add('fallback-styles');
+          document.body.style.opacity = '1';
+        }
+        
+        // Hide loading indicator
+        const loadingIndicator = document.getElementById('css-loading');
+        if (loadingIndicator) {
+          loadingIndicator.style.display = 'none';
+        }
+      }, 1500); // Wait 1.5 seconds for Tailwind to load
+    });
+  </script>
+  <style>
+    /* Fallback styles if Tailwind CSS fails to load */
+    .fallback-styles {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    
+    .fallback-styles .bg-gray-100 { background-color: #f3f4f6; }
+    .fallback-styles .bg-white { background-color: #ffffff; }
+    .fallback-styles .text-gray-700 { color: #374151; }
+    .fallback-styles .text-red-500 { color: #ef4444; }
+    .fallback-styles .text-green-500 { color: #10b981; }
+    .fallback-styles .text-blue-600 { color: #2563eb; }
+    .fallback-styles .text-white { color: #ffffff; }
+    
+    .fallback-styles .p-8 { padding: 2rem; }
+    .fallback-styles .mb-4 { margin-bottom: 1rem; }
+    .fallback-styles .mb-6 { margin-bottom: 1.5rem; }
+    .fallback-styles .mt-1 { margin-top: 0.25rem; }
+    
+    .fallback-styles .w-full { width: 100%; }
+    .fallback-styles .max-w-md { max-width: 28rem; }
+    
+    .fallback-styles .rounded-lg { border-radius: 0.5rem; }
+    .fallback-styles .rounded-md { border-radius: 0.375rem; }
+    
+    .fallback-styles .shadow-md { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+    
+    .fallback-styles .border { border: 1px solid #d1d5db; }
+    
+    .fallback-styles .focus\\:ring-2:focus { outline: none; box-shadow: 0 0 0 2px #3b82f6; }
+    .fallback-styles .focus\\:ring-blue-500:focus { outline: none; box-shadow: 0 0 0 2px #3b82f6; }
+    
+    .fallback-styles .hover\\:bg-blue-700:hover { background-color: #1d4ed8; }
+    .fallback-styles .disabled\\:bg-blue-300:disabled { background-color: #93c5fd; }
+    
+    .fallback-styles .px-4 { padding-left: 1rem; padding-right: 1rem; }
+    .fallback-styles .py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+    .fallback-styles .pr-10 { padding-right: 2.5rem; }
+    
+    .fallback-styles .text-2xl { font-size: 1.5rem; }
+    .fallback-styles .text-sm { font-size: 0.875rem; }
+    .fallback-styles .font-bold { font-weight: 700; }
+    .fallback-styles .font-medium { font-weight: 500; }
+    
+    .fallback-styles .text-center { text-align: center; }
+    
+    .fallback-styles .flex { display: flex; }
+    .fallback-styles .items-center { align-items: center; }
+    .fallback-styles .justify-center { justify-content: center; }
+    .fallback-styles .min-h-screen { min-height: 100vh; }
+    
+    .fallback-styles .block { display: block; }
+    .fallback-styles .hidden { display: none; }
+    
+    .fallback-styles .relative { position: relative; }
+    .fallback-styles .absolute { position: absolute; }
+    .fallback-styles .top-50 { top: 50%; }
+    .fallback-styles .right-8 { right: 2rem; }
+    .fallback-styles .transform { transform: translateY(-50%); }
+    
+    /* Ensure form elements are properly styled */
+    .fallback-styles input[type="email"],
+    .fallback-styles input[type="password"],
+    .fallback-styles input[type="text"] {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #d1d5db;
+      border-radius: 0.375rem;
+      font-size: 1rem;
+    }
+    
+    .fallback-styles button {
+      cursor: pointer;
+      border: none;
+      font-size: 1rem;
+      font-weight: 500;
+    }
+    
+    .fallback-styles button:disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+    
+    /* Additional responsive design */
+    .fallback-styles .max-w-md {
+      max-width: 28rem;
+      margin: 0 auto;
+    }
+    
+    @media (max-width: 640px) {
+      .fallback-styles .max-w-md {
+        max-width: 90%;
+        margin: 1rem;
+      }
+      
+      .fallback-styles .p-8 {
+        padding: 1.5rem;
+      }
+    }
+    
+    /* Ensure the page is properly centered and styled */
+    .fallback-styles #login-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #f3f4f6;
+    }
+    
+    .fallback-styles #login-screen > div {
+      background: white;
+      padding: 2rem;
+      border-radius: 0.5rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 28rem;
+    }
+    
+    /* Logo styling */
+    .fallback-styles .header-logo {
+      display: block;
+      margin: 0 auto 1.5rem auto;
+      max-height: 80px;
+      width: auto;
+    }
+    
+    /* Form styling */
+    .fallback-styles form > div {
+      margin-bottom: 1rem;
+    }
+    
+    .fallback-styles label {
+      display: block;
+      margin-bottom: 0.25rem;
+      font-weight: 500;
+      color: #374151;
+    }
+    
+    .fallback-styles input {
+      margin-top: 0.25rem;
+    }
+    
+    /* Button styling */
+    .fallback-styles button[type="submit"] {
+      width: 100%;
+      background-color: #2563eb;
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 0.375rem;
+      font-weight: 500;
+      margin-top: 1rem;
+    }
+    
+    .fallback-styles button[type="submit"]:hover {
+      background-color: #1d4ed8;
+    }
+    
+    .fallback-styles button[type="submit"]:disabled {
+      background-color: #93c5fd;
+      cursor: not-allowed;
+    }
+    
+    /* Critical admin login styles - always active */
+    .admin-login-critical {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.5;
+    }
+    
+    .admin-login-critical #login-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #f3f4f6;
+      padding: 1rem;
+    }
+    
+    .admin-login-critical #login-screen > div {
+      background: white;
+      padding: 2rem;
+      border-radius: 0.5rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 28rem;
+    }
+    
+    .admin-login-critical .header-logo {
+      display: block;
+      margin: 0 auto 1.5rem auto;
+      max-height: 80px;
+      width: auto;
+    }
+    
+    .admin-login-critical h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 1.5rem;
+      color: #111827;
+    }
+    
+    .admin-login-critical label {
+      display: block;
+      margin-bottom: 0.25rem;
+      font-weight: 500;
+      color: #374151;
+      font-size: 0.875rem;
+    }
+    
+    .admin-login-critical input {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #d1d5db;
+      border-radius: 0.375rem;
+      font-size: 1rem;
+      margin-top: 0.25rem;
+      box-sizing: border-box;
+    }
+    
+    .admin-login-critical input:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+    }
+    
+    .admin-login-critical button[type="submit"] {
+      width: 100%;
+      background-color: #2563eb;
+      color: white;
+      padding: 0.75rem 1rem;
+      border: none;
+      border-radius: 0.375rem;
+      font-size: 1rem;
+      font-weight: 500;
+      margin-top: 1.5rem;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    
+    .admin-login-critical button[type="submit"]:hover {
+      background-color: #1d4ed8;
+    }
+    
+    .admin-login-critical button[type="submit"]:disabled {
+      background-color: #93c5fd;
+      cursor: not-allowed;
+    }
+    
+    .admin-login-critical .password-container {
+      position: relative;
+    }
+    
+    .admin-login-critical .password-toggle {
+      position: absolute;
+      right: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #6b7280;
+      font-size: 1rem;
+      padding: 0;
+    }
+    
+    .admin-login-critical .password-toggle:hover {
+      color: #374151;
+    }
+    
+    /* Ensure these styles are always applied */
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      margin: 0;
+      padding: 0;
+      line-height: 1.5;
+    }
+    
+    #login-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #f3f4f6;
+      padding: 1rem;
+    }
+    
+    #login-screen > div {
+      background: white;
+      padding: 2rem;
+      border-radius: 0.5rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 28rem;
+    }
+  </style>
   <style>
     .spinner {
       display: none;
@@ -117,6 +483,14 @@
   </style>
 </head>
 <body class="bg-gray-100 min-h-screen">
+  <!-- CSS Loading Indicator -->
+  <div id="css-loading" class="fixed inset-0 bg-white z-50 flex items-center justify-center">
+    <div class="text-center">
+      <div class="spinner active mb-4"></div>
+      <p class="text-gray-600">Loading styles...</p>
+    </div>
+  </div>
+  
   <!-- Login Screen -->
   <div id="login-screen" class="flex items-center justify-center min-h-screen">
     <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
@@ -654,6 +1028,27 @@
     async function checkSession() {
       debugLog("Checking for existing session...");
       
+              // First, let's check if we can access the admin session endpoint directly
+        try {
+          const directResponse = await fetch(`${API_URL.replace('/api', '')}/admin/session`, {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include'
+          });
+        
+        debugLog("Direct admin session check status:", directResponse.status);
+        
+        if (directResponse.status === 200) {
+          const sessionData = await directResponse.json();
+          debugLog("Direct session check successful:", sessionData);
+          return true;
+        } else {
+          debugLog("Direct session check failed with status:", directResponse.status);
+        }
+      } catch (error) {
+        debugLog("Direct session check error:", error);
+      }
+      
       try {
         // First try using the stored token
         const storedToken = localStorage.getItem('adminToken');
@@ -661,7 +1056,7 @@
         if (storedToken) {
           debugLog("Found stored token, attempting to use it");
           
-          const response = await fetch(`${API_URL}/store/profile`, {
+          const response = await fetch(`${API_URL.replace('/api', '')}/admin/session`, {
             method: 'GET',
             headers: { 
               'Content-Type': 'application/json',
@@ -682,7 +1077,7 @@
           }
         } else {
           // Try without token (cookie-based session)
-          const response = await fetch(`${API_URL}/store/profile`, {
+          const response = await fetch(`${API_URL.replace('/api', '')}/admin/session`, {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include'

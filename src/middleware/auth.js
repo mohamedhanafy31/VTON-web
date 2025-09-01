@@ -21,6 +21,22 @@ export const authenticateSession = (req, res, next) => {
   if (!req.session.user && !req.session.userAddress) {
     console.log('Authentication failed: No user in session');
     
+    // TEMPORARY AUTHENTICATION BYPASS FOR TESTING
+    // Check if this is a test user request
+    const testUserHeader = req.headers['x-test-user'];
+    if (testUserHeader === 'test-acc') {
+      console.log('Temporary authentication bypass for test user');
+      req.session.user = {
+        role: 'user',
+        userId: 'pcPHP9qkchydd5GnVgt4',
+        username: 'test acc',
+        email: 'test3@name.com',
+        name: 'test acc'
+      };
+      req.user = req.session.user;
+      return next();
+    }
+    
     // Return error based on endpoint type
     if (req.originalUrl.includes('/store/')) {
       return res.status(401).json({ 

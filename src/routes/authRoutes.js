@@ -29,6 +29,13 @@ router.post('/admin/login', adminLogin);
 router.post('/admin/logout', adminLogout);
 router.post('/admin/login-test', adminLoginTest);
 router.get('/admin/auth-test', adminAuthTest);
+router.get('/admin/session', authenticateSession, restrictTo('admin'), (req, res) => {
+  res.json({ 
+    authenticated: true, 
+    user: req.session.user,
+    role: 'admin'
+  });
+});
 
 // Admin management routes
 router.post('/admin/reset-store-password/:storeName', 
