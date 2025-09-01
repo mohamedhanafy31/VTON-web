@@ -1,6 +1,32 @@
 /* Import the enhanced color palette */
 @import url('./color-palette.css');
 
+/* Button processing state styles */
+.btn-processing {
+    background-color: var(--warning-primary) !important;
+    border-color: var(--warning-primary) !important;
+    color: var(--text-inverse) !important;
+    cursor: not-allowed !important;
+    opacity: 0.8 !important;
+    position: relative !important;
+}
+
+.btn-processing:hover {
+    background-color: var(--warning-primary) !important;
+    border-color: var(--warning-primary) !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.btn-processing .fa-spinner {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
 :root {
   /* Legacy variables for backward compatibility - now using enhanced palette */
   --primary-color: var(--primary-brand);
@@ -1317,4 +1343,88 @@ video {
   padding: 20px;
   text-align: center;
   color: var(--error-dark);
+}
+
+/* No Access Message Styles */
+.no-access-message {
+  text-align: center;
+  padding: 40px 20px;
+  background: var(--surface-primary);
+  border: 2px solid var(--warning-primary);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-md);
+  margin: 20px 0;
+}
+
+.no-access-icon {
+  font-size: 4rem;
+  color: var(--warning-primary);
+  margin-bottom: 20px;
+}
+
+.no-access-message h3 {
+  color: var(--warning-primary);
+  margin-bottom: 15px;
+  font-size: 1.5rem;
+}
+
+.no-access-message p {
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+}
+
+.no-access-message .sub-text {
+  color: var(--text-light);
+  font-size: 0.9rem;
+  font-style: italic;
+  margin-bottom: 20px;
+}
+
+.no-access-message .btn {
+  margin-top: 15px;
+  padding: 12px 24px;
+  font-size: 1rem;
+}
+
+/* No Trials Message Styles */
+.no-trials-message {
+  text-align: center;
+  padding: 40px 20px;
+  background: var(--surface-primary);
+  border: 2px solid var(--error-primary);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-md);
+  margin: 20px 0;
+}
+
+.no-trials-icon {
+  font-size: 4rem;
+  color: var(--error-primary);
+  margin-bottom: 20px;
+}
+
+.no-trials-message h3 {
+  color: var(--error-primary);
+  margin-bottom: 15px;
+  font-size: 1.5rem;
+}
+
+.no-trials-message p {
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+}
+
+.no-trials-message .sub-text {
+  color: var(--text-light);
+  font-size: 0.9rem;
+  font-style: italic;
+  margin-bottom: 20px;
+}
+
+.no-trials-message .btn {
+  margin-top: 15px;
+  padding: 12px 24px;
+  font-size: 1rem;
 }

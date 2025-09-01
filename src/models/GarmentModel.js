@@ -18,7 +18,7 @@ export class GarmentModel {
     this.public_id = data.public_id || '';
     this.description = data.description || '';
     this.price = data.price || 0;
-    this.size = data.size || null;
+
     this.tags = data.tags || [];
     this.status = data.status || 'pending';
     this.views = data.views || 0;

@@ -20,16 +20,23 @@ import { Server } from 'socket.io';
 
 // Import configurations
 import './config/db.js';
-import sessionMiddleware from './config/session.js';
+import sessionMiddleware, { userSession, adminSession, storeSession } from './config/session.js';
 import { startNgrok } from './config/ngrok.js';
 
 // Import middleware
 import { requestLogger } from './utils/logger.js';
 import logger from './utils/logger.js';
-import { globalErrorHandler, notFoundHandler } from './middleware/errorHandler.js';
+import { 
+  globalErrorHandler, 
+  notFoundHandler, 
+  processErrorHandler,
+  adminErrorHandler,
+  validationErrorHandler 
+} from './middleware/errorHandler.js';
 
 // Import routes
 import authRoutes from './routes/authRoutes.js';
+import adminRoutes from './routes/adminRoutes.js';
 import storeRoutes from './routes/storeRoutes.js';
 import imageRoutes from './routes/imageRoutes.js';
 import tryonRoutes from './routes/tryonRoutes.js';
@@ -91,10 +98,18 @@ try {
 // Trust proxy for secure cookies behind Nginx
 app.set('trust proxy', 1);
 
-// Session middleware - must be before any routes that need session access
-app.use(sessionMiddleware);
+// Session middleware - different sessions for different routes
+// Admin routes use admin session
+app.use('/admin', adminSession);
+app.use('/api/admin', adminSession);
+// Ensure admin session is applied to admin garment endpoints as well
+app.use('/garments/admin', adminSession);
 
+// Store routes use store session
+app.use('/store', storeSession);
 
+// All other routes use user session (default)
+app.use(userSession);
 
 // CORS configuration
 app.use(cors({
@@ -112,12 +127,18 @@ logger.debug('CORS configured', {
 
 // API Routes - MUST come BEFORE HTML routes to avoid conflicts
 app.use(authRoutes);
+app.use('/api/admin', adminRoutes); // Mount admin API routes under /api/admin
 app.use(storeRoutes);
 app.use('/api', imageRoutes);
 app.use('/api', miscRoutes); // Mount misc routes under /api
+
+// Debug order routes registration
+console.log('Registering order routes...');
+app.use('/api/orders', orderRoutes);
+console.log('Order routes registered successfully');
+
 app.use('/garments', garmentRoutes);
 app.use('/tryon', tryonRoutes);
-app.use('/api/orders', orderRoutes);
 
 // Static files - serve from organized directories (MUST come BEFORE page routes)
 const staticPath = path.join(__dirname, '../static');
@@ -210,11 +231,22 @@ app.get('/socket.io/', (req, res) => {
   });
 });
 
+// Enhanced error handling middleware
+// Apply admin-specific error handling for admin routes
+app.use('/admin', adminErrorHandler);
+app.use('/api/admin', adminErrorHandler);
+
+// Apply validation error handling
+app.use(validationErrorHandler);
+
 // Handle 404 errors for undefined routes
 app.use(notFoundHandler);
 
 // Global error handler (must be last)
 app.use(globalErrorHandler);
+
+// Initialize process error handlers
+processErrorHandler();
 
 // Start server
 httpServer.listen(process.env.PORT || 3000, async () => {

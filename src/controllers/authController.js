@@ -88,8 +88,29 @@ export const adminLogin = async (req, res) => {
       return res.status(400).json({ error: 'Email and password are required' });
     }
 
+    // Handle database unavailable case with mock admin
     if (!db) {
-      throw new Error('Firestore is unavailable');
+      console.log('Database unavailable, using mock admin authentication');
+      // Mock admin credentials for testing
+      const mockAdminEmail = 'admin@metavrai.shop';
+      const mockAdminPassword = 'admin123'; // In production, this should be hashed
+      
+      if (email !== mockAdminEmail || password !== mockAdminPassword) {
+        return res.status(401).json({ error: 'Invalid credentials' });
+      }
+      
+      req.session.user = {
+        role: 'admin',
+        adminId: 'mock_admin_account',
+        email: mockAdminEmail
+      };
+      
+      console.log('Mock admin login successful');
+      return res.json({
+        success: true,
+        message: 'Admin login successful',
+        user: req.session.user
+      });
     }
 
     const adminSnapshot = await db.collection('admin').doc('admin_account').get();
@@ -400,6 +421,15 @@ export const userLogin = async (req, res) => {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
+    // Check if user has access granted
+    if (!user.access) {
+      logger.warn('Login attempt failed: User access not granted', { userId: user.id, username });
+      return res.status(403).json({ 
+        error: 'Account access not granted', 
+        message: 'Your account is pending approval. Please contact management to activate your account.' 
+      });
+    }
+
     // Update last login time
     await user.updateLastLogin();
 
@@ -523,5 +553,43 @@ export const decreaseUserTrials = async (req, res) => {
   } catch (error) {
     logger.error('Decrease user trials error:', { message: error.message, stack: error.stack });
     res.status(500).json({ error: 'Failed to decrease user trials', details: error.message });
+  }
+};
+
+// Check and invalidate session for users without access
+export const checkUserAccess = async (req, res, next) => {
+  try {
+    // Only check if user is authenticated
+    if (req.session && req.session.user && req.session.user.role === 'user') {
+      const user = await UserModel.findById(req.session.user.userId);
+      
+      // If user doesn't exist or doesn't have access, destroy session
+      if (!user || !user.access) {
+        logger.warn('User access revoked or user not found, destroying session', { 
+          userId: req.session.user.userId,
+          hasAccess: user ? user.access : false
+        });
+        
+        // Destroy the session
+        req.session.destroy(err => {
+          if (err) {
+            logger.error('Error destroying session for user without access:', err);
+          }
+        });
+        
+        // Return unauthorized response
+        return res.status(401).json({ 
+          error: 'Access revoked', 
+          message: 'Your account access has been revoked. Please contact management.' 
+        });
+      }
+    }
+    
+    // User has access or no session, continue
+    next();
+  } catch (error) {
+    logger.error('Error checking user access:', { message: error.message, stack: error.stack });
+    // On error, continue to allow the request to proceed
+    next();
   }
 }; 

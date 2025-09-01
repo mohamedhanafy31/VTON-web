@@ -308,7 +308,7 @@ document.addEventListener('DOMContentLoaded', function() {
             formData.append('type', document.getElementById('garmentType').value);
             formData.append('color', document.getElementById('garmentColor').value);
             formData.append('price', document.getElementById('garmentPrice').value || '');
-            formData.append('size', document.getElementById('garmentSize').value || '');
+
             formData.append('description', document.getElementById('garmentDescription').value || '');
             formData.append('tags', document.getElementById('garmentTags').value || '');
             formData.append('image', garmentImageInput.files[0]);

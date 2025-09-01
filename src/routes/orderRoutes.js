@@ -7,12 +7,12 @@ import {
   deleteOrder, 
   getOrderStats 
 } from '../controllers/orderController.js';
-import { authenticateSession, restrictTo } from '../middleware/auth.js';
+import { authenticateUser, restrictTo } from '../middleware/auth.js';
 
 const router = Router();
 
-// All order routes require authentication
-router.use(authenticateSession);
+// All order routes require user authentication
+router.use(authenticateUser);
 
 // Order CRUD operations
 router.post('/', createOrder);

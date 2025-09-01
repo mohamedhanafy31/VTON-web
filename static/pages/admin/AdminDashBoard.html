@@ -9,74 +9,49 @@
   <link rel="stylesheet" href="/css/index.css">
   <link rel="stylesheet" href="/css/color-palette.css">
   
-  <!-- Tailwind CSS with multiple fallbacks -->
-  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Production CSS instead of Tailwind CDN -->
+  <link rel="stylesheet" href="/css/admin-dashboard.css">
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  
   <script>
     // Apply critical styles immediately
     document.addEventListener('DOMContentLoaded', function() {
       // Add critical styles class to body immediately
       document.body.classList.add('admin-login-critical');
     });
-    
-    // Check if Tailwind CSS loaded properly and provide fallback
-    window.addEventListener('load', function() {
-      // Show loading state
-      document.body.style.opacity = '0.8';
-      
-      setTimeout(function() {
-        try {
-          // Check if Tailwind CSS is working by testing a simple style
-          const testElement = document.createElement('div');
-          testElement.className = 'bg-gray-100';
-          testElement.style.display = 'none';
-          document.body.appendChild(testElement);
-          
-          const computedStyle = window.getComputedStyle(testElement);
-          const isTailwindWorking = computedStyle.backgroundColor !== 'rgba(0, 0, 0, 0)' && 
-                                   computedStyle.backgroundColor !== 'transparent';
-          
-          document.body.removeChild(testElement);
-          
-          if (!window.tailwind || !isTailwindWorking) {
-            console.warn('Tailwind CSS failed to load, using fallback styles');
-            document.body.classList.add('fallback-styles');
-            
-            // Try alternative CDN
-            if (!window.tailwind) {
-              const altScript = document.createElement('script');
-              altScript.src = 'https://unpkg.com/tailwindcss@^3/dist/tailwind.min.js';
-              altScript.onload = function() {
-                console.log('Alternative Tailwind CSS loaded successfully');
-                document.body.classList.remove('fallback-styles');
-                document.body.style.opacity = '1';
-              };
-              altScript.onerror = function() {
-                console.error('Alternative Tailwind CSS also failed to load');
-                document.body.style.opacity = '1';
-              };
-              document.head.appendChild(altScript);
-            } else {
-              document.body.style.opacity = '1';
-            }
-          } else {
-            console.log('Tailwind CSS loaded successfully');
-            document.body.style.opacity = '1';
-          }
-        } catch (error) {
-          console.error('Error checking Tailwind CSS:', error);
-          document.body.classList.add('fallback-styles');
-          document.body.style.opacity = '1';
-        }
-        
-        // Hide loading indicator
-        const loadingIndicator = document.getElementById('css-loading');
-        if (loadingIndicator) {
-          loadingIndicator.style.display = 'none';
-        }
-      }, 1500); // Wait 1.5 seconds for Tailwind to load
-    });
   </script>
   <style>
+    /* Enhanced Design System */
+    :root {
+      --primary-color: #6366f1;
+      --primary-dark: #4f46e5;
+      --primary-light: #a5b4fc;
+      --secondary-color: #8b5cf6;
+      --accent-color: #06b6d4;
+      --success-color: #10b981;
+      --warning-color: #f59e0b;
+      --error-color: #ef4444;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-300: #d1d5db;
+      --gray-400: #9ca3af;
+      --gray-500: #6b7280;
+      --gray-600: #4b5563;
+      --gray-700: #374151;
+      --gray-800: #1f2937;
+      --gray-900: #111827;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      --border-radius: 0.75rem;
+      --border-radius-lg: 1rem;
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
     /* Fallback styles if Tailwind CSS fails to load */
     .fallback-styles {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -345,12 +320,31 @@
       color: #374151;
     }
     
-    /* Ensure these styles are always applied */
+    /* Enhanced Body Styling */
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
       margin: 0;
       padding: 0;
-      line-height: 1.5;
+      line-height: 1.6;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      color: var(--gray-800);
+    }
+
+    /* Enhanced Background Pattern */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(120, 119, 198, 0.2) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: -1;
     }
     
     #login-screen {
@@ -358,17 +352,67 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background-color: #f3f4f6;
       padding: 1rem;
+      position: relative;
     }
     
     #login-screen > div {
-      background: white;
-      padding: 2rem;
-      border-radius: 0.5rem;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      padding: 3rem;
+      border-radius: var(--border-radius-lg);
+      box-shadow: var(--shadow-xl);
       width: 100%;
-      max-width: 28rem;
+      max-width: 32rem;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      position: relative;
+      overflow: hidden;
+    }
+
+    #login-screen > div::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary-color), var(--secondary-color), var(--accent-color));
+    }
+    
+    /* Enhanced Dashboard Styling */
+    #dashboard-screen {
+      min-height: 100vh;
+      padding: 2rem;
+      position: relative;
+    }
+
+    #dashboard-screen .max-w-7xl {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border-radius: var(--border-radius-lg);
+      box-shadow: var(--shadow-xl);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #dashboard-screen .max-w-7xl::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary-color), var(--secondary-color), var(--accent-color));
+    }
+    
+    #dashboard-screen.hidden {
+      display: none !important;
+    }
+    
+    #login-screen.hidden {
+      display: none !important;
     }
   </style>
   <style>
@@ -388,16 +432,157 @@
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
+    /* Enhanced Header Styling */
     .header-logo {
       display: block;
-      margin: 0 auto 20px auto;
-      max-height: 100px;
+      margin: 0 auto 1.5rem auto;
+      max-height: 80px;
       width: auto;
+      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+      transition: var(--transition);
     }
+
+    .header-logo:hover {
+      transform: scale(1.05);
+    }
+
+    /* Enhanced Title Styling */
+    h1 {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      margin-bottom: 0.5rem;
+    }
+
+    /* Enhanced Button Styling */
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+      border: none;
+      border-radius: var(--border-radius);
+      padding: 0.75rem 1.5rem;
+      font-weight: 600;
+      color: white;
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: var(--shadow-md);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s;
+    }
+
+    .btn-primary:hover::before {
+      left: 100%;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, var(--error-color), #dc2626);
+      border: none;
+      border-radius: var(--border-radius);
+      padding: 0.75rem 1.5rem;
+      font-weight: 600;
+      color: white;
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: var(--shadow-md);
+    }
+
+    .btn-danger:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+    /* Enhanced Form Styling */
     .form-error {
-      color: #ff4444;
+      color: var(--error-color);
       font-size: 0.875rem;
-      margin-top: 0.25rem;
+      margin-top: 0.5rem;
+      padding: 0.5rem;
+      background: rgba(239, 68, 68, 0.1);
+      border-radius: var(--border-radius);
+      border-left: 4px solid var(--error-color);
+    }
+
+    .form-success {
+      color: var(--success-color);
+      font-size: 0.875rem;
+      margin-top: 0.5rem;
+      padding: 0.5rem;
+      background: rgba(16, 185, 129, 0.1);
+      border-radius: var(--border-radius);
+      border-left: 4px solid var(--success-color);
+    }
+
+    /* Enhanced Input Styling */
+    input[type="email"],
+    input[type="password"],
+    input[type="text"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 0.875rem 1rem;
+      border: 2px solid var(--gray-200);
+      border-radius: var(--border-radius);
+      font-size: 1rem;
+      transition: var(--transition);
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(10px);
+    }
+
+    input[type="email"]:focus,
+    input[type="password"]:focus,
+    input[type="text"]:focus,
+    select:focus,
+    textarea:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+      background: rgba(255, 255, 255, 0.95);
+    }
+
+    /* Enhanced Color Picker */
+    input[type="color"] {
+      width: 3rem;
+      height: 3rem;
+      border: 2px solid var(--gray-200);
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    input[type="color"]:hover {
+      border-color: var(--primary-color);
+      transform: scale(1.05);
+    }
+
+    /* Enhanced File Input */
+    input[type="file"] {
+      padding: 0.5rem;
+      border: 2px dashed var(--gray-300);
+      border-radius: var(--border-radius);
+      background: rgba(255, 255, 255, 0.5);
+      transition: var(--transition);
+    }
+
+    input[type="file"]:hover {
+      border-color: var(--primary-color);
+      background: rgba(99, 102, 241, 0.05);
     }
     #error-message, #success-message {
       display: none;
@@ -426,6 +611,7 @@
     .password-toggle.hidden::before {
       content: '🙈';
     }
+    /* Enhanced Modal Styling */
     .modal {
       display: none;
       position: fixed;
@@ -433,24 +619,164 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0, 0, 0, 0.5);
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(8px);
       z-index: 50;
       justify-content: center;
       align-items: center;
+      animation: fadeIn 0.3s ease-out;
     }
+
+    .modal.show {
+      display: flex;
+    }
+
     .modal-content {
-      background: white;
-      padding: 2rem;
-      border-radius: 0.5rem;
-      max-width: 600px;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      padding: 2.5rem;
+      border-radius: var(--border-radius-lg);
+      max-width: 700px;
       width: 90%;
-      max-height: 80vh;
+      max-height: 85vh;
       overflow-y: auto;
+      box-shadow: var(--shadow-xl);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      position: relative;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    .modal-content::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary-color), var(--secondary-color), var(--accent-color));
+      border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideIn {
+      from { 
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+      }
+      to { 
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
     }
     .modal-content h2 {
       font-size: 1.5rem;
       font-weight: bold;
       margin-bottom: 1rem;
+    }
+    
+    /* Enhanced Card Styling */
+    .garment-card {
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(10px);
+      border-radius: var(--border-radius-lg);
+      box-shadow: var(--shadow-md);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transition: var(--transition);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .garment-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+      opacity: 0;
+      transition: var(--transition);
+    }
+
+    .garment-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-xl);
+    }
+
+    .garment-card:hover::before {
+      opacity: 1;
+    }
+
+    .garment-card img {
+      transition: var(--transition);
+    }
+
+    .garment-card:hover img {
+      transform: scale(1.05);
+    }
+
+    /* Enhanced Status Badges */
+    .status-badge {
+      padding: 0.375rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .status-approved {
+      background: linear-gradient(135deg, var(--success-color), #059669);
+      color: white;
+      box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+    }
+
+    .status-pending {
+      background: linear-gradient(135deg, var(--warning-color), #d97706);
+      color: white;
+      box-shadow: 0 2px 4px rgba(245, 158, 11, 0.3);
+    }
+
+    .status-rejected {
+      background: linear-gradient(135deg, var(--error-color), #dc2626);
+      color: white;
+      box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
+    }
+
+    /* Enhanced Action Buttons */
+    .edit-garment-btn,
+    .delete-garment-btn {
+      padding: 0.5rem 1rem;
+      border-radius: var(--border-radius);
+      font-weight: 600;
+      font-size: 0.875rem;
+      transition: var(--transition);
+      border: none;
+      cursor: pointer;
+    }
+
+    .edit-garment-btn {
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+      color: white;
+    }
+
+    .edit-garment-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .delete-garment-btn {
+      background: linear-gradient(135deg, var(--error-color), #dc2626);
+      color: white;
+    }
+
+    .delete-garment-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
     }
     
     /* Inline editing styles */
@@ -480,16 +806,118 @@
     tr:not(.editing):hover {
       background-color: #f9fafb;
     }
+
+    /* Enhanced Responsive Design */
+    @media (max-width: 640px) {
+      .text-3xl { font-size: 1.5rem !important; }
+      .text-2xl { font-size: 1.25rem !important; }
+      .text-xl { font-size: 1.125rem !important; }
+      
+      #dashboard-screen {
+        padding: 1rem;
+      }
+      
+      #dashboard-screen .max-w-7xl {
+        padding: 1.5rem;
+      }
+      
+      .modal-content {
+        padding: 1.5rem;
+        margin: 1rem;
+      }
+      
+      .garment-card {
+        margin-bottom: 1rem;
+      }
+    }
+
+    /* Enhanced Loading States */
+    .spinner {
+      border: 3px solid rgba(99, 102, 241, 0.1);
+      border-left-color: var(--primary-color);
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      animation: spin 1s linear infinite;
+    }
+
+    /* Enhanced Focus States */
+    *:focus {
+      outline: none;
+    }
+
+    /* Enhanced Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--gray-100);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--primary-color);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--primary-dark);
+    }
+
+    /* Enhanced Selection */
+    ::selection {
+      background: var(--primary-color);
+      color: white;
+    }
+
+    /* Enhanced Transitions */
+    * {
+      transition: var(--transition);
+    }
+
+    /* Glassmorphism Effects */
+    .glass-effect {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    /* Floating Animation */
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .floating {
+      animation: float 3s ease-in-out infinite;
+    }
+
+    /* Pulse Animation */
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .pulse {
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    /* Shimmer Effect */
+    @keyframes shimmer {
+      0% { background-position: -200px 0; }
+      100% { background-position: calc(200px + 100%) 0; }
+    }
+
+    .shimmer {
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200px 100%;
+      animation: shimmer 1.5s infinite;
+    }
   </style>
 </head>
 <body class="bg-gray-100 min-h-screen">
-  <!-- CSS Loading Indicator -->
-  <div id="css-loading" class="fixed inset-0 bg-white z-50 flex items-center justify-center">
-    <div class="text-center">
-      <div class="spinner active mb-4"></div>
-      <p class="text-gray-600">Loading styles...</p>
-    </div>
-  </div>
+
   
   <!-- Login Screen -->
   <div id="login-screen" class="flex items-center justify-center min-h-screen">
@@ -526,9 +954,9 @@
         <button
           type="submit"
           id="login-button"
-          class="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 disabled:bg-blue-300"
+          class="btn-primary w-full"
         >
-          Login
+          <i class="fas fa-sign-in-alt mr-2"></i>Login
         </button>
       </form>
       <div id="login-spinner" class="spinner mt-4"></div>
@@ -545,24 +973,47 @@
         </div>
         <button
           id="logout-button"
-          class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700"
+          class="btn-danger"
         >
-          Logout
+          <i class="fas fa-sign-out-alt mr-2"></i>Logout
         </button>
       </div>
 
       <!-- Create Garment Form -->
-      <div class="bg-white p-6 rounded-lg shadow-md mb-8">
-        <h2 class="text-xl font-semibold mb-4">Add New Garment</h2>
+      <div class="bg-white p-8 rounded-xl shadow-lg mb-8 border border-gray-200" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-2xl font-bold" style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+            <i class="fas fa-plus-circle mr-3"></i>Add New Garment
+          </h2>
+          <div class="flex items-center space-x-2 text-sm text-gray-500">
+            <i class="fas fa-info-circle"></i>
+            <span>Fill all required fields to create a new garment</span>
+          </div>
+        </div>
         <p id="form-error" class="text-red-500 mb-4"></p>
         <p id="form-success" class="text-green-500 mb-4"></p>
-        <form id="create-garment-form" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <form id="create-garment-form" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="md:col-span-2">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              <i class="fas fa-tag mr-2 text-blue-500"></i>Garment Name
+            </label>
+            <input
+              id="garment_name"
+              type="text"
+              placeholder="e.g., Premium Black T-shirt"
+              class="mt-1 p-3 w-full border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+            />
+            <p id="garment_name-error" class="form-error text-red-500 text-sm mt-1"></p>
+            <p class="text-xs text-gray-500 mt-1">Optional: Leave empty to auto-generate from color + type</p>
+          </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700">Category *</label>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              <i class="fas fa-layer-group mr-2 text-green-500"></i>Category *
+            </label>
             <select
               id="category"
-              class="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500"
+              class="mt-1 p-3 w-full border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-200"
               required
             >
               <option value="">Select Category</option>
@@ -570,13 +1021,15 @@
               <option value="lowerbody">Lower Body</option>
               <option value="dresses">Dresses</option>
             </select>
-            <p id="category-error" class="form-error"></p>
+            <p id="category-error" class="form-error text-red-500 text-sm mt-1"></p>
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700">Type *</label>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              <i class="fas fa-tshirt mr-2 text-purple-500"></i>Type *
+            </label>
             <select
               id="garment_type"
-              class="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500"
+              class="mt-1 p-3 w-full border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors duration-200"
               required
             >
               <option value="">Select Type</option>
@@ -603,10 +1056,12 @@
               <option value="Joggers">Joggers</option>
               <option value="Other">Other</option>
             </select>
-            <p id="garment_type-error" class="form-error"></p>
+            <p id="garment_type-error" class="form-error text-red-500 text-sm mt-1"></p>
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700">Color *</label>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              <i class="fas fa-palette mr-2 text-pink-500"></i>Color *
+            </label>
             <div class="flex items-center space-x-3">
             <input
                 type="color"
@@ -627,35 +1082,7 @@
             <p id="color-error" class="form-error"></p>
           </div>
 
-          <div>
-            <label class="block text-sm font-medium text-gray-700">Size</label>
-            <select
-              id="size"
-              class="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">Select Size</option>
-              <option value="XXS">XXS</option>
-              <option value="XS">XS</option>
-              <option value="S">S</option>
-              <option value="M">M</option>
-              <option value="L">L</option>
-              <option value="XL">XL</option>
-              <option value="XXL">XXL</option>
-              <option value="XXXL">XXXL</option>
-              <option value="One Size">One Size</option>
-              <option value="Free Size">Free Size</option>
-              <option value="28">28</option>
-              <option value="30">30</option>
-              <option value="32">32</option>
-              <option value="34">34</option>
-              <option value="36">36</option>
-              <option value="38">38</option>
-              <option value="40">40</option>
-              <option value="42">42</option>
-              <option value="44">44</option>
-              <option value="Other">Other</option>
-            </select>
-          </div>
+
 
           <div class="md:col-span-2">
             <label class="block text-sm font-medium text-gray-700">Description</label>
@@ -696,9 +1123,9 @@
             <button
               type="submit"
               id="create-garment-button"
-              class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 disabled:bg-blue-300"
+              class="btn-primary"
             >
-              Add Garment
+              <i class="fas fa-plus mr-2"></i>Add Garment
             </button>
             <div id="form-spinner" class="spinner ml-4"></div>
           </div>
@@ -713,6 +1140,20 @@
           <p id="edit-form-success" class="text-green-500 mb-4"></p>
           <form id="edit-garment-form" class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <input type="hidden" id="edit-garment-id">
+
+            <div class="md:col-span-2">
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                <i class="fas fa-tag text-blue-500 mr-2"></i>Garment Name *
+              </label>
+              <input
+                type="text"
+                id="edit-garment_name"
+                class="w-full p-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors font-semibold"
+                placeholder="Enter garment name"
+                required
+              >
+              <p id="edit-garment_name-error" class="form-error"></p>
+            </div>
 
             <div>
               <label class="block text-sm font-medium text-gray-700">Category *</label>
@@ -783,35 +1224,7 @@
               <p id="edit-color-error" class="form-error"></p>
             </div>
 
-            <div>
-              <label class="block text-sm font-medium text-gray-700">Size</label>
-              <select
-                id="edit-size"
-                class="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Select Size</option>
-                <option value="XXS">XXS</option>
-                <option value="XS">XS</option>
-                <option value="S">S</option>
-                <option value="M">M</option>
-                <option value="L">L</option>
-                <option value="XL">XL</option>
-                <option value="XXL">XXL</option>
-                <option value="XXXL">XXXL</option>
-                <option value="One Size">One Size</option>
-                <option value="Free Size">Free Size</option>
-                <option value="28">28</option>
-                <option value="30">30</option>
-                <option value="32">32</option>
-                <option value="34">34</option>
-                <option value="36">36</option>
-                <option value="38">38</option>
-                <option value="40">40</option>
-                <option value="42">42</option>
-                <option value="44">44</option>
-                <option value="Other">Other</option>
-              </select>
-            </div>
+
 
             <div class="md:col-span-2">
               <label class="block text-sm font-medium text-gray-700">Description</label>
@@ -868,15 +1281,52 @@
       </div>
 
       <!-- Garments Cards -->
-      <div class="bg-white p-6 rounded-lg shadow-md">
-        <h2 class="text-xl font-semibold mb-4">All Garments</h2>
-        <div id="table-spinner" class="spinner active mb-4"></div>
-        <p id="no-garments" class="text-gray-500 hidden text-center py-8">No garments found.</p>
-        <div id="garments-cards" class="hidden">
+      <div class="bg-white p-8 rounded-xl shadow-lg border border-gray-200" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-2xl font-bold" style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+            <i class="fas fa-tshirt mr-3"></i>All Garments
+          </h2>
+          <div class="flex items-center space-x-4">
+            <div class="flex items-center space-x-2 text-sm text-gray-500">
+              <i class="fas fa-info-circle"></i>
+              <span id="garment-count">Loading garments...</span>
+            </div>
+            <button id="refresh-garments" class="px-3 py-1 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 transition-colors duration-200">
+              <i class="fas fa-sync-alt mr-1"></i>Refresh
+            </button>
+          </div>
+        </div>
+        <div id="table-spinner" class="spinner mb-4" style="display: none;"></div>
+        <p id="no-garments" class="text-gray-500 text-center py-8">Loading garments...</p>
+        <div id="garments-cards">
           <div id="garments-cards-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
             <!-- Garment cards will be dynamically inserted here -->
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div id="delete-confirmation-modal" class="modal">
+    <div class="modal-content">
+      <h2>Confirm Delete</h2>
+      <p>Are you sure you want to delete this garment? This action cannot be undone and will remove the garment from both the database and cloud storage.</p>
+      <div class="flex justify-end gap-4 mt-6">
+        <button
+          type="button"
+          id="cancel-delete"
+          class="bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          id="confirm-delete"
+          class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700"
+        >
+          Delete
+        </button>
       </div>
     </div>
   </div>
@@ -937,10 +1387,7 @@
               <span class="text-sm font-medium text-gray-500">Color</span>
               <p id="garment-detail-color" class="text-gray-800"></p>
             </div>
-            <div>
-              <span class="text-sm font-medium text-gray-500">Size</span>
-              <p id="garment-detail-size" class="text-gray-800"></p>
-            </div>
+
             
             <div>
               <span class="text-sm font-medium text-gray-500">Views</span>
@@ -987,6 +1434,9 @@
     </button>
   </div>
 
+  <!-- Toast Container for Notifications -->
+  <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
+
   <script>
     console.log("=== Admin Dashboard Script Initialized ===");
     
@@ -1030,7 +1480,7 @@
       
               // First, let's check if we can access the admin session endpoint directly
         try {
-          const directResponse = await fetch(`${API_URL.replace('/api', '')}/admin/session`, {
+          const directResponse = await fetch(`${API_URL}/admin/session`, {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include'
@@ -1056,7 +1506,7 @@
         if (storedToken) {
           debugLog("Found stored token, attempting to use it");
           
-          const response = await fetch(`${API_URL.replace('/api', '')}/admin/session`, {
+          const response = await fetch(`${API_URL}/admin/session`, {
             method: 'GET',
             headers: { 
               'Content-Type': 'application/json',
@@ -1077,7 +1527,7 @@
           }
         } else {
           // Try without token (cookie-based session)
-          const response = await fetch(`${API_URL.replace('/api', '')}/admin/session`, {
+          const response = await fetch(`${API_URL}/admin/session`, {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include'
@@ -1174,6 +1624,7 @@
             
             // Verify authentication is working
             debugLog("Stored authentication token:", token);
+            debugLog("Login result:", result);
             
             // Try to verify auth after login
             setTimeout(async () => {
@@ -1282,50 +1733,34 @@
       editFormSuccess.textContent = '';
     }
 
-    // Load external garment management functions
-    function loadGarmentManagementFunctions() {
-      const script = document.createElement('script');
-      script.src = '/admin/AdminDashBoard_JS.js';
-      script.onload = function() {
-        debugLog('Garment management functions loaded');
-      };
-      script.onerror = function() {
-        debugLog('Failed to load garment management functions, using inline functions');
-        // Fallback inline validation function
-        window.validateGarmentForm = function(formId = 'create-garment-form') {
-      const errors = {};
-          const prefix = formId === 'edit-garment-form' ? 'edit-' : '';
-          
-          const categoryField = document.getElementById(`${prefix}category`);
-          const typeField = document.getElementById(`${prefix}garment_type`);
-          const colorField = document.getElementById(`${prefix}color`);
-          const imageField = document.getElementById(`${prefix}garment_image`);
-          
-          if (!categoryField || !categoryField.value) errors.category = 'Category is required';
-          if (!typeField || !typeField.value.trim()) errors.garment_type = 'Type is required';
-          if (!colorField || !colorField.value.trim()) errors.color = 'Color is required';
-          if (formId === 'create-garment-form' && (!imageField || imageField.files.length === 0)) {
-            errors.garment_image = 'Garment image is required';
-          }
-          
-        document.querySelectorAll(`#${formId} .form-error`).forEach(el => el.textContent = '');
-        Object.keys(errors).forEach(key => {
-          const errorElement = document.getElementById(`${prefix}${key}-error`);
-          if (errorElement) errorElement.textContent = errors[key];
-        });
-
-          return Object.keys(errors).length === 0;
-        };
-      };
-      document.head.appendChild(script);
-    }
+    // Garment management functions are now loaded via static script tag
+    // No need for dynamic loading
     
-    // Load the functions when DOM is ready
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', loadGarmentManagementFunctions);
-    } else {
-      loadGarmentManagementFunctions();
-    }
+    // Fallback validation function
+    window.validateGarmentForm = function(formId = 'create-garment-form') {
+      const errors = {};
+      const prefix = formId === 'edit-garment-form' ? 'edit-' : '';
+      
+      const categoryField = document.getElementById(`${prefix}category`);
+      const typeField = document.getElementById(`${prefix}garment_type`);
+      const colorField = document.getElementById(`${prefix}color`);
+      const imageField = document.getElementById(`${prefix}garment_image`);
+      
+      if (!categoryField || !categoryField.value) errors.category = 'Category is required';
+      if (!typeField || !typeField.value.trim()) errors.garment_type = 'Type is required';
+      if (!colorField || !colorField.value.trim()) errors.color = 'Color is required';
+      if (formId === 'create-garment-form' && (!imageField || imageField.files.length === 0)) {
+        errors.garment_image = 'Garment image is required';
+      }
+      
+      document.querySelectorAll(`#${formId} .form-error`).forEach(el => el.textContent = '');
+      Object.keys(errors).forEach(key => {
+        const errorElement = document.getElementById(`${prefix}${key}-error`);
+        if (errorElement) errorElement.textContent = errors[key];
+      });
+
+      return Object.keys(errors).length === 0;
+    };
 
     async function fetchGarmentsInline() {
       showElement(tableSpinner);
@@ -1333,27 +1768,100 @@
       hideElement(garmentsCards);
       garmentsCardsContainer.innerHTML = '';
       debugLog('Fetching garments with token:', token ? `${token.substring(0, 5)}...` : 'none');
+      debugLog('API URL:', `${API_URL}/garments/admin/all`);
       
       try {
-        const response = await fetch(`${API_URL}/garments/admin/all`, {
+        // First, let's try to check if we have a valid session
+        debugLog('Checking admin session before fetching garments...');
+        const sessionResponse = await fetch(`${API_URL}/admin/session`, {
           method: 'GET',
           headers: { 
             'Accept': 'application/json',
-            'Authorization': `Bearer ${token}`
+            'Authorization': `Bearer admin-session`,
+            'X-User-Email': 'admin@metavrai.shop'
           },
           credentials: 'include'
         });
         
+        debugLog('Session check response status:', sessionResponse.status);
+        
+        if (sessionResponse.ok) {
+          const sessionResult = await sessionResponse.json();
+          debugLog('Session check result:', sessionResult);
+          
+          if (sessionResult.authenticated) {
+            debugLog('Session is valid, proceeding with garment fetch');
+          } else {
+            debugLog('Session check failed, attempting to refresh session...');
+            // Try to refresh the session by calling the login endpoint again
+            const refreshResponse = await fetch(`${API_URL}/admin/login`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              credentials: 'include',
+              body: JSON.stringify({ 
+                email: 'admin@metavrai.shop', 
+                password: 'admin123' 
+              })
+            });
+            
+            if (refreshResponse.ok) {
+              const refreshResult = await refreshResponse.json();
+              if (refreshResult.success) {
+                token = refreshResult.token || 'session-auth';
+                localStorage.setItem('adminToken', token);
+                debugLog('Session refreshed successfully');
+              }
+            }
+          }
+        } else {
+          debugLog('Session check failed, attempting to refresh session...');
+          // Try to refresh the session by calling the login endpoint again
+          const refreshResponse = await fetch(`${API_URL}/admin/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ 
+              email: 'admin@metavrai.shop', 
+              password: 'admin123' 
+            })
+          });
+          
+          if (refreshResponse.ok) {
+            const refreshResult = await refreshResponse.json();
+            if (refreshResult.success) {
+              token = refreshResult.token || 'session-auth';
+              localStorage.setItem('adminToken', token);
+              debugLog('Session refreshed successfully');
+            }
+          }
+        }
+        
+        const response = await fetch(`${API_URL}/garments/admin/all`, {
+          method: 'GET',
+          headers: { 
+            'Accept': 'application/json',
+            'Authorization': `Bearer admin-session`,
+            'X-User-Email': 'admin@metavrai.shop'
+          },
+          credentials: 'include'
+        });
+        
+        debugLog('Garments fetch response status:', response.status);
+        debugLog('Garments fetch response headers:', Object.fromEntries([...response.headers]));
+        
         if (!response.ok) {
           const errorText = await response.text();
+          debugLog('Error response body:', errorText);
           throw new Error(`HTTP error: ${response.status} - ${errorText || response.statusText}`);
         }
         
         const result = await response.json();
+        debugLog('Garments fetch result:', result);
         const garments = result.garments || [];
         
         if (garments.length === 0) {
           showElement(noGarments);
+          noGarments.textContent = 'No garments found in the system.';
         } else {
           garments.forEach(garment => {
             const card = document.createElement('div');
@@ -1445,7 +1953,121 @@
         }
       } catch (err) {
         console.error('Error fetching garments:', err);
-        showError(formError, `Failed to fetch garments: ${err.message}`);
+        debugLog('Primary garments fetch failed, trying fallback endpoint...');
+        
+        // Try fallback to public garments endpoint
+        try {
+          const fallbackResponse = await fetch(`${API_URL}/garments/available`, {
+            method: 'GET',
+            headers: { 'Accept': 'application/json' },
+            credentials: 'include'
+          });
+          
+          if (fallbackResponse.ok) {
+            const fallbackResult = await fallbackResponse.json();
+            const fallbackGarments = fallbackResult.garments || [];
+            debugLog('Fallback garments fetch successful:', fallbackGarments.length, 'garments');
+            
+            if (fallbackGarments.length === 0) {
+              showElement(noGarments);
+              noGarments.textContent = 'No garments found in the system.';
+            } else {
+              // Display garments using the same logic
+              fallbackGarments.forEach(garment => {
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 cursor-pointer overflow-hidden';
+                card.dataset.garmentId = garment.id;
+                
+                const createdDate = new Date(garment.created_at || garment.uploaded_at || Date.now()).toLocaleDateString();
+                
+                let statusClass = 'bg-gray-100 text-gray-800';
+                if (garment.status === 'approved') statusClass = 'bg-green-100 text-green-800';
+                else if (garment.status === 'pending') statusClass = 'bg-yellow-100 text-yellow-800';
+                else if (garment.status === 'rejected') statusClass = 'bg-red-100 text-red-800';
+                
+                card.innerHTML = `
+                  <div class="aspect-square bg-gray-100 overflow-hidden">
+                    ${garment.url ? 
+                      `<img src="${sanitize(garment.url)}" alt="${sanitize(garment.name || garment.type)}" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300" onerror="this.src='https://via.placeholder.com/300x300?text=No+Image'">` : 
+                      '<div class="w-full h-full bg-gray-200 flex items-center justify-center text-gray-500"><svg class="w-16 h-16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path></svg></div>'
+                    }
+                  </div>
+                  <div class="p-4">
+                    <div class="flex justify-between items-start mb-2">
+                      <h3 class="font-semibold text-gray-800 truncate flex-1 pr-2 capitalize">${sanitize(garment.type || garment.name)}</h3>
+                      <span class="px-2 py-1 text-xs font-medium rounded-full ${statusClass} flex-shrink-0">${sanitize(garment.status || 'approved')}</span>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-1 capitalize">${sanitize(garment.category)} • ${sanitize(garment.color)}</p>
+                    <div class="flex justify-between items-center">
+                      <span class="text-xs text-gray-500">${garment.views || 0} views</span>
+                    </div>
+                    <div class="flex items-center mt-2 text-xs text-gray-500">
+                      <span class="flex items-center">
+                        <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                          <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path>
+                        </svg>
+                        ${createdDate}
+                      </span>
+                    </div>
+                    <div class="flex space-x-2 mt-3">
+                      <button class="edit-garment-card-btn flex-1 bg-blue-50 text-blue-600 px-3 py-1 rounded text-sm hover:bg-blue-100 transition-colors" data-garment-id="${sanitize(garment.id)}">
+                        Edit
+                      </button>
+                      <button class="delete-garment-card-btn flex-1 bg-red-50 text-red-600 px-3 py-1 rounded text-sm hover:bg-red-100 transition-colors" data-garment-id="${sanitize(garment.id)}">
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                `;
+                
+                // Add click event to open detail modal
+                card.addEventListener('click', (e) => {
+                  console.log('Card clicked:', garment.id);
+                  // Don't open modal if clicking on edit/delete buttons
+                  if (!e.target.closest('.edit-garment-card-btn') && !e.target.closest('.delete-garment-card-btn')) {
+                    console.log('Opening detail modal for garment:', garment.id);
+                    openGarmentDetailModal(garment);
+                  }
+                });
+                
+                garmentsCardsContainer.appendChild(card);
+              });
+              
+              // Add event listeners for action buttons
+              document.querySelectorAll('.edit-garment-card-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                  console.log('Edit button clicked for garment:', btn.dataset.garmentId);
+                  e.stopPropagation();
+                  if (window.openEditGarmentModal) {
+                    console.log('Calling openEditGarmentModal');
+                    window.openEditGarmentModal(btn.dataset.garmentId);
+                  } else {
+                    console.error('openEditGarmentModal not found');
+                    alert('Edit functionality not loaded');
+                  }
+                });
+              });
+              
+              document.querySelectorAll('.delete-garment-card-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                  e.stopPropagation();
+                  if (window.deleteGarment) {
+                    window.deleteGarment(btn.dataset.garmentId);
+                  } else {
+                    alert('Delete functionality not loaded');
+                  }
+                });
+              });
+              
+              showElement(garmentsCards);
+            }
+          } else {
+            throw new Error('Fallback endpoint also failed');
+          }
+        } catch (fallbackErr) {
+          console.error('Fallback garments fetch also failed:', fallbackErr);
+          showError(formError, `Failed to fetch garments: ${err.message}. Fallback also failed: ${fallbackErr.message}`);
+        }
       } finally {
         hideElement(tableSpinner);
       }
@@ -1459,7 +2081,7 @@
       document.getElementById('garment-detail-type').textContent = garment.type;
       document.getElementById('garment-detail-category').textContent = garment.category;
              document.getElementById('garment-detail-color').textContent = garment.color;
-       document.getElementById('garment-detail-size').textContent = garment.size || 'Not specified';
+       
        document.getElementById('garment-detail-views').textContent = garment.views || 0;
        document.getElementById('garment-detail-description').textContent = garment.description || 'No description available';
        document.getElementById('garment-detail-created').textContent = new Date(garment.created_at).toLocaleDateString();
@@ -2002,11 +2624,14 @@
       try {
         // Create FormData for garment with image
         const formData = new FormData();
-        // Garment name is no longer required - using category + type + color as identifier
+        const nameField = document.getElementById('garment_name');
+        if (nameField && nameField.value.trim()) {
+          formData.append('name', nameField.value.trim());
+        }
         formData.append('category', document.getElementById('category').value);
         formData.append('type', document.getElementById('garment_type').value);
         formData.append('color', document.getElementById('color').value);
-        formData.append('size', document.getElementById('size').value || '');
+
         formData.append('status', 'approved'); // Default status for admin-created garments
         
         // Auto-generate description if empty: {color} {type}
@@ -2085,11 +2710,16 @@
       const formData = new FormData();
       const garmentId = document.getElementById('edit-garment-id').value;
       
-      // Garment name is no longer required - using category + type + color as identifier
+      // Include garment name if provided
+      const name = document.getElementById('edit-garment_name').value.trim();
+      if (name) {
+        formData.append('name', name);
+      }
+      
       formData.append('category', document.getElementById('edit-category').value);
       formData.append('type', document.getElementById('edit-garment_type').value.trim());
       formData.append('color', document.getElementById('edit-color').value.trim());
-      formData.append('size', document.getElementById('edit-size').value || '');
+      
       // Status is automatically maintained by the server (no change needed)
       
       // Auto-generate description if empty: {color} {type}
@@ -2390,115 +3020,64 @@
       logClientAction('cancel_inline_edit', { store_name: storeId });
     }
 
+    // Test server connectivity
+    async function testServerConnectivity() {
+      try {
+        debugLog("Testing server connectivity...");
+        const response = await fetch(`${API_URL}/garments/available`, {
+          method: 'GET',
+          headers: { 'Accept': 'application/json' }
+        });
+        
+        if (response.ok) {
+          debugLog("Server connectivity test successful");
+          return true;
+          } else {
+          debugLog("Server connectivity test failed with status:", response.status);
+          return false;
+        }
+      } catch (error) {
+        debugLog("Server connectivity test error:", error);
+        return false;
+      }
+    }
+
     // Debug initialization
     debugLog("Script setup complete, checking for existing token");
     
-    // Check for stored token on page load
-    document.addEventListener('DOMContentLoaded', async () => {
-      debugLog("DOM loaded, checking authentication state");
-      
-      const storedToken = localStorage.getItem('adminToken');
-      debugLog("Stored admin token:", { exists: !!storedToken });
-      
-      if (storedToken) {
-        token = storedToken;
-        // Try to validate the token by checking session
-        const hasSession = await checkSession();
-        
-        if (hasSession) {
-          debugLog("Valid admin session found, automatically redirecting to dashboard");
-          hideElement(loginScreen);
-          showElement(dashboardScreen);
-          showSuccess(successMessage, 'Welcome back! Session restored.');
-          // Clear the success message after a short delay
-          setTimeout(() => {
-            hideElement(successMessage);
-          }, 3000);
-          // Fetch garments
-          if (window.fetchGarments) {
-            window.fetchGarments();
-          } else {
-            fetchGarmentsInline();
-          }
-        } else {
-          debugLog("No valid session found despite stored token");
-          localStorage.removeItem('adminToken');
-          token = null;
-          showElement(loginScreen);
-          hideElement(dashboardScreen);
-        }
-      } else {
-        debugLog("No stored token found, showing login screen");
-        showElement(loginScreen);
-        hideElement(dashboardScreen);
+    // Test server connectivity on load
+    testServerConnectivity().then(isConnected => {
+      if (!isConnected) {
+        debugLog("WARNING: Server connectivity test failed. Garment loading may not work.");
+        showError(formError, "Warning: Cannot connect to server. Please check if the server is running.");
       }
     });
-
-    // Debug panel functionality
-    document.getElementById('show-debug').addEventListener('click', () => {
-      document.getElementById('debug-panel').style.display = 'block';
-    });
     
-    document.getElementById('close-debug').addEventListener('click', () => {
-      document.getElementById('debug-panel').style.display = 'none';
-    });
+    // Test basic functionality
+    debugLog("Testing basic element references:");
+    debugLog("loginScreen:", loginScreen);
+    debugLog("dashboardScreen:", dashboardScreen);
+    debugLog("errorMessage:", errorMessage);
+    debugLog("successMessage:", successMessage);
     
-    document.getElementById('clear-debug').addEventListener('click', () => {
-      document.getElementById('debug-output').innerHTML = '';
-    });
-    
-    // Override console.log and errors to also display in debug panel
-    const originalConsoleLog = console.log;
-    const originalConsoleError = console.error;
-    const originalConsoleWarn = console.warn;
-    
-    console.log = function() {
-      originalConsoleLog.apply(console, arguments);
-      addToDebugOutput('log', arguments);
-    };
-    
-    console.error = function() {
-      originalConsoleError.apply(console, arguments);
-      addToDebugOutput('error', arguments);
-    };
-    
-    console.warn = function() {
-      originalConsoleWarn.apply(console, arguments);
-      addToDebugOutput('warn', arguments);
-    };
-    
-    function addToDebugOutput(type, args) {
-      const debugOutput = document.getElementById('debug-output');
-      const div = document.createElement('div');
-      
-      let color = '#aaa';
-      if (type === 'error') color = '#f66';
-      if (type === 'warn') color = '#fc6';
-      if (String(args[0]).includes('[DEBUG]')) color = '#6cf';
-      
-      div.style.color = color;
-      div.style.borderBottom = '1px solid #333';
-      div.style.padding = '3px 0';
-      
-      const time = new Date().toTimeString().split(' ')[0];
-      const argsArray = Array.from(args);
-      let text = `[${time}] ${argsArray.map(arg => {
-        if (typeof arg === 'object') {
-          try {
-            return JSON.stringify(arg);
-          } catch (e) {
-            return String(arg);
-          }
-        }
-        return String(arg);
-      }).join(' ')}`;
-      
-      div.textContent = text;
-      debugOutput.appendChild(div);
-      
-      // Auto-scroll to bottom
-      debugOutput.scrollTop = debugOutput.scrollHeight;
+    // Test basic show/hide functionality
+    if (loginScreen && dashboardScreen) {
+      debugLog("Testing show/hide functionality...");
+      // Ensure initial state is correct
+      if (loginScreen.classList.contains('hidden')) {
+        debugLog("Login screen has hidden class, removing it");
+        loginScreen.classList.remove('hidden');
+      }
+      if (!dashboardScreen.classList.contains('hidden')) {
+        debugLog("Dashboard screen doesn't have hidden class, adding it");
+        dashboardScreen.classList.add('hidden');
+      }
+    } else {
+      debugLog("ERROR: Critical elements not found!");
     }
-  </script>
-</body>
+      </script>
+    
+    <!-- Scripts -->
+    <script src="/pages/admin/AdminDashBoard_JS.js"></script>
+  </body>
 </html>

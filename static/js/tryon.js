@@ -250,7 +250,9 @@ document.addEventListener('DOMContentLoaded', function() {
             name: garmentData.name || '',
             image: garmentData.image || '',
             price: garmentData.price || '',
-            category: garmentData.category || ''
+            category: garmentData.category || '',
+            type: garmentData.type || '',
+            secure_url: garmentElement.querySelector('img').src
         };
         
 
@@ -317,6 +319,9 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             document.getElementById('userInfo').classList.remove('hidden');
+            
+            // Update trials display when showing user info
+            updateTrialsDisplay();
         } else {
             // Hide user info when not authenticated
             document.getElementById('userInfo').classList.add('hidden');
@@ -473,20 +478,34 @@ document.addEventListener('DOMContentLoaded', function() {
         return currentUser && currentUser.trials_remaining > 0;
     }
 
-    // Update try-on button state based on trials
-    function updateTryOnButtonState(trialsRemaining) {
+    // Check if user should see garments (has trials remaining)
+    function shouldShowGarments() {
+        return currentUser && currentUser.trials_remaining > 0;
+    }
+
+    // Update try-on button state based on trials and processing state
+    function updateTryOnButtonState(trialsRemaining, isProcessing = false) {
         const tryOnBtn = document.getElementById('startTryOnBtn');
         if (tryOnBtn) {
-            if (trialsRemaining <= 0) {
+            if (isProcessing) {
+                // Button is disabled and shows processing state
+                tryOnBtn.disabled = true;
+                tryOnBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing Try-On...';
+                tryOnBtn.title = 'Try-on is currently processing. Please wait...';
+                tryOnBtn.classList.add('btn-disabled', 'btn-processing');
+            } else if (trialsRemaining <= 0) {
+                // Button is disabled due to no trials
                 tryOnBtn.disabled = true;
                 tryOnBtn.innerHTML = '<i class="fas fa-ban"></i> No Trials Remaining';
                 tryOnBtn.title = 'You have no trials remaining. Please contact support for more information.';
                 tryOnBtn.classList.add('btn-disabled');
+                tryOnBtn.classList.remove('btn-processing');
             } else {
+                // Button is enabled and ready
                 tryOnBtn.disabled = false;
                 tryOnBtn.innerHTML = '<i class="fas fa-magic"></i> Start Virtual Try-On';
                 tryOnBtn.title = `Start virtual try-on (${trialsRemaining} trials remaining)`;
-                tryOnBtn.classList.remove('btn-disabled');
+                tryOnBtn.classList.remove('btn-disabled', 'btn-processing');
             }
         }
     }
@@ -526,6 +545,24 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!currentUser) {
             return;
         }
+
+        // Check if user has trials remaining before showing garments
+        if (!shouldShowGarments()) {
+            const garmentGrid = document.getElementById('garmentGrid');
+            if (garmentGrid) {
+                garmentGrid.innerHTML = `
+                    <div class="no-trials-message">
+                        <div class="no-trials-icon">
+                            <i class="fas fa-ban"></i>
+                        </div>
+                        <h3>No Trials Remaining</h3>
+                        <p>You have used all your available trials.</p>
+                        <p class="sub-text">Please contact management to get more trials or upgrade your account.</p>
+                    </div>
+                `;
+            }
+            return;
+        }
         
         const garmentGrid = document.getElementById('garmentGrid');
         const loadingElement = document.getElementById('garmentSpinner');
@@ -553,6 +590,47 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             
             if (!response.ok) {
+                // Handle specific error cases
+                if (response.status === 403) {
+                    const errorData = await response.json();
+                    if (errorData.error === 'Access not granted') {
+                        // User access not granted
+                        garmentGrid.innerHTML = `
+                            <div class="no-access-message">
+                                <div class="no-access-icon">
+                                    <i class="fas fa-lock"></i>
+                                </div>
+                                <h3>Account Access Not Granted</h3>
+                                <p>Your account is pending approval from management.</p>
+                                <p class="sub-text">Please contact management to activate your account and gain access to the virtual try-on system.</p>
+                            </div>
+                        `;
+                        
+                        // Hide loading spinner
+                        if (loadingElement) {
+                            loadingElement.style.display = 'none';
+                        }
+                        return;
+                    } else if (errorData.error === 'No trials remaining') {
+                        // User has no trials remaining
+                        garmentGrid.innerHTML = `
+                            <div class="no-trials-message">
+                                <div class="no-trials-icon">
+                                    <i class="fas fa-ban"></i>
+                                </div>
+                                <h3>No Trials Remaining</h3>
+                                <p>You have used all your available trials.</p>
+                                <p class="sub-text">Please contact management to get more trials or upgrade your account.</p>
+                            </div>
+                        `;
+                        
+                        // Hide loading spinner
+                        if (loadingElement) {
+                            loadingElement.style.display = 'none';
+                        }
+                        return;
+                    }
+                }
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             
@@ -578,12 +656,16 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             const garmentsHTML = data.garments.map(garment => `
-                <div class="garment-item" data-garment-id="${garment.id || garment.public_id}">
+                <div class="garment-item" data-garment-id="${garment.id || garment.public_id}" 
+                     data-name="${garment.name || garment.original_filename || 'Garment'}"
+                     data-category="${garment.category || 'General'}"
+                     data-type="${garment.type || 'Unknown'}"
+                     data-price="${garment.price || ''}">
                     <div class="garment-category-badge">${garment.category || 'General'}</div>
-                    <img src="${garment.secure_url}" alt="${garment.original_filename || 'Garment'}" loading="lazy">
-                    <h3>${garment.original_filename || 'Garment'}</h3>
+                    <img src="${garment.secure_url}" alt="${garment.name || garment.original_filename || 'Garment'}" loading="lazy">
+                    <h3>${garment.name || garment.original_filename || 'Garment'}</h3>
                     <p><strong>Type:</strong> ${garment.type || 'Unknown'}</p>
-                    ${garment.size ? `<p><strong>Size:</strong> ${garment.size}</p>` : ''}
+
                     ${garment.price && garment.price > 0 ? `<p><strong>Price:</strong> $${garment.price}</p>` : ''}
                     ${garment.description ? `<p><strong>Description:</strong> ${garment.description}</p>` : ''}
                     <p class="price">Uploaded: ${new Date(garment.created_at).toLocaleDateString()}</p>
@@ -1239,7 +1321,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         if (previewGarmentName && selectedGarmentData) {
-            previewGarmentName.textContent = selectedGarmentData.original_filename || 'Selected Garment';
+            previewGarmentName.textContent = selectedGarmentData.name || selectedGarmentData.original_filename || 'Selected Garment';
         }
         
         if (previewGarmentCategory && selectedGarmentData) {
@@ -1297,8 +1379,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         if (garmentNameResult && selectedGarmentData) {
-            garmentNameResult.textContent = selectedGarmentData.original_filename || 'Selected Garment';
-            logWithTimestamp('✅ Garment name updated:', selectedGarmentData.original_filename);
+            garmentNameResult.textContent = selectedGarmentData.name || selectedGarmentData.original_filename || 'Selected Garment';
+            logWithTimestamp('✅ Garment name updated:', selectedGarmentData.name || selectedGarmentData.original_filename);
         }
         
         // Note: Generation modal is no longer used, continue with processing
@@ -1358,6 +1440,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 throw new Error('Please select both a user image and a garment');
             }
             
+            // Check if user has trials remaining (only for authenticated users)
+            if (currentUser && currentUser.trials_remaining !== undefined && currentUser.trials_remaining <= 0) {
+                throw new Error('No trials remaining. Please contact support for more information.');
+            }
+            
+            // Disable try-on button and show processing state
+            updateTryOnButtonState(currentUser.trials_remaining, true);
+            
             // Show loading state
             resultSpinner.style.display = 'block';
             resultContent.style.display = 'none';
@@ -1371,7 +1461,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 garmentId: selectedGarment,
                 userPhotoUrl: capturedImage, // Should be Cloudinary URL by now
                 garmentUrl: selectedGarmentData.secure_url,
-                garmentDescription: selectedGarmentData.original_filename || 'Selected garment',
+                garmentDescription: selectedGarmentData.name || selectedGarmentData.original_filename || 'Selected garment',
                 category: selectedGarmentData.category?.toLowerCase() === 'upperbody' ? 'upper_body' : 'lower_body'
             };
             
@@ -1404,10 +1494,13 @@ document.addEventListener('DOMContentLoaded', function() {
             if (result.success) {
                 logWithTimestamp('✅ Try-on request successful, proceeding with UI updates');
                 
-                // Trials are decreased in the backend when the try-on request is made
-                logWithTimestamp('🎯 Trials decreased in backend when request was made');
-                // Update trials display to reflect the decreased count
-                updateTrialsDisplay();
+                            // Trials will be decreased when the result is received from Artificial Studio API
+            logWithTimestamp('🎯 Trials will be decreased when result is received from API');
+            // Update trials display to reflect current count (trials not yet decreased)
+            updateTrialsDisplay();
+                
+                            // Note: Trials will be decreased automatically when the result is received from the API
+            logWithTimestamp('ℹ️ Trials will be decreased automatically when result is received');
                 
                 // Store the current try-on job ID for result coordination
                 currentTryOnJobId = result.jobId;
@@ -1478,8 +1571,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     // Toast notification removed
                     
-                    // Trials are already decreased in the backend when the try-on request was made
-                    logWithTimestamp('🎯 Trials already decreased in backend when request was made');
+                    // Re-enable try-on button after immediate result
+                    updateTryOnButtonState(currentUser.trials_remaining, false);
+                    
+                    // Trials are decreased in the backend when the result is received from API
+                    logWithTimestamp('🎯 Trials decreased in backend when result was received');
                     // Update trials display to reflect current count
                     updateTrialsDisplay();
                 } else {
@@ -1491,10 +1587,13 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     }
                     
-                    // Start polling for result or wait for webhook
-                    if (result.jobId) {
-                        pollForResult(result.jobId);
-                    }
+                                    // Start polling for result or wait for webhook
+                if (result.jobId) {
+                    pollForResult(result.jobId);
+                }
+                
+                // Re-enable try-on button after successful submission
+                updateTryOnButtonState(currentUser.trials_remaining, false);
                 }
                 
             } else {
@@ -1502,6 +1601,9 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
         } catch (error) {
+            // Re-enable try-on button on error
+            updateTryOnButtonState(currentUser.trials_remaining, false);
+            
             // Hide all modals on error
             hideAllModals();
             
@@ -1655,8 +1757,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         // Show success message
                         // Toast notification removed
                         
-                        // Trials are already decreased in the backend when the try-on request was made
-                        logWithTimestamp('🎯 Trials already decreased in backend when request was made');
+                        // Trials are decreased in the backend when the result is received from API
+                        logWithTimestamp('🎯 Trials decreased in backend when result was received');
                         // Update trials display to reflect current count
                         updateTrialsDisplay();
                         
@@ -1699,6 +1801,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Store the timeout ID in global window object so it can be cleared from other functions
                     window.pollingTimeoutId = setTimeout(poll, 3000); // Poll every 3 seconds (even more aggressive)
                 } else {
+                    // Re-enable try-on button after polling timeout
+                    updateTryOnButtonState(currentUser.trials_remaining, false);
+                    
                     // Hide all modals
                     hideAllModals();
                     // Toast notification removed
@@ -1723,6 +1828,9 @@ document.addEventListener('DOMContentLoaded', function() {
             } catch (error) {
                 // Don't hide modals on network errors, just continue polling
                 if (attempts >= maxAttempts) {
+                    // Re-enable try-on button after polling error
+                    updateTryOnButtonState(currentUser.trials_remaining, false);
+                    
                     hideAllModals();
                     // Toast notification removed
                 }
@@ -1877,8 +1985,11 @@ document.addEventListener('DOMContentLoaded', function() {
             // Show success message
             // Toast notification removed
             
-            // Trials are already decreased in the backend when the try-on request was made
-            logWithTimestamp('🎯 Trials already decreased in backend when request was made');
+            // Re-enable try-on button after result is processed
+            updateTryOnButtonState(currentUser.trials_remaining, false);
+            
+            // Trials are decreased in the backend when the result is received from API
+            logWithTimestamp('🎯 Trials decreased in backend when result was received');
             // Update trials display to reflect current count
             updateTrialsDisplay();
             
@@ -1887,6 +1998,9 @@ document.addEventListener('DOMContentLoaded', function() {
             // FOLLOW THE FLOWCHART: Order creation will be handled AFTER image is displayed
             // This prevents the thank you popup from disappearing before the result is shown
         } else if (status === 'failed') {
+            // Re-enable try-on button on failure
+            updateTryOnButtonState(currentUser.trials_remaining, false);
+            
             // Hide all modals
             hideAllModals();
             // Toast notification removed
@@ -2795,6 +2909,9 @@ window.manualUpdateResult = async function(jobId, resultUrl) {
                     resultProcessed = true;
                     console.log('🔄 Marking result as processed by manual check handler');
                     
+                    // Re-enable try-on button after manual check result
+                    updateTryOnButtonState(currentUser.trials_remaining, false);
+                    
                     // Stop polling immediately since we have the result
                     if (pollingInterval) {
                         clearTimeout(pollingInterval);
@@ -2899,6 +3016,9 @@ window.manualUpdateResult = async function(jobId, resultUrl) {
                     console.log('⏳ Manual check - Job still pending');
                     showToast('Try-on is still processing. Please wait a bit longer.', 'info');
                 } else if (result.status === 'failed') {
+                    // Re-enable try-on button on failure
+                    updateTryOnButtonState(currentUser.trials_remaining, false);
+                    
                     console.log('❌ Manual check - Job failed:', result.error);
                     hideAllModals();
                     showToast(`Try-on failed: ${result.error || 'Unknown error'}`, 'error');
@@ -2907,10 +3027,16 @@ window.manualUpdateResult = async function(jobId, resultUrl) {
                     showToast('Unexpected result status. Please try again.', 'warning');
                 }
             } else {
+                // Re-enable try-on button on request failure
+                updateTryOnButtonState(currentUser.trials_remaining, false);
+                
                 console.error('❌ Manual check - Request failed:', response.status, response.statusText);
                 showToast('Failed to check try-on status. Please try again.', 'error');
             }
         } catch (error) {
+            // Re-enable try-on button on error
+            updateTryOnButtonState(currentUser.trials_remaining, false);
+            
             console.error('❌ Manual check error:', error);
             showToast('Error checking try-on status. Please try again.', 'error');
         }
@@ -3070,8 +3196,8 @@ window.manualUpdateResult = async function(jobId, resultUrl) {
             hideAllModals();
         }, 1000); // 1 second delay to show success message
         
-        // Trials are already decreased in the backend when the try-on request was made
-        logWithTimestamp('🎯 Trials already decreased in backend when request was made');
+        // Trials are decreased in the backend when the result is received from API
+        logWithTimestamp('🎯 Trials decreased in backend when result was received');
         // Update trials display to reflect current count
         updateTrialsDisplay();
         

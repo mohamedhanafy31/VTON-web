@@ -1,174 +1,382 @@
+// Enhanced Error Handler Middleware with Admin-Specific Handling
 import logger from '../utils/logger.js';
 
-/**
- * Global error handling middleware
- * Handles all errors in the application and provides consistent error responses
- */
-export const globalErrorHandler = (err, req, res, next) => {
-  // Log the error
-  logger.error('Global error handler caught error', {
+// Custom error classes for better error handling
+export class AdminError extends Error {
+  constructor(message, statusCode = 500, code = 'ADMIN_ERROR') {
+    super(message);
+    this.name = 'AdminError';
+    this.statusCode = statusCode;
+    this.code = code;
+    this.isOperational = true;
+  }
+}
+
+export class ValidationError extends Error {
+  constructor(message, field = null) {
+    super(message);
+    this.name = 'ValidationError';
+    this.statusCode = 400;
+    this.code = 'VALIDATION_ERROR';
+    this.field = field;
+    this.isOperational = true;
+  }
+}
+
+export class AuthenticationError extends Error {
+  constructor(message = 'Authentication required') {
+    super(message);
+    this.name = 'AuthenticationError';
+    this.statusCode = 401;
+    this.code = 'AUTHENTICATION_ERROR';
+    this.isOperational = true;
+  }
+}
+
+export class AuthorizationError extends Error {
+  constructor(message = 'Access denied') {
+    super(message);
+    this.name = 'AuthorizationError';
+    this.statusCode = 403;
+    this.code = 'AUTHORIZATION_ERROR';
+    this.isOperational = true;
+  }
+}
+
+export class ResourceNotFoundError extends Error {
+  constructor(resource = 'Resource') {
+    super(`${resource} not found`);
+    this.name = 'ResourceNotFoundError';
+    this.statusCode = 404;
+    this.code = 'NOT_FOUND';
+    this.isOperational = true;
+  }
+}
+
+// Error handler middleware
+export const errorHandler = (err, req, res, next) => {
+  // Log the error with context
+  const errorContext = {
     error: err.message,
     stack: err.stack,
-    url: req.originalUrl,
+    url: req.url,
     method: req.method,
     userAgent: req.get('User-Agent'),
-    ip: req.ip
-  });
+    ip: req.ip,
+    userId: req.user?.id || req.user?.adminId || 'anonymous',
+    userRole: req.user?.role || 'anonymous',
+    timestamp: new Date().toISOString()
+  };
 
-  // Default error response
-  let status = 500;
-  let message = 'Internal Server Error';
-  let code = 'INTERNAL_ERROR';
+  // Log based on error type
+  if (err.isOperational) {
+    logger.warn('Operational error occurred', errorContext);
+  } else {
+    logger.error('Unexpected error occurred', errorContext);
+  }
 
   // Handle specific error types
-  if (err.name === 'ValidationError') {
-    status = 400;
-    message = 'Validation Error';
-    code = 'VALIDATION_ERROR';
-  } else if (err.name === 'UnauthorizedError' || err.message === 'Unauthorized') {
-    status = 401;
-    message = 'Unauthorized';
-    code = 'UNAUTHORIZED';
-  } else if (err.name === 'ForbiddenError' || err.message === 'Forbidden') {
-    status = 403;
-    message = 'Forbidden';
-    code = 'FORBIDDEN';
-  } else if (err.name === 'NotFoundError' || err.status === 404) {
-    status = 404;
-    message = 'Not Found';
-    code = 'NOT_FOUND';
-  } else if (err.name === 'ConflictError') {
-    status = 409;
-    message = 'Conflict';
-    code = 'CONFLICT';
-  } else if (err.name === 'TooManyRequestsError') {
-    status = 429;
-    message = 'Too Many Requests';
-    code = 'RATE_LIMIT_EXCEEDED';
+  if (err instanceof ValidationError) {
+    return res.status(err.statusCode).json({
+      success: false,
+      error: err.message,
+      code: err.code,
+      field: err.field,
+      timestamp: new Date().toISOString()
+    });
   }
 
-  // Firebase errors
-  if (err.code && err.code.startsWith('firebase/')) {
-    status = 500;
-    message = 'Database Error';
-    code = 'DATABASE_ERROR';
+  if (err instanceof AuthenticationError) {
+    return res.status(err.statusCode).json({
+      success: false,
+      error: err.message,
+      code: err.code,
+      message: 'Please log in to continue',
+      timestamp: new Date().toISOString()
+    });
   }
 
-  // Cloudinary errors
-  if (err.http_code) {
-    status = err.http_code;
-    message = 'Image Service Error';
-    code = 'IMAGE_SERVICE_ERROR';
+  if (err instanceof AuthorizationError) {
+    return res.status(err.statusCode).json({
+      success: false,
+      error: err.message,
+      code: err.code,
+      message: 'You do not have permission to perform this action',
+      timestamp: new Date().toISOString()
+    });
   }
 
-  // Multer errors
+  if (err instanceof ResourceNotFoundError) {
+    return res.status(err.statusCode).json({
+      success: false,
+      error: err.message,
+      code: err.code,
+      timestamp: new Date().toISOString()
+    });
+  }
+
+  if (err instanceof AdminError) {
+    return res.status(err.statusCode).json({
+      success: false,
+      error: err.message,
+      code: err.code,
+      timestamp: new Date().toISOString()
+    });
+  }
+
+  // Handle database errors
+  if (err.code === 'ECONNREFUSED' || err.code === 'ENOTFOUND') {
+    logger.error('Database connection error', { error: err.message, code: err.code });
+    return res.status(503).json({
+      success: false,
+      error: 'Service temporarily unavailable',
+      code: 'SERVICE_UNAVAILABLE',
+      message: 'Database connection failed. Please try again later.',
+      timestamp: new Date().toISOString()
+    });
+  }
+
+  // Handle file upload errors
   if (err.code === 'LIMIT_FILE_SIZE') {
-    status = 400;
-    message = 'File too large';
-    code = 'FILE_TOO_LARGE';
-  } else if (err.code === 'LIMIT_FILE_COUNT') {
-    status = 400;
-    message = 'Too many files';
-    code = 'TOO_MANY_FILES';
+    return res.status(400).json({
+      success: false,
+      error: 'File too large',
+      code: 'FILE_TOO_LARGE',
+      message: 'The uploaded file exceeds the maximum allowed size.',
+      timestamp: new Date().toISOString()
+    });
   }
 
-  // Build error response
-  const errorResponse = {
-    error: true,
-    code,
-    message: process.env.NODE_ENV === 'production' ? message : err.message,
+  if (err.code === 'LIMIT_UNEXPECTED_FILE') {
+    return res.status(400).json({
+      success: false,
+      error: 'Unexpected file field',
+      code: 'UNEXPECTED_FILE_FIELD',
+      message: 'An unexpected file field was detected.',
+      timestamp: new Date().toISOString()
+    });
+  }
+
+  // Handle validation errors from external libraries
+  if (err.name === 'ValidationError') {
+    const validationErrors = Object.values(err.errors).map(e => e.message);
+    return res.status(400).json({
+      success: false,
+      error: 'Validation failed',
+      code: 'VALIDATION_ERROR',
+      details: validationErrors,
+      timestamp: new Date().toISOString()
+    });
+  }
+
+  // Handle JWT errors
+  if (err.name === 'JsonWebTokenError') {
+    return res.status(401).json({
+      success: false,
+      error: 'Invalid token',
+      code: 'INVALID_TOKEN',
+      message: 'The provided token is invalid or expired.',
+      timestamp: new Date().toISOString()
+    });
+  }
+
+  if (err.name === 'TokenExpiredError') {
+    return res.status(401).json({
+      success: false,
+      error: 'Token expired',
+      code: 'TOKEN_EXPIRED',
+      message: 'Your session has expired. Please log in again.',
+      timestamp: new Date().toISOString()
+    });
+  }
+
+  // Handle multer errors
+  if (err.name === 'MulterError') {
+    let message = 'File upload error';
+    let code = 'FILE_UPLOAD_ERROR';
+    
+    switch (err.code) {
+      case 'LIMIT_FILE_SIZE':
+        message = 'File size too large';
+        code = 'FILE_TOO_LARGE';
+        break;
+      case 'LIMIT_FILE_COUNT':
+        message = 'Too many files';
+        code = 'TOO_MANY_FILES';
+        break;
+      case 'LIMIT_FIELD_KEY':
+        message = 'Field name too long';
+        code = 'FIELD_NAME_TOO_LONG';
+        break;
+      case 'LIMIT_FIELD_VALUE':
+        message = 'Field value too long';
+        code = 'FIELD_VALUE_TOO_LONG';
+        break;
+      case 'LIMIT_FIELD_COUNT':
+        message = 'Too many fields';
+        code = 'TOO_MANY_FIELDS';
+        break;
+      case 'LIMIT_UNEXPECTED_FILE':
+        message = 'Unexpected file field';
+        code = 'UNEXPECTED_FILE_FIELD';
+        break;
+    }
+
+    return res.status(400).json({
+      success: false,
+      error: message,
+      code: code,
+      message: message,
+      timestamp: new Date().toISOString()
+    });
+  }
+
+  // Default error response
+  const statusCode = err.statusCode || 500;
+  const errorMessage = process.env.NODE_ENV === 'production' 
+    ? 'Internal server error' 
+    : err.message;
+
+  return res.status(statusCode).json({
+    success: false,
+    error: errorMessage,
+    code: 'INTERNAL_ERROR',
+    ...(process.env.NODE_ENV === 'development' && { stack: err.stack }),
+    timestamp: new Date().toISOString()
+  });
+};
+
+// Async error wrapper for route handlers
+export const asyncHandler = (fn) => (req, res, next) => {
+  Promise.resolve(fn(req, res, next)).catch(next);
+};
+
+// 404 handler for undefined routes
+export const notFoundHandler = (req, res) => {
+  logger.warn('Route not found', {
+    url: req.url,
+    method: req.method,
+    ip: req.ip,
+    userAgent: req.get('User-Agent')
+  });
+
+  res.status(404).json({
+    success: false,
+    error: 'Route not found',
+    code: 'ROUTE_NOT_FOUND',
+    message: `The requested route ${req.method} ${req.url} was not found.`,
+    timestamp: new Date().toISOString()
+  });
+};
+
+// Global error handler for uncaught exceptions
+export const globalErrorHandler = (err, req, res, next) => {
+  // Log the error
+  logger.error('Uncaught error in global handler', {
+    error: err.message,
+    stack: err.stack,
+    url: req.url,
+    method: req.method,
+    timestamp: new Date().toISOString()
+  });
+
+  // Send error response
+  res.status(500).json({
+    success: false,
+    error: 'Internal server error',
+    code: 'INTERNAL_ERROR',
+    message: 'An unexpected error occurred. Please try again later.',
+    timestamp: new Date().toISOString()
+  });
+};
+
+// Process error handler for unhandled rejections
+export const processErrorHandler = () => {
+  process.on('unhandledRejection', (reason, promise) => {
+    logger.error('Unhandled Promise Rejection', {
+      reason: reason instanceof Error ? reason.message : reason,
+      stack: reason instanceof Error ? reason.stack : 'No stack trace available',
+      promise: promise.toString(),
+      timestamp: new Date().toISOString()
+    });
+  });
+
+  process.on('uncaughtException', (error) => {
+    logger.error('Uncaught Exception', {
+      error: error.message,
+      stack: error.stack,
+      timestamp: new Date().toISOString()
+    });
+    
+    // Gracefully shutdown the process
+    process.exit(1);
+  });
+};
+
+// Admin-specific error handler
+export const adminErrorHandler = (err, req, res, next) => {
+  // Log admin-specific errors with additional context
+  const adminContext = {
+    error: err.message,
+    stack: err.stack,
+    url: req.url,
+    method: req.method,
+    adminId: req.user?.adminId || 'unknown',
+    ip: req.ip,
+    userAgent: req.get('User-Agent'),
     timestamp: new Date().toISOString(),
-    path: req.originalUrl
+    isAdminRoute: true
   };
 
-  // Add stack trace in development
-  if (process.env.NODE_ENV !== 'production') {
-    errorResponse.stack = err.stack;
-    errorResponse.details = err.details || null;
+  logger.error('Admin error occurred', adminContext);
+
+  // Handle admin-specific errors
+  if (err.code === 'ADMIN_PERMISSION_DENIED') {
+    return res.status(403).json({
+      success: false,
+      error: 'Permission denied',
+      code: 'ADMIN_PERMISSION_DENIED',
+      message: 'You do not have the required permissions to perform this action.',
+      timestamp: new Date().toISOString()
+    });
   }
 
-  res.status(status).json(errorResponse);
+  if (err.code === 'ADMIN_SESSION_EXPIRED') {
+    return res.status(401).json({
+      success: false,
+      error: 'Session expired',
+      code: 'ADMIN_SESSION_EXPIRED',
+      message: 'Your admin session has expired. Please log in again.',
+      timestamp: new Date().toISOString()
+    });
+  }
+
+  // Pass to general error handler
+  next(err);
 };
 
-/**
- * 404 handler for routes that don't exist
- */
-export const notFoundHandler = (req, res, next) => {
-  const error = new Error(`Route ${req.originalUrl} not found`);
-  error.status = 404;
-  error.name = 'NotFoundError';
-  next(error);
+// Validation error handler
+export const validationErrorHandler = (err, req, res, next) => {
+  if (err.name === 'ValidationError' || err.code === 'VALIDATION_ERROR') {
+    logger.warn('Validation error', {
+      error: err.message,
+      url: req.url,
+      method: req.method,
+      body: req.body,
+      timestamp: new Date().toISOString()
+    });
+
+    return res.status(400).json({
+      success: false,
+      error: 'Validation failed',
+      code: 'VALIDATION_ERROR',
+      message: 'Please check your input and try again.',
+      details: err.details || err.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+
+  next(err);
 };
 
-/**
- * Async error wrapper
- * Wraps async route handlers to catch errors and pass them to error middleware
- */
-export const asyncHandler = (fn) => {
-  return (req, res, next) => {
-    Promise.resolve(fn(req, res, next)).catch(next);
-  };
-};
-
-/**
- * Custom error classes
- */
-export class AppError extends Error {
-  constructor(message, statusCode, code = null) {
-    super(message);
-    this.statusCode = statusCode;
-    this.status = `${statusCode}`.startsWith('4') ? 'fail' : 'error';
-    this.isOperational = true;
-    this.code = code;
-
-    Error.captureStackTrace(this, this.constructor);
-  }
-}
-
-export class ValidationError extends AppError {
-  constructor(message, details = null) {
-    super(message, 400, 'VALIDATION_ERROR');
-    this.name = 'ValidationError';
-    this.details = details;
-  }
-}
-
-export class NotFoundError extends AppError {
-  constructor(message = 'Resource not found') {
-    super(message, 404, 'NOT_FOUND');
-    this.name = 'NotFoundError';
-  }
-}
-
-export class UnauthorizedError extends AppError {
-  constructor(message = 'Unauthorized') {
-    super(message, 401, 'UNAUTHORIZED');
-    this.name = 'UnauthorizedError';
-  }
-}
-
-export class ForbiddenError extends AppError {
-  constructor(message = 'Forbidden') {
-    super(message, 403, 'FORBIDDEN');
-    this.name = 'ForbiddenError';
-  }
-}
-
-export class ConflictError extends AppError {
-  constructor(message = 'Conflict') {
-    super(message, 409, 'CONFLICT');
-    this.name = 'ConflictError';
-  }
-}
-
-export default {
-  globalErrorHandler,
-  notFoundHandler,
-  asyncHandler,
-  AppError,
-  ValidationError,
-  NotFoundError,
-  UnauthorizedError,
-  ForbiddenError,
-  ConflictError
-};
+export default errorHandler;

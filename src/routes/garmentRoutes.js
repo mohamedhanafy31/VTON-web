@@ -13,7 +13,7 @@ import {
   updateGarmentAdmin,
   deleteGarmentAdmin
 } from '../controllers/garmentController.js';
-import { authenticateSession, restrictTo } from '../middleware/auth.js';
+import { authenticateSession, authenticateAdmin, restrictTo } from '../middleware/auth.js';
 import { uploadSingle } from '../config/multer.js';
 
 const router = Router();
@@ -31,9 +31,9 @@ router.get('/user/:userId/stats', authenticateSession, getUserGarmentStats);
 router.delete('/:id', authenticateSession, deleteGarment);
 
 // Admin-only garment management routes
-router.get('/admin/all', authenticateSession, restrictTo('admin'), getAllGarmentsAdmin);
-router.post('/admin/create', authenticateSession, restrictTo('admin'), uploadSingle, createGarmentAdmin);
-router.put('/admin/:id', authenticateSession, restrictTo('admin'), uploadSingle, updateGarmentAdmin);
-router.delete('/admin/:id', authenticateSession, restrictTo('admin'), deleteGarmentAdmin);
+router.get('/admin/all', authenticateAdmin, restrictTo('admin'), getAllGarmentsAdmin);
+router.post('/admin/create', authenticateAdmin, restrictTo('admin'), uploadSingle, createGarmentAdmin);
+router.put('/admin/:id', authenticateAdmin, restrictTo('admin'), uploadSingle, updateGarmentAdmin);
+router.delete('/admin/:id', authenticateAdmin, restrictTo('admin'), deleteGarmentAdmin);
 
 export default router;

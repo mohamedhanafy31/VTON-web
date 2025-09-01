@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard Test</title>
+  <style>
+    .hidden { display: none !important; }
+    .test-container { padding: 20px; }
+    .test-button { margin: 10px; padding: 10px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    .test-button:hover { background: #0056b3; }
+    .status { margin: 10px 0; padding: 10px; border-radius: 5px; }
+    .status.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+    .status.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    .status.info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+  </style>
+</head>
+<body>
+  <div class="test-container">
+    <h1>Admin Dashboard Test</h1>
+    
+    <div id="status" class="status info">Ready for testing</div>
+    
+    <div>
+      <button class="test-button" onclick="testShowHide()">Test Show/Hide</button>
+      <button class="test-button" onclick="testLogin()">Test Login</button>
+      <button class="test-button" onclick="testAPI()">Test API</button>
+      <button class="test-button" onclick="resetState()">Reset State</button>
+    </div>
+    
+    <div id="login-screen" class="hidden">
+      <h2>Login Screen</h2>
+      <p>This is the login screen content</p>
+      <input type="email" placeholder="Email" id="test-email">
+      <input type="password" placeholder="Password" id="test-password">
+      <button onclick="simulateLogin()">Login</button>
+    </div>
+    
+    <div id="dashboard-screen">
+      <h2>Dashboard Screen</h2>
+      <p>This is the dashboard content</p>
+      <p>Current token: <span id="token-display">None</span></p>
+    </div>
+    
+    <div id="debug-output" style="margin-top: 20px; padding: 10px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 5px;">
+      <h3>Debug Output</h3>
+      <div id="debug-content"></div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+      ? 'http://localhost:3000'
+      : window.location.origin;
+    
+    let token = localStorage.getItem('adminToken') || '';
+    
+    function log(message, type = 'info') {
+      const debugContent = document.getElementById('debug-content');
+      const time = new Date().toTimeString().split(' ')[0];
+      const div = document.createElement('div');
+      div.innerHTML = `[${time}] ${message}`;
+      div.style.color = type === 'error' ? '#dc3545' : type === 'success' ? '#28a745' : '#17a2b8';
+      debugContent.appendChild(div);
+      debugContent.scrollTop = debugContent.scrollHeight;
+      
+      // Also log to console
+      console.log(`[${type.toUpperCase()}] ${message}`);
+    }
+    
+    function updateStatus(message, type = 'info') {
+      const status = document.getElementById('status');
+      status.textContent = message;
+      status.className = `status ${type}`;
+    }
+    
+    function showElement(element) {
+      element.classList.remove('hidden');
+      log(`Showing element: ${element.id}`);
+    }
+    
+    function hideElement(element) {
+      element.classList.add('hidden');
+      log(`Hiding element: ${element.id}`);
+    }
+    
+    function testShowHide() {
+      log('Testing show/hide functionality...');
+      
+      const loginScreen = document.getElementById('login-screen');
+      const dashboardScreen = document.getElementById('dashboard-screen');
+      
+      if (loginScreen.classList.contains('hidden')) {
+        showElement(loginScreen);
+        hideElement(dashboardScreen);
+        updateStatus('Login screen shown, dashboard hidden', 'success');
+      } else {
+        hideElement(loginScreen);
+        showElement(dashboardScreen);
+        updateStatus('Dashboard shown, login hidden', 'success');
+      }
+    }
+    
+    function testLogin() {
+      log('Testing login functionality...');
+      
+      const email = document.getElementById('test-email').value || 'admin@test.com';
+      const password = document.getElementById('test-password').value || 'test123';
+      
+      log(`Attempting login with: ${email}`);
+      
+      // Simulate login
+      fetch(`${API_URL}/admin/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ email, password })
+      })
+      .then(response => {
+        log(`Login response status: ${response.status}`);
+        return response.json();
+      })
+      .then(data => {
+        log(`Login response: ${JSON.stringify(data)}`);
+        if (data.success) {
+          token = data.token || 'session-auth';
+          localStorage.setItem('adminToken', token);
+          document.getElementById('token-display').textContent = token;
+          updateStatus('Login successful!', 'success');
+          
+          // Show dashboard
+          hideElement(document.getElementById('login-screen'));
+          showElement(document.getElementById('dashboard-screen'));
+        } else {
+          updateStatus(`Login failed: ${data.error || 'Unknown error'}`, 'error');
+        }
+      })
+      .catch(error => {
+        log(`Login error: ${error.message}`, 'error');
+        updateStatus(`Login error: ${error.message}`, 'error');
+      });
+    }
+    
+    function simulateLogin() {
+      log('Simulating successful login...');
+      token = 'test-token-' + Date.now();
+      localStorage.setItem('adminToken', token);
+      document.getElementById('token-display').textContent = token;
+      updateStatus('Simulated login successful!', 'success');
+      
+      // Show dashboard
+      hideElement(document.getElementById('login-screen'));
+      showElement(document.getElementById('dashboard-screen'));
+    }
+    
+    function testAPI() {
+      log('Testing API endpoints...');
+      
+      // Test session check
+      fetch(`${API_URL}/admin/session`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include'
+      })
+      .then(response => {
+        log(`Session check status: ${response.status}`);
+        return response.json();
+      })
+      .then(data => {
+        log(`Session check response: ${JSON.stringify(data)}`);
+        updateStatus('API test completed', 'success');
+      })
+      .catch(error => {
+        log(`API test error: ${error.message}`, 'error');
+        updateStatus(`API test failed: ${error.message}`, 'error');
+      });
+    }
+    
+    function resetState() {
+      log('Resetting state...');
+      
+      localStorage.removeItem('adminToken');
+      token = '';
+      document.getElementById('token-display').textContent = 'None';
+      
+      // Show login, hide dashboard
+      showElement(document.getElementById('login-screen'));
+      hideElement(document.getElementById('dashboard-screen'));
+      
+      updateStatus('State reset to initial login screen', 'info');
+    }
+    
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      log('Test page loaded');
+      log(`API URL: ${API_URL}`);
+      log(`Current token: ${token || 'None'}`);
+      
+      if (token) {
+        document.getElementById('token-display').textContent = token;
+        updateStatus('Token found, showing dashboard', 'info');
+        hideElement(document.getElementById('login-screen'));
+        showElement(document.getElementById('dashboard-screen'));
+      } else {
+        updateStatus('No token found, showing login screen', 'info');
+        showElement(document.getElementById('login-screen'));
+        hideElement(document.getElementById('dashboard-screen'));
+      }
+    });
+  </script>
+</body>
+</html>
+

@@ -10,24 +10,24 @@ import {
   getActiveStores,
   updateStoreLogo
 } from '../controllers/storeController.js';
-import { authenticateSession, restrictTo } from '../middleware/auth.js';
+import { authenticateSession, authenticateAdmin, authenticateStore, restrictTo } from '../middleware/auth.js';
 
 const router = Router();
 
 // Public store routes
 router.get('/active-stores', getActiveStores);
 
-// Store profile routes (requires authentication)
-router.get('/store/profile', authenticateSession, getStoreProfile);
-router.get('/store/garments/:storeName', authenticateSession, getStoreGarments);
-router.get('/store/orders/:storeName', authenticateSession, getStoreOrders);
-router.put('/store/logo/:storeName', authenticateSession, updateStoreLogo);
+// Store profile routes (requires store authentication)
+router.get('/store/profile', authenticateStore, getStoreProfile);
+router.get('/store/garments/:storeName', authenticateStore, getStoreGarments);
+router.get('/store/orders/:storeName', authenticateStore, getStoreOrders);
+router.put('/store/logo/:storeName', authenticateStore, updateStoreLogo);
 
 // Admin store management routes
-router.get('/stores', authenticateSession, restrictTo('admin'), getAllStores);
-router.post('/stores', authenticateSession, restrictTo('admin'), createStore);
-router.put('/stores/:storeName', authenticateSession, restrictTo('admin'), updateStore);
-router.delete('/stores/:storeName', authenticateSession, restrictTo('admin'), deleteStore);
+router.get('/stores', authenticateAdmin, restrictTo('admin'), getAllStores);
+router.post('/stores', authenticateAdmin, restrictTo('admin'), createStore);
+router.put('/stores/:storeName', authenticateAdmin, restrictTo('admin'), updateStore);
+router.delete('/stores/:storeName', authenticateAdmin, restrictTo('admin'), deleteStore);
 
 // Development mock endpoint for store profile (doesn't require authentication)
 router.get('/dev/store/profile', (req, res) => {

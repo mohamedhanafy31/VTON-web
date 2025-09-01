@@ -1077,6 +1077,31 @@ export const handleWebhook = async (req, res) => {
       hasResultUrl: !!updateData.resultUrl
     });
 
+    // Decrease user trials when result is received (only for successful completions)
+    if (status === 'success' && cloudinaryResultUrl) {
+      try {
+        // Find the user to decrease their trials
+        const user = await UserModel.findById(job.userId);
+        if (user) {
+          const trialsRemaining = await user.decreaseTrials();
+          logger.info('User trials decreased after receiving result', { 
+            userId: job.userId, 
+            username: user.username,
+            trialsRemaining 
+          });
+        } else {
+          logger.warn('User not found for trials decrease', { userId: job.userId });
+        }
+      } catch (trialError) {
+        logger.error('Failed to decrease user trials after result', { 
+          userId: job.userId, 
+          error: trialError.message 
+        });
+        // Don't fail the webhook processing if trials decrease fails
+        // The result is still valid and should be delivered
+      }
+    }
+
     // Forward webhook data to frontend via Socket.IO if available
     const io = req.app.get('io');
     if (io) {
@@ -1759,8 +1784,22 @@ export const processArtificialStudioTryOn = async (req, res) => {
     
     // For demo purposes, create a demo user ID if no session user exists
     let userId = 'demo-user-' + Date.now();
+    let isDemoUser = false;
     if (req.session && req.session.user && req.session.user.userId) {
       userId = req.session.user.userId;
+      isDemoUser = false;
+    } else {
+      isDemoUser = true;
+      // For demo users, we'll allow a limited number of try-ons per session
+      // This prevents abuse while allowing testing
+      const demoTryOns = req.session?.demoTryOns || 0;
+      if (demoTryOns >= 3) { // Limit demo users to 3 try-ons per session
+        logger.warn('Demo user exceeded try-on limit', { demoTryOns });
+        return res.status(400).json({ error: 'Demo limit reached. Please register for more try-ons.' });
+      }
+      // Increment demo try-on counter
+      if (!req.session) req.session = {};
+      req.session.demoTryOns = demoTryOns + 1;
     }
     
     logger.debug('Artificial Studio try-on request received', { 
@@ -1796,6 +1835,18 @@ export const processArtificialStudioTryOn = async (req, res) => {
         });
         return res.status(404).json({ error: 'User not found' });
       }
+      
+      // Check if user has trials remaining
+      if (user.trials_remaining <= 0) {
+        logger.warn('User has no trials remaining', { userId, trialsRemaining: user.trials_remaining });
+        logger.failOperation(operationId, 'artificial-studio-tryon', new Error('No trials remaining'), {
+          statusCode: 400
+        });
+        return res.status(400).json({ error: 'No trials remaining. Please contact support for more information.' });
+      }
+      
+      // Note: Trials will be decreased when the result is received, not when starting the try-on
+      logger.info('Trials validation passed, trials will be decreased when result is received', { userId, trialsRemaining: user.trials_remaining });
     }
 
     // Get garment details (or use mock for testing)

@@ -113,10 +113,19 @@ const fileFilter = (req, file, cb) => {
     'image/gif'
   ];
   
-  if (allowedMimes.includes(file.mimetype)) {
+  // Get file extension
+  const ext = path.extname(file.originalname).toLowerCase();
+  const allowedExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
+  
+  // Check both MIME type and file extension (fallback for WebP files)
+  const isMimeValid = allowedMimes.includes(file.mimetype);
+  const isExtensionValid = allowedExtensions.includes(ext);
+  const isWebPFallback = file.mimetype === 'application/octet-stream' && ext === '.webp';
+  
+  if (isMimeValid || isWebPFallback || (file.mimetype === 'application/octet-stream' && isExtensionValid)) {
     cb(null, true);
   } else {
-    cb(new Error('Invalid file type. Only JPEG, PNG, WebP, and GIF files are allowed.'), false);
+    cb(new Error(`Invalid file type. Only JPEG, PNG, WebP, and GIF files are allowed. Received: ${file.mimetype} with extension ${ext}`), false);
   }
 };
 

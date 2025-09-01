@@ -14,9 +14,10 @@ import {
   validateUserSession,
   createSession,
   getUserTrials,
-  decreaseUserTrials
+  decreaseUserTrials,
+  checkUserAccess
 } from '../controllers/authController.js';
-import { authenticateSession, restrictTo } from '../middleware/auth.js';
+import { authenticateSession, authenticateUser, authenticateAdmin, authenticateStore, restrictTo } from '../middleware/auth.js';
 
 const router = Router();
 
@@ -29,7 +30,7 @@ router.post('/admin/login', adminLogin);
 router.post('/admin/logout', adminLogout);
 router.post('/admin/login-test', adminLoginTest);
 router.get('/admin/auth-test', adminAuthTest);
-router.get('/admin/session', authenticateSession, restrictTo('admin'), (req, res) => {
+router.get('/admin/session', authenticateAdmin, restrictTo('admin'), (req, res) => {
   res.json({ 
     authenticated: true, 
     user: req.session.user,
@@ -39,7 +40,7 @@ router.get('/admin/session', authenticateSession, restrictTo('admin'), (req, res
 
 // Admin management routes
 router.post('/admin/reset-store-password/:storeName', 
-  authenticateSession, 
+  authenticateAdmin, 
   restrictTo('admin'), 
   resetStorePassword
 );
@@ -48,13 +49,13 @@ router.post('/admin/reset-store-password/:storeName',
 router.post('/register', userRegister);
 router.post('/login', userLogin);
 router.post('/logout', userLogout);
-router.get('/profile', authenticateSession, userProfile);
-router.get('/validate-session', validateUserSession);
+router.get('/profile', checkUserAccess, authenticateUser, userProfile);
+router.get('/validate-session', checkUserAccess, validateUserSession);
 router.post('/create-session', createSession);
 
 // User trials management routes
 // For demo purposes, make trials public
-router.get('/trials', getUserTrials);
-router.post('/decrease-trials', authenticateSession, decreaseUserTrials);
+router.get('/trials', checkUserAccess, getUserTrials);
+router.post('/decrease-trials', checkUserAccess, authenticateUser, decreaseUserTrials);
 
 export default router; 

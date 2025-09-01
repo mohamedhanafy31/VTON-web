@@ -42,6 +42,49 @@ router.get('/check-session', (req, res) => {
 // Get garments from database
 router.get('/cloudinary/garments', async (req, res) => {
   try {
+    // Check if user has access and trials remaining before showing garments
+    if (req.session && req.session.user && req.session.user.userId) {
+      // Import UserModel to check access and trials
+      const { UserModel } = await import('../models/UserModel.js');
+      const user = await UserModel.findById(req.session.user.userId);
+      
+      // First check if user has access
+      if (!user || !user.access) {
+        console.log('User access not granted, blocking garment access', { 
+          userId: req.session.user.userId,
+          hasAccess: user ? user.access : false
+        });
+        return res.status(403).json({
+          success: false,
+          error: 'Access not granted',
+          message: 'Your account access has not been granted. Please contact management to activate your account.',
+          access_granted: false
+        });
+      }
+      
+      // Then check if user has trials remaining
+      if (user.trials_remaining <= 0) {
+        console.log('User has no trials remaining, blocking garment access', { 
+          userId: req.session.user.userId,
+          trialsRemaining: user.trials_remaining 
+        });
+        return res.status(403).json({
+          success: false,
+          error: 'No trials remaining',
+          message: 'You have no trials remaining. Please contact management to get more trials.',
+          trials_remaining: 0
+        });
+      }
+      
+      console.log('User access and trials validation passed', { 
+        userId: req.session.user.userId,
+        hasAccess: user.access,
+        trialsRemaining: user.trials_remaining 
+      });
+    } else {
+      console.log('No authenticated user session found, allowing garment access for demo');
+    }
+
     // Import Firebase admin
     const admin = await import('firebase-admin');
     const db = admin.default.firestore();
