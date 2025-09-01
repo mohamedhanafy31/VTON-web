@@ -15,7 +15,9 @@ import {
   createSession,
   getUserTrials,
   decreaseUserTrials,
-  checkUserAccess
+  checkUserAccess,
+  checkEmailAvailability,
+  checkUsernameAvailability
 } from '../controllers/authController.js';
 import { authenticateSession, authenticateUser, authenticateAdmin, authenticateStore, restrictTo } from '../middleware/auth.js';
 
@@ -48,6 +50,8 @@ router.post('/admin/reset-store-password/:storeName',
 // User authentication routes (for TryOn system)
 router.post('/register', userRegister);
 router.post('/login', userLogin);
+router.get('/check-email/:email', checkEmailAvailability);
+router.get('/check-username/:username', checkUsernameAvailability);
 router.post('/logout', userLogout);
 router.get('/profile', checkUserAccess, authenticateUser, userProfile);
 router.get('/validate-session', checkUserAccess, validateUserSession);

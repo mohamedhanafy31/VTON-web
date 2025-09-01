@@ -391,7 +391,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             // Fallback to server-side session check
-            const response = await fetch('/api/check-session', {
+            const response = await fetch('/auth/validate-session', {
                 method: 'GET',
                 credentials: 'include'
             });
@@ -426,20 +426,34 @@ document.addEventListener('DOMContentLoaded', function() {
     // Update trials display
     async function updateTrialsDisplay() {
         try {
-            if (!currentUser) return;
+            console.log('🔄 updateTrialsDisplay called, currentUser:', currentUser);
+            
+            if (!currentUser) {
+                console.log('❌ No currentUser, returning early');
+                return;
+            }
             
             const trialsCountElement = document.getElementById('trialsCount');
-            if (!trialsCountElement) return;
+            if (!trialsCountElement) {
+                console.log('❌ trialsCountElement not found');
+                return;
+            }
+            
+            console.log('📡 Fetching trials from /auth/trials...');
             
             // Get current trials from server
-            const response = await fetch('/trials', {
+            const response = await fetch('/auth/trials', {
                 method: 'GET',
                 credentials: 'include'
             });
             
+            console.log('📡 Response status:', response.status, response.ok);
+            
             if (response.ok) {
                 const data = await response.json();
+                console.log('📡 Response data:', data);
                 const trialsRemaining = data.trials_remaining;
+                console.log('📡 Trials remaining:', trialsRemaining);
                 
                 // Update display
                 trialsCountElement.textContent = trialsRemaining;
@@ -462,11 +476,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Update try-on button state based on trials
                 updateTryOnButtonState(trialsRemaining);
             } else {
+                console.log('❌ Response not ok, status:', response.status);
+                const errorText = await response.text();
+                console.log('❌ Error response:', errorText);
                 // Set default trials to 0 if we can't get the count
                 currentUser.trials_remaining = 0;
                 updateTryOnButtonState(0);
             }
         } catch (error) {
+            console.log('❌ Error in updateTrialsDisplay:', error);
             // Set default trials to 0 if there's an error
             currentUser.trials_remaining = 0;
             updateTryOnButtonState(0);

@@ -14,6 +14,8 @@ package-lock.json
 
 # Keys and credentials (SENSITIVE - NEVER COMMIT)
 serviceAccountKey.json
+serviceAccountKey.dev.json
+serviceAccountKey.prod.json
 static/serviceAccountKey.json
 *.key
 *.pem
@@ -87,5 +89,9 @@ README-DEPLOYMENT.md
 
 # Template files (SAFE to commit)
 !serviceAccountKey.template.json
+!serviceAccountKey.dev.template.json
+!serviceAccountKey.prod.template.json
+!env.development.template
+!env.production.template
 !ngrok.template.yml
 

@@ -19,6 +19,8 @@ router.get('/auth-test', asyncHandler(adminController.adminAuthTest));
 router.get('/dashboard/stats', restrictTo('admin'), asyncHandler(adminController.adminDashboardStats));
 router.get('/system/health', restrictTo('admin'), asyncHandler(adminController.adminSystemHealth));
 router.get('/activity/logs', restrictTo('admin'), asyncHandler(adminController.adminActivityLog));
+router.get('/security-audit', restrictTo('admin'), asyncHandler(adminController.getSecurityAuditLog));
+router.get('/analytics', restrictTo('admin'), asyncHandler(adminController.getAnalytics));
 
 // Admin profile management routes
 router.put('/profile', restrictTo('admin'), asyncHandler(adminController.adminUpdateProfile));
@@ -68,65 +70,14 @@ router.post('/system/backup', restrictTo('admin'), async (req, res) => {
 });
 
 // Admin user management routes
-router.get('/users', restrictTo('admin'), async (req, res) => {
-  try {
-    const { page = 1, limit = 20, status, search } = req.query;
-    
-    // Validate pagination
-    const pageNum = parseInt(page);
-    const limitNum = parseInt(limit);
-    
-    if (isNaN(pageNum) || pageNum < 1) {
-      return res.status(400).json({
-        success: false,
-        error: 'Invalid page number'
-      });
-    }
-    
-    if (isNaN(limitNum) || limitNum < 1 || limitNum > 100) {
-      return res.status(400).json({
-        success: false,
-        error: 'Invalid limit (must be between 1 and 100)'
-      });
-    }
-    
-    // Mock user data for now
-    const users = [
-      {
-        id: '1',
-        email: 'user1@example.com',
-        name: 'User One',
-        status: 'active',
-        createdAt: new Date().toISOString()
-      },
-      {
-        id: '2',
-        email: 'user2@example.com',
-        name: 'User Two',
-        status: 'inactive',
-        createdAt: new Date().toISOString()
-      }
-    ];
-    
-    res.json({
-      success: true,
-      data: users,
-      pagination: {
-        page: pageNum,
-        limit: limitNum,
-        total: users.length,
-        pages: Math.ceil(users.length / limitNum)
-      }
-    });
-    
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: 'Failed to retrieve users',
-      message: error.message
-    });
-  }
-});
+router.get('/users', restrictTo('admin'), asyncHandler(adminController.getAllUsers));
+router.get('/users/:id', restrictTo('admin'), asyncHandler(adminController.getUserById));
+router.put('/users/:id', restrictTo('admin'), asyncHandler(adminController.updateUser));
+router.delete('/users/:id', restrictTo('admin'), asyncHandler(adminController.deleteUser));
+router.put('/users/:id/access', restrictTo('admin'), asyncHandler(adminController.updateUserAccess));
+router.put('/users/:id/trials', restrictTo('admin'), asyncHandler(adminController.updateUserTrials));
+router.post('/users/:id/reset-password', restrictTo('admin'), asyncHandler(adminController.resetUserPassword));
+router.get('/users/:id/password', restrictTo('admin'), asyncHandler(adminController.getUserPassword));
 
 // Admin store management routes
 router.get('/stores', restrictTo('admin'), async (req, res) => {

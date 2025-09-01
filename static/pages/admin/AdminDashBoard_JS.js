@@ -1187,3 +1187,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Export for global access
 window.AdminDashboard = AdminDashboard;
+
+// Export garment functions for global access
+window.openEditGarmentModal = (garmentId) => {
+  if (window.adminDashboard) {
+    window.adminDashboard.openEditModal(garmentId);
+  } else {
+    console.error('AdminDashboard not initialized');
+  }
+};
+
+window.deleteGarment = (garmentId) => {
+  if (window.adminDashboard) {
+    window.adminDashboard.deleteGarment(garmentId);
+  } else {
+    console.error('AdminDashboard not initialized');
+  }
+};

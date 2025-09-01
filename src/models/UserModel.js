@@ -38,24 +38,63 @@ export class UserModel {
   validate() {
     const errors = [];
     
+    // Username validation
     if (!this.username || this.username.trim().length < 3) {
       errors.push('Username must be at least 3 characters long');
+    } else if (this.username.length > 30) {
+      errors.push('Username must be less than 30 characters long');
+    } else if (!/^[a-zA-Z0-9_-]+$/.test(this.username)) {
+      errors.push('Username can only contain letters, numbers, underscores, and hyphens');
+    } else if (/^[0-9_-]/.test(this.username)) {
+      errors.push('Username cannot start with numbers, underscores, or hyphens');
     }
     
+    // Name validation
     if (!this.name || this.name.trim().length < 2) {
       errors.push('Name must be at least 2 characters long');
+    } else if (this.name.length > 100) {
+      errors.push('Name must be less than 100 characters long');
+    } else if (!/^[a-zA-Z\s'-]+$/.test(this.name.trim())) {
+      errors.push('Name can only contain letters, spaces, hyphens, and apostrophes');
     }
     
-    if (!this.email || !this.email.includes('@')) {
-      errors.push('Valid email is required');
+    // Email validation
+    if (!this.email) {
+      errors.push('Email is required');
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email)) {
+      errors.push('Please enter a valid email address');
+    } else if (this.email.length > 254) {
+      errors.push('Email address is too long');
+    } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(this.email)) {
+      errors.push('Email format is invalid');
     }
     
-    if (!this.password || this.password.length < 6) {
-      errors.push('Password must be at least 6 characters long');
+    // Password validation
+    if (!this.password) {
+      errors.push('Password is required');
+    } else if (this.password.length < 8) {
+      errors.push('Password must be at least 8 characters long');
+    } else if (this.password.length > 128) {
+      errors.push('Password must be less than 128 characters long');
+    } else if (!/(?=.*[a-z])/.test(this.password)) {
+      errors.push('Password must contain at least one lowercase letter');
+    } else if (!/(?=.*[A-Z])/.test(this.password)) {
+      errors.push('Password must contain at least one uppercase letter');
+    } else if (!/(?=.*\d)/.test(this.password)) {
+      errors.push('Password must contain at least one number');
+    } else if (!/(?=.*[@$!%*?&])/.test(this.password)) {
+      errors.push('Password must contain at least one special character (@$!%*?&)');
     }
     
-    if (!this.phone || this.phone.trim().length < 10) {
-      errors.push('Valid phone number is required');
+    // Phone validation
+    if (!this.phone) {
+      errors.push('Phone number is required');
+    } else if (!/^[\+]?[1-9][\d]{0,15}$/.test(this.phone.replace(/[\s\-\(\)]/g, ''))) {
+      errors.push('Please enter a valid phone number');
+    } else if (this.phone.replace(/[\s\-\(\)]/g, '').length < 10) {
+      errors.push('Phone number must be at least 10 digits long');
+    } else if (this.phone.replace(/[\s\-\(\)]/g, '').length > 15) {
+      errors.push('Phone number must be less than 15 digits long');
     }
     
     if (this.trials_remaining < 0) {
@@ -448,8 +487,35 @@ export class UserModel {
 
   /**
    * Convert to plain object (for API responses)
+   * Excludes sensitive data like passwords
    */
   toJSON() {
+    const { password, ...safeData } = this;
+    return {
+      ...safeData,
+      created_at: this.created_at instanceof Date ? this.created_at.toISOString() : this.created_at,
+      updated_at: this.updated_at instanceof Date ? this.updated_at.toISOString() : this.updated_at
+    };
+  }
+
+  /**
+   * Convert to safe object for admin operations
+   * Excludes all sensitive data
+   */
+  toSafeObject() {
+    const { password, ...safeData } = this;
+    return {
+      ...safeData,
+      created_at: this.created_at instanceof Date ? this.created_at.toISOString() : this.created_at,
+      updated_at: this.updated_at instanceof Date ? this.updated_at.toISOString() : this.updated_at
+    };
+  }
+
+  /**
+   * Convert to admin object with password visibility
+   * WARNING: This includes passwords - use only for admin operations
+   */
+  toAdminObject() {
     return {
       ...this,
       created_at: this.created_at instanceof Date ? this.created_at.toISOString() : this.created_at,

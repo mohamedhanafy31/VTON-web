@@ -71,7 +71,7 @@ const TryOnService = (() => {
    */
   async function getTrials() {
     try {
-      const response = await fetch(`${config.API_BASE_URL}/trials`);
+      const response = await fetch(`${config.API_BASE_URL}/auth/trials`);
       
       if (!response.ok) {
         throw new Error('Failed to get trials count');

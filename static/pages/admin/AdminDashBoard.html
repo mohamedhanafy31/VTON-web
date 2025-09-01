@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Dashboard - Garment Management</title>
+  <title>Admin Dashboard - MetaVR VTON Management</title>
   <!-- Tailwind CSS with multiple fallbacks -->
   <!-- Main application CSS -->
   <link rel="stylesheet" href="/css/index.css">
@@ -23,26 +23,31 @@
     });
   </script>
   <style>
-    /* Enhanced Design System */
+    /* Enhanced Admin Dashboard Design System */
     :root {
-      --primary-color: #6366f1;
-      --primary-dark: #4f46e5;
-      --primary-light: #a5b4fc;
-      --secondary-color: #8b5cf6;
+      --primary-color: #3b82f6;
+      --primary-dark: #1e40af;
+      --primary-light: #93c5fd;
+      --secondary-color: #6366f1;
       --accent-color: #06b6d4;
       --success-color: #10b981;
       --warning-color: #f59e0b;
       --error-color: #ef4444;
-      --gray-50: #f9fafb;
-      --gray-100: #f3f4f6;
-      --gray-200: #e5e7eb;
-      --gray-300: #d1d5db;
-      --gray-400: #9ca3af;
-      --gray-500: #6b7280;
-      --gray-600: #4b5563;
-      --gray-700: #374151;
-      --gray-800: #1f2937;
-      --gray-900: #111827;
+      --info-color: #3b82f6;
+      --gray-50: #f8fafc;
+      --gray-100: #f1f5f9;
+      --gray-200: #e2e8f0;
+      --gray-300: #cbd5e1;
+      --gray-400: #94a3b8;
+      --gray-500: #64748b;
+      --gray-600: #475569;
+      --gray-700: #334155;
+      --gray-800: #1e293b;
+      --gray-900: #0f172a;
+      --sidebar-bg: #1e293b;
+      --sidebar-hover: #334155;
+      --card-bg: #ffffff;
+      --card-border: #e2e8f0;
       --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
       --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
       --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
@@ -50,6 +55,17 @@
       --border-radius: 0.75rem;
       --border-radius-lg: 1rem;
       --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Dark theme support */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --card-bg: #1e293b;
+        --card-border: #334155;
+        --gray-50: #0f172a;
+        --gray-100: #1e293b;
+        --gray-200: #334155;
+      }
     }
 
     /* Fallback styles if Tailwind CSS fails to load */
@@ -413,6 +429,684 @@
     
     #login-screen.hidden {
       display: none !important;
+    }
+
+    /* Enhanced Admin Dashboard Layout */
+    .admin-dashboard {
+      min-height: 100vh;
+      background: var(--gray-50);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    .admin-sidebar {
+      width: 280px;
+      background: var(--sidebar-bg);
+      color: white;
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      overflow-y: auto;
+      z-index: 1000;
+      transition: var(--transition);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .admin-sidebar.collapsed {
+      width: 80px;
+    }
+
+    .admin-main {
+      margin-left: 280px;
+      min-height: 100vh;
+      transition: var(--transition);
+    }
+
+    .admin-main.sidebar-collapsed {
+      margin-left: 80px;
+    }
+
+    .admin-header {
+      background: var(--card-bg);
+      border-bottom: 1px solid var(--card-border);
+      padding: 1rem 2rem;
+      box-shadow: var(--shadow-sm);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .admin-content {
+      padding: 2rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* Sidebar Navigation */
+    .sidebar-logo {
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--sidebar-hover);
+      text-align: center;
+    }
+
+    .sidebar-logo img {
+      max-width: 120px;
+      height: auto;
+    }
+
+    .sidebar-nav {
+      padding: 1rem 0;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      padding: 0.75rem 1.5rem;
+      color: #cbd5e1;
+      text-decoration: none;
+      transition: var(--transition);
+      border-left: 3px solid transparent;
+    }
+
+    .nav-item:hover {
+      background: var(--sidebar-hover);
+      color: white;
+      border-left-color: var(--primary-color);
+    }
+
+    .nav-item.active {
+      background: var(--sidebar-hover);
+      color: white;
+      border-left-color: var(--primary-color);
+    }
+
+    .nav-item i {
+      width: 20px;
+      margin-right: 0.75rem;
+      text-align: center;
+    }
+
+    .nav-item span {
+      font-weight: 500;
+    }
+
+    .sidebar.collapsed .nav-item span {
+      display: none;
+    }
+
+    /* Tab Navigation Styles */
+    .tab-navigation {
+      background: var(--card-bg);
+      border-radius: var(--border-radius);
+      padding: 0.5rem;
+      margin-bottom: 2rem;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--card-border);
+    }
+
+    .tab-button {
+      background: transparent;
+      color: var(--gray-600);
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: calc(var(--border-radius) - 0.25rem);
+      transition: var(--transition);
+      font-weight: 500;
+      position: relative;
+    }
+
+    .tab-button.active {
+      background: var(--primary-color);
+      color: white;
+      box-shadow: var(--shadow-md);
+    }
+
+    .tab-button:hover:not(.active) {
+      background: var(--gray-100);
+      color: var(--gray-800);
+    }
+
+    /* Enhanced Card Styles */
+    .admin-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--border-radius);
+      padding: 1.5rem;
+      transition: var(--transition);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .admin-card:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-2px);
+    }
+
+    .admin-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: between;
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .admin-card-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--gray-800);
+      margin: 0;
+    }
+
+    .admin-card-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 1rem;
+    }
+
+    /* User Card Styles */
+    .user-card {
+      background: linear-gradient(135deg, #1f2937, #374151);
+      border: 1px solid var(--card-border);
+      border-radius: var(--border-radius);
+      padding: 1.5rem;
+      transition: var(--transition);
+      box-shadow: var(--shadow-sm);
+      position: relative;
+    }
+
+    .user-card:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-2px);
+    }
+
+    .user-card-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .user-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--primary-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+      margin-right: 1rem;
+    }
+
+    .user-info h3 {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--gray-800);
+    }
+
+    .user-info p {
+      margin: 0.25rem 0 0 0;
+      font-size: 0.875rem;
+      color: var(--gray-600);
+    }
+
+    .user-status {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+
+    .user-status.active {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .user-status.inactive {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .user-status.premium {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+
+    /* Dashboard Statistics */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--border-radius);
+      padding: 1.5rem;
+      box-shadow: var(--shadow-sm);
+      transition: var(--transition);
+    }
+
+    .stat-card:hover {
+      box-shadow: var(--shadow-md);
+    }
+
+    .stat-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+
+    .stat-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      color: white;
+    }
+
+    .stat-icon.primary { background: var(--primary-color); }
+    .stat-icon.success { background: var(--success-color); }
+    .stat-icon.warning { background: var(--warning-color); }
+    .stat-icon.info { background: var(--info-color); }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--gray-800);
+      margin: 0;
+    }
+
+    .stat-label {
+      font-size: 0.875rem;
+      color: var(--gray-600);
+      margin: 0.25rem 0 0 0;
+    }
+
+
+
+    /* Enhanced Button Styles */
+    .btn-primary {
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: var(--border-radius);
+      font-weight: 500;
+      transition: var(--transition);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .btn-secondary {
+      background: var(--gray-100);
+      color: var(--gray-700);
+      border: 1px solid var(--gray-300);
+      padding: 0.75rem 1.5rem;
+      border-radius: var(--border-radius);
+      font-weight: 500;
+      transition: var(--transition);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-secondary:hover {
+      background: var(--gray-200);
+      border-color: var(--gray-400);
+    }
+
+    .btn-danger {
+      background: var(--error-color);
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: var(--border-radius);
+      font-weight: 500;
+      transition: var(--transition);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-danger:hover {
+      background: #dc2626;
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .btn-success {
+      background: var(--success-color);
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: var(--border-radius);
+      font-weight: 500;
+      transition: var(--transition);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-success:hover {
+      background: #059669;
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
+    }
+
+    /* Enhanced Form Styles */
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--gray-700);
+      margin-bottom: 0.5rem;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--gray-300);
+      border-radius: var(--border-radius);
+      font-size: 0.875rem;
+      transition: var(--transition);
+      background: var(--card-bg);
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .form-select {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--gray-300);
+      border-radius: var(--border-radius);
+      font-size: 0.875rem;
+      transition: var(--transition);
+      background: var(--card-bg);
+      color: #000000;
+      cursor: pointer;
+    }
+
+    .form-select:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    /* Ensure all select elements have black text */
+    select {
+      color: #000000 !important;
+    }
+
+    select option {
+      color: #000000 !important;
+      background-color: #ffffff !important;
+    }
+
+    /* Ensure all form inputs have proper text colors */
+    input, textarea, select {
+      color: #000000 !important;
+    }
+
+    /* User card specific text color overrides */
+    .user-card .text-white {
+      color: #ffffff !important;
+    }
+
+    .user-card .text-blue-400 {
+      color: #60a5fa !important;
+    }
+
+    /* Enhanced Modal Styles */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      opacity: 0;
+      visibility: hidden;
+      transition: var(--transition);
+    }
+
+    .modal.show {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal-content {
+      background: var(--card-bg);
+      border-radius: var(--border-radius-lg);
+      padding: 2rem;
+      max-width: 500px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: var(--shadow-xl);
+      transform: scale(0.9);
+      transition: var(--transition);
+    }
+
+    .modal.show .modal-content {
+      transform: scale(1);
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .modal-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--gray-800);
+      margin: 0;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: var(--gray-500);
+      cursor: pointer;
+      padding: 0.25rem;
+      border-radius: 0.25rem;
+      transition: var(--transition);
+    }
+
+    .modal-close:hover {
+      background: var(--gray-100);
+      color: var(--gray-700);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1024px) {
+      .admin-sidebar {
+        transform: translateX(-100%);
+      }
+
+      .admin-sidebar.show {
+        transform: translateX(0);
+      }
+
+      .admin-main {
+        margin-left: 0;
+      }
+
+      .admin-content {
+        padding: 1rem;
+      }
+
+      .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .admin-header {
+        padding: 1rem;
+      }
+
+      .admin-content {
+        padding: 0.75rem;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .tab-navigation {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .tab-button {
+        width: 100%;
+        text-align: center;
+      }
+    }
+
+    /* Loading States */
+    .loading {
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--gray-300);
+      border-top: 2px solid var(--primary-color);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Toast Notifications */
+    .toast {
+      position: fixed;
+      top: 2rem;
+      right: 2rem;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--border-radius);
+      padding: 1rem 1.5rem;
+      box-shadow: var(--shadow-lg);
+      z-index: 3000;
+      transform: translateX(100%);
+      transition: var(--transition);
+    }
+
+    .toast.show {
+      transform: translateX(0);
+    }
+
+    .toast.success {
+      border-left: 4px solid var(--success-color);
+    }
+
+    .toast.error {
+      border-left: 4px solid var(--error-color);
+    }
+
+    .toast.warning {
+      border-left: 4px solid var(--warning-color);
+    }
+
+    .toast.info {
+      border-left: 4px solid var(--info-color);
+    }
+
+    .user-avatar {
+      width: 3rem;
+      height: 3rem;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-size: 1.25rem;
+    }
+
+    .status-badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+
+    .status-active {
+      background-color: #dcfce7;
+      color: #166534;
+    }
+
+    .status-inactive {
+      background-color: #fee2e2;
+      color: #991b1b;
+    }
+
+    .access-granted {
+      background-color: #dcfce7;
+      color: #166534;
+    }
+
+    .access-pending {
+      background-color: #fef3c7;
+      color: #92400e;
+    }
+
+    .access-revoked {
+      background-color: #fee2e2;
+      color: #991b1b;
     }
   </style>
   <style>
@@ -916,7 +1610,7 @@
     }
   </style>
 </head>
-<body class="bg-gray-100 min-h-screen">
+<body class="admin-dashboard">
 
   
   <!-- Login Screen -->
@@ -964,23 +1658,132 @@
   </div>
 
   <!-- Dashboard Screen -->
-  <div id="dashboard-screen" class="p-6 hidden">
-    <div class="max-w-7xl mx-auto">
-      <div class="flex justify-between items-center mb-6">
-        <div>
-          <img src="https://res.cloudinary.com/dj3ewvbqm/image/upload/v1756493219/VTON%20Web%20site/WebSite_media/landing_page/bbdecb3ojynnf9y4zqzj.jpg" alt="MetaVR Logo" class="header-logo">
-          <h1 class="text-3xl font-bold text-gray-800">Admin Dashboard - Garment Management</h1>
+  <div id="dashboard-screen" class="hidden">
+    <!-- Sidebar -->
+    <div class="admin-sidebar" id="admin-sidebar">
+      <div class="sidebar-logo">
+        <img src="https://res.cloudinary.com/dj3ewvbqm/image/upload/v1756493219/VTON%20Web%20site/WebSite_media/landing_page/bbdecb3ojynnf9y4zqzj.jpg" alt="MetaVR Logo">
+      </div>
+      
+      <nav class="sidebar-nav">
+        <a href="#" class="nav-item active" onclick="switchTab('garments')">
+          <i class="fas fa-tshirt"></i>
+          <span>Garment Management</span>
+        </a>
+        <a href="#" class="nav-item" onclick="switchTab('users')">
+          <i class="fas fa-users"></i>
+          <span>User Management</span>
+        </a>
+        <a href="#" class="nav-item" onclick="switchTab('analytics')">
+          <i class="fas fa-chart-bar"></i>
+          <span>Analytics</span>
+        </a>
+        <a href="#" class="nav-item" onclick="switchTab('settings')">
+          <i class="fas fa-cog"></i>
+          <span>Settings</span>
+        </a>
+      </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="admin-main" id="admin-main">
+      <!-- Header -->
+      <div class="admin-header">
+        <div class="flex justify-between items-center">
+          <div class="flex items-center">
+            <button id="sidebar-toggle" class="mr-4 p-2 rounded-lg hover:bg-gray-100">
+              <i class="fas fa-bars text-gray-600"></i>
+            </button>
+            <h1 class="text-2xl font-bold text-gray-800">Admin Dashboard</h1>
+          </div>
+          <div class="flex items-center space-x-4">
+            <div class="text-sm text-gray-600">
+              Welcome, <span class="font-medium">Admin</span>
+            </div>
+            <button
+              id="logout-button"
+              class="btn-danger"
+            >
+              <i class="fas fa-sign-out-alt"></i>
+              <span>Logout</span>
+            </button>
+          </div>
         </div>
-        <button
-          id="logout-button"
-          class="btn-danger"
-        >
-          <i class="fas fa-sign-out-alt mr-2"></i>Logout
-        </button>
       </div>
 
-      <!-- Create Garment Form -->
-      <div class="bg-white p-8 rounded-xl shadow-lg mb-8 border border-gray-200" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);">
+      <!-- Dashboard Content -->
+      <div class="admin-content">
+        <!-- Dashboard Statistics -->
+        <div class="stats-grid" id="dashboard-stats">
+          <div class="stat-card">
+            <div class="stat-header">
+              <div class="stat-icon primary">
+                <i class="fas fa-users"></i>
+              </div>
+            </div>
+            <h3 class="stat-value" id="total-users">0</h3>
+            <p class="stat-label">Total Users</p>
+
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-header">
+              <div class="stat-icon success">
+                <i class="fas fa-tshirt"></i>
+              </div>
+            </div>
+            <h3 class="stat-value" id="total-garments">0</h3>
+            <p class="stat-label">Total Garments</p>
+
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-header">
+              <div class="stat-icon warning">
+                <i class="fas fa-crown"></i>
+              </div>
+            </div>
+            <h3 class="stat-value" id="premium-users">0</h3>
+            <p class="stat-label">Premium Users</p>
+
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-header">
+              <div class="stat-icon info">
+                <i class="fas fa-eye"></i>
+              </div>
+            </div>
+            <h3 class="stat-value" id="active-users">0</h3>
+            <p class="stat-label">Active Users</p>
+
+          </div>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="tab-navigation">
+          <button
+            id="garments-tab"
+            class="tab-button active"
+            onclick="switchTab('garments')"
+          >
+            <i class="fas fa-tshirt"></i>
+            <span>Garment Management</span>
+          </button>
+          <button
+            id="users-tab"
+            class="tab-button"
+            onclick="switchTab('users')"
+          >
+            <i class="fas fa-users"></i>
+            <span>User Management</span>
+          </button>
+        </div>
+
+      <!-- Garments Section -->
+      <div id="garments-section">
+        <!-- Create Garment Form -->
+        <div class="bg-white p-8 rounded-xl shadow-lg mb-8 border border-gray-200" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);">
         <div class="flex items-center justify-between mb-6">
           <h2 class="text-2xl font-bold" style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
             <i class="fas fa-plus-circle mr-3"></i>Add New Garment
@@ -1304,6 +2107,78 @@
           </div>
         </div>
       </div>
+      </div>
+
+      <!-- Users Section -->
+      <div id="users-section" class="hidden">
+        <!-- Users Management Header -->
+        <div class="bg-white p-8 rounded-xl shadow-lg mb-8 border border-gray-200" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-2xl font-bold" style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+              <i class="fas fa-users mr-3"></i>User Management
+            </h2>
+            <div class="flex items-center space-x-4">
+              <div class="flex items-center space-x-2 text-sm text-gray-500">
+                <i class="fas fa-info-circle"></i>
+                <span id="user-count">Loading users...</span>
+              </div>
+              <button
+                id="refresh-users"
+                class="btn-secondary"
+                onclick="fetchUsers()"
+              >
+                <i class="fas fa-sync-alt mr-2"></i>Refresh
+              </button>
+            </div>
+          </div>
+
+          <!-- Users Search and Filter -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Search Users</label>
+              <input
+                type="text"
+                id="search-users"
+                placeholder="Search by name, username, or email..."
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Filter by Access</label>
+              <select
+                id="filter-access"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="">All Users</option>
+                <option value="true">Access Granted</option>
+                <option value="false">Access Pending</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Filter by Status</label>
+              <select
+                id="filter-status"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="">All Status</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Users List -->
+        <div class="bg-white p-8 rounded-xl shadow-lg border border-gray-200" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);">
+          <div id="users-table-spinner" class="spinner mb-4" style="display: none;"></div>
+          <p id="no-users" class="text-gray-500 text-center py-8">Loading users...</p>
+          <div id="users-container">
+            <div id="users-list" class="space-y-4">
+              <!-- User cards will be dynamically inserted here -->
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1327,6 +2202,148 @@
         >
           Delete
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- User Edit Modal -->
+  <div id="edit-user-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Edit User</h3>
+        <button class="modal-close" onclick="closeModal('edit-user-modal')">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="p-6">
+        <form id="edit-user-form" class="space-y-4">
+          <input type="hidden" id="edit-user-id">
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Username</label>
+              <input
+                type="text"
+                id="edit-username"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                required
+              >
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+              <input
+                type="text"
+                id="edit-name"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                required
+              >
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+              <input
+                type="email"
+                id="edit-email"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                required
+              >
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+              <input
+                type="tel"
+                id="edit-phone"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                required
+              >
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Trials Remaining</label>
+              <input
+                type="number"
+                id="edit-trials"
+                min="0"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                required
+              >
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Access Status</label>
+              <select
+                id="edit-access"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="true">Access Granted</option>
+                <option value="false">Access Pending</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Account Status</label>
+              <select
+                id="edit-status"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="true">Active</option>
+                <option value="false">Inactive</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="flex justify-end space-x-3 pt-4">
+            <button
+              type="button"
+              class="btn-secondary"
+              onclick="closeModal('edit-user-modal')"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              id="save-user-button"
+              class="btn-primary"
+            >
+              <span id="save-user-button-text">Save Changes</span>
+              <div id="save-user-spinner" class="spinner ml-2 hidden"></div>
+            </button>
+          </div>
+        </form>
+        <div id="edit-user-error" class="form-error mt-4"></div>
+        <div id="edit-user-success" class="form-success mt-4"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- User Delete Confirmation Modal -->
+  <div id="delete-user-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Confirm User Deletion</h3>
+        <button class="modal-close" onclick="closeModal('delete-user-modal')">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="p-6">
+        <p class="text-gray-600 mb-4">Are you sure you want to delete this user? This action cannot be undone and will permanently remove the user from the system.</p>
+        <div class="flex justify-end space-x-3">
+          <button
+            id="cancel-user-delete"
+            class="btn-secondary"
+            onclick="closeModal('delete-user-modal')"
+          >
+            Cancel
+          </button>
+          <button
+            id="confirm-user-delete"
+            class="btn-danger"
+          >
+            Delete User
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -1443,10 +2460,117 @@
     // Debug variable to enable verbose logging
     const DEBUG = true;
     
-    // Debug function to log information
-    function debugLog(message, data) {
+    // Enhanced debug function with action tracking
+    function debugLog(message, data, action = 'admin_dashboard') {
       if (DEBUG) {
-        console.log(`[DEBUG] ${message}`, data || '');
+        const timestamp = new Date().toISOString();
+        console.log(`[${timestamp}] [DEBUG] ${message}`, data || '');
+        
+        // Send detailed logs to server
+        const log = {
+          timestamp,
+          level: 'debug',
+          message,
+          data,
+          action,
+          source: 'frontend',
+          url: window.location.href
+        };
+        
+        sendLogToServer(log);
+      }
+    }
+
+    // Action-specific logging functions
+    function logUserAction(action, details = null) {
+      const timestamp = new Date().toISOString();
+      const log = {
+        timestamp,
+        level: 'info',
+        message: `User management action: ${action}`,
+        details: {
+          action,
+          ...details,
+          userId: details?.userId || 'unknown',
+          adminId: 'admin_account'
+        },
+        action: 'user_management',
+        source: 'frontend'
+      };
+      
+      console.log(`[${timestamp}] [USER ACTION] ${action}`, details || '');
+      sendLogToServer(log);
+    }
+
+    function logGarmentAction(action, details = null) {
+      const timestamp = new Date().toISOString();
+      const log = {
+        timestamp,
+        level: 'info',
+        message: `Garment management action: ${action}`,
+        details: {
+          action,
+          ...details,
+          garmentId: details?.garmentId || 'unknown',
+          adminId: 'admin_account'
+        },
+        action: 'garment_management',
+        source: 'frontend'
+      };
+      
+      console.log(`[${timestamp}] [GARMENT ACTION] ${action}`, details || '');
+      sendLogToServer(log);
+    }
+
+    function logSystemAction(action, details = null) {
+      const timestamp = new Date().toISOString();
+      const log = {
+        timestamp,
+        level: 'info',
+        message: `System action: ${action}`,
+        details: {
+          action,
+          ...details,
+          adminId: 'admin_account'
+        },
+        action: 'system',
+        source: 'frontend'
+      };
+      
+      console.log(`[${timestamp}] [SYSTEM ACTION] ${action}`, details || '');
+      sendLogToServer(log);
+    }
+
+    function logError(error, context = null) {
+      const timestamp = new Date().toISOString();
+      const log = {
+        timestamp,
+        level: 'error',
+        message: `Frontend error: ${error.message || error}`,
+        details: {
+          error: error.message || error,
+          stack: error.stack || 'No stack trace',
+          context,
+          adminId: 'admin_account'
+        },
+        action: 'error',
+        source: 'frontend'
+      };
+      
+      console.error(`[${timestamp}] [ERROR] ${error.message || error}`, context || '');
+      sendLogToServer(log);
+    }
+
+    // Enhanced log sending function
+    function sendLogToServer(log) {
+      if (log.action !== 'login_error' || log.details?.source !== 'network') {
+        fetch(`${API_URL}/api/client-logs`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ logs: [log] })
+        }).catch(err => {
+          console.error('Failed to send client log:', err);
+        });
       }
     }
     
@@ -3075,6 +4199,1187 @@
     } else {
       debugLog("ERROR: Critical elements not found!");
     }
+
+    // =========================
+    // USER MANAGEMENT FUNCTIONS
+    // =========================
+
+    let users = [];
+    let filteredUsers = [];
+    let currentUserFilter = 'all';
+    let currentUserSearch = '';
+
+    // Tab switching functionality
+    function switchTab(tab) {
+      logSystemAction('tab_switch', { fromTab: getCurrentTab(), toTab: tab });
+      
+      const garmentsSection = document.getElementById('garments-section');
+      const usersSection = document.getElementById('users-section');
+      const garmentsTab = document.getElementById('garments-tab');
+      const usersTab = document.getElementById('users-tab');
+      
+      // Update sidebar navigation
+      const navItems = document.querySelectorAll('.nav-item');
+      navItems.forEach(item => item.classList.remove('active'));
+      
+      if (tab === 'garments') {
+        garmentsSection.classList.remove('hidden');
+        usersSection.classList.add('hidden');
+        garmentsTab.classList.add('active');
+        usersTab.classList.remove('active');
+        document.querySelector('.nav-item[onclick="switchTab(\'garments\')"]').classList.add('active');
+        logSystemAction('tab_switch_garments', { tab });
+      } else if (tab === 'users') {
+        garmentsSection.classList.add('hidden');
+        usersSection.classList.remove('hidden');
+        garmentsTab.classList.remove('active');
+        usersTab.classList.add('active');
+        document.querySelector('.nav-item[onclick="switchTab(\'users\')"]').classList.add('active');
+        
+        logSystemAction('tab_switch_users', { tab, userCount: users.length });
+        
+        // Fetch users when switching to users tab
+        if (users.length === 0) {
+          logSystemAction('tab_switch_users_fetch', { reason: 'no_users_loaded' });
+          fetchUsers();
+        }
+      } else if (tab === 'analytics') {
+        // Hide all sections for analytics
+        garmentsSection.classList.add('hidden');
+        usersSection.classList.add('hidden');
+        garmentsTab.classList.remove('active');
+        usersTab.classList.remove('active');
+        document.querySelector('.nav-item[onclick="switchTab(\'analytics\')"]').classList.add('active');
+        
+        logSystemAction('tab_switch_analytics', { tab });
+        
+        // Show analytics content (placeholder)
+        showAnalyticsSection();
+      } else if (tab === 'settings') {
+        // Hide all sections for settings
+        garmentsSection.classList.add('hidden');
+        usersSection.classList.add('hidden');
+        garmentsTab.classList.remove('active');
+        usersTab.classList.remove('active');
+        document.querySelector('.nav-item[onclick="switchTab(\'settings\')"]').classList.add('active');
+        
+        logSystemAction('tab_switch_settings', { tab });
+        
+        // Show settings content (placeholder)
+        showSettingsSection();
+      }
+    }
+
+    // Helper function to get current active tab
+    function getCurrentTab() {
+      const garmentsTab = document.getElementById('garments-tab');
+      const usersTab = document.getElementById('users-tab');
+      
+      if (garmentsTab && garmentsTab.classList.contains('active')) return 'garments';
+      if (usersTab && usersTab.classList.contains('active')) return 'users';
+      
+      // Check sidebar navigation
+      const activeNavItem = document.querySelector('.nav-item.active');
+      if (activeNavItem) {
+        const onclick = activeNavItem.getAttribute('onclick');
+        if (onclick.includes('garments')) return 'garments';
+        if (onclick.includes('users')) return 'users';
+        if (onclick.includes('analytics')) return 'analytics';
+        if (onclick.includes('settings')) return 'settings';
+      }
+      
+      return 'unknown';
+    }
+
+    // Show analytics section (comprehensive dashboard)
+    function showAnalyticsSection() {
+      const content = document.querySelector('.admin-content');
+      const existingAnalytics = document.getElementById('analytics-section');
+      
+      if (!existingAnalytics) {
+        const analyticsSection = document.createElement('div');
+        analyticsSection.id = 'analytics-section';
+        analyticsSection.className = 'space-y-6';
+        analyticsSection.innerHTML = `
+          <!-- Analytics Header -->
+          <div class="bg-white p-8 rounded-xl shadow-lg border border-gray-200" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);">
+            <div class="flex items-center justify-between mb-6">
+              <h2 class="text-2xl font-bold" style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                <i class="fas fa-chart-line mr-3"></i>Analytics Dashboard
+              </h2>
+              <div class="flex items-center space-x-4">
+                <select id="analytics-timeframe" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <option value="7">Last 7 days</option>
+                  <option value="30" selected>Last 30 days</option>
+                  <option value="90">Last 90 days</option>
+                  <option value="365">Last year</option>
+                </select>
+                <button id="refresh-analytics" class="btn-secondary">
+                  <i class="fas fa-sync-alt mr-2"></i>Refresh
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Key Metrics Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- User Growth -->
+            <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.3);">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm font-medium text-gray-600">User Growth</p>
+                  <p class="text-2xl font-bold text-gray-900" id="user-growth">0</p>
+                </div>
+                <div class="p-3 rounded-full bg-blue-100">
+                  <i class="fas fa-user-plus text-blue-600 text-xl"></i>
+                </div>
+              </div>
+              <div class="mt-4">
+                <div class="flex items-center text-sm">
+                  <span class="text-green-600 font-medium" id="user-growth-percent">+0%</span>
+                  <span class="text-gray-500 ml-2">vs previous period</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Trial Usage -->
+            <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.3);">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm font-medium text-gray-600">Trial Usage</p>
+                  <p class="text-2xl font-bold text-gray-900" id="trial-usage">0</p>
+                </div>
+                <div class="p-3 rounded-full bg-green-100">
+                  <i class="fas fa-magic text-green-600 text-xl"></i>
+                </div>
+              </div>
+              <div class="mt-4">
+                <div class="flex items-center text-sm">
+                  <span class="text-blue-600 font-medium" id="trial-usage-percent">0%</span>
+                  <span class="text-gray-500 ml-2">of total trials</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Premium Conversion -->
+            <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.3);">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm font-medium text-gray-600">Premium Conversion</p>
+                  <p class="text-2xl font-bold text-gray-900" id="premium-conversion">0%</p>
+                </div>
+                <div class="p-3 rounded-full bg-yellow-100">
+                  <i class="fas fa-crown text-yellow-600 text-xl"></i>
+                </div>
+              </div>
+              <div class="mt-4">
+                <div class="flex items-center text-sm">
+                  <span class="text-green-600 font-medium" id="premium-conversion-change">+0%</span>
+                  <span class="text-gray-500 ml-2">vs previous period</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- System Performance -->
+            <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.3);">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm font-medium text-gray-600">System Uptime</p>
+                  <p class="text-2xl font-bold text-gray-900" id="system-uptime">99.9%</p>
+                </div>
+                <div class="p-3 rounded-full bg-purple-100">
+                  <i class="fas fa-server text-purple-600 text-xl"></i>
+                </div>
+              </div>
+              <div class="mt-4">
+                <div class="flex items-center text-sm">
+                  <span class="text-green-600 font-medium">+0.1%</span>
+                  <span class="text-gray-500 ml-2">vs previous period</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Charts Section -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- User Activity Chart -->
+            <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.3);">
+              <h3 class="text-lg font-semibold text-gray-900 mb-4">User Activity Trend</h3>
+              <div class="h-64 flex items-center justify-center bg-gray-50 rounded-lg">
+                <div class="text-center">
+                  <i class="fas fa-chart-line text-4xl text-gray-400 mb-2"></i>
+                  <p class="text-gray-500">Chart will be implemented with Chart.js</p>
+                  <p class="text-sm text-gray-400">User registration and activity over time</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Trial Usage Chart -->
+            <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.3);">
+              <h3 class="text-lg font-semibold text-gray-900 mb-4">Trial Usage Distribution</h3>
+              <div class="h-64 flex items-center justify-center bg-gray-50 rounded-lg">
+                <div class="text-center">
+                  <i class="fas fa-chart-pie text-4xl text-gray-400 mb-2"></i>
+                  <p class="text-gray-500">Chart will be implemented with Chart.js</p>
+                  <p class="text-sm text-gray-400">Trial usage by category and user type</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Detailed Analytics Table -->
+          <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.3);">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Detailed Analytics</h3>
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Metric</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Current</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Previous</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Change</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trend</th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200" id="analytics-table-body">
+                  <!-- Analytics data will be populated here -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+        content.appendChild(analyticsSection);
+        
+        // Initialize analytics functionality
+        initializeAnalytics();
+      }
+    }
+
+    // Initialize analytics functionality
+    function initializeAnalytics() {
+      logSystemAction('analytics_initialize', { timestamp: new Date().toISOString() });
+      
+      // Add event listeners
+      const refreshBtn = document.getElementById('refresh-analytics');
+      const timeframeSelect = document.getElementById('analytics-timeframe');
+      
+      if (refreshBtn) {
+        refreshBtn.addEventListener('click', () => {
+          logSystemAction('analytics_refresh_clicked', { timestamp: new Date().toISOString() });
+          loadAnalyticsData();
+        });
+      }
+      
+      if (timeframeSelect) {
+        timeframeSelect.addEventListener('change', () => {
+          logSystemAction('analytics_timeframe_changed', { 
+            timeframe: timeframeSelect.value,
+            timestamp: new Date().toISOString() 
+          });
+          loadAnalyticsData();
+        });
+      }
+      
+      // Load initial data
+      loadAnalyticsData();
+    }
+
+    // Load analytics data
+    async function loadAnalyticsData() {
+      try {
+        logSystemAction('analytics_data_load_start', { timestamp: new Date().toISOString() });
+        
+        const timeframe = document.getElementById('analytics-timeframe')?.value || '30';
+        
+        // Fetch analytics data from API
+        const response = await fetch(`${API_URL}/api/admin/analytics?timeframe=${timeframe}`, {
+          method: 'GET',
+          headers: { 
+            'Accept': 'application/json',
+            'Authorization': token ? `Bearer ${token}` : ''
+          },
+          credentials: 'include'
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          updateAnalyticsDisplay(data);
+          logSystemAction('analytics_data_load_success', { 
+            timeframe,
+            dataPoints: Object.keys(data).length,
+            timestamp: new Date().toISOString() 
+          });
+        } else {
+          // If API not available, use mock data
+          const mockData = generateMockAnalyticsData(timeframe);
+          updateAnalyticsDisplay(mockData);
+          logSystemAction('analytics_data_load_mock', { 
+            timeframe,
+            reason: 'API not available',
+            timestamp: new Date().toISOString() 
+          });
+        }
+      } catch (error) {
+        logError(error, { action: 'load_analytics_data', context: 'analytics' });
+        
+        // Use mock data on error
+        const timeframe = document.getElementById('analytics-timeframe')?.value || '30';
+        const mockData = generateMockAnalyticsData(timeframe);
+        updateAnalyticsDisplay(mockData);
+      }
+    }
+
+    // Generate mock analytics data for development
+    function generateMockAnalyticsData(timeframe) {
+      const days = parseInt(timeframe);
+      const currentDate = new Date();
+      const previousDate = new Date(currentDate.getTime() - (days * 24 * 60 * 60 * 1000));
+      
+      // Generate random data based on timeframe
+      const userGrowth = Math.floor(Math.random() * 50) + 10;
+      const trialUsage = Math.floor(Math.random() * 200) + 50;
+      const premiumConversion = (Math.random() * 20 + 5).toFixed(1);
+      const systemUptime = (99.5 + Math.random() * 0.5).toFixed(1);
+      
+      // Generate previous period data for comparison
+      const previousUserGrowth = Math.floor(Math.random() * 40) + 8;
+      const previousTrialUsage = Math.floor(Math.random() * 180) + 40;
+      const previousPremiumConversion = (Math.random() * 18 + 4).toFixed(1);
+      const previousSystemUptime = (99.3 + Math.random() * 0.6).toFixed(1);
+      
+      return {
+        userGrowth: {
+          current: userGrowth,
+          previous: previousUserGrowth,
+          change: userGrowth - previousUserGrowth,
+          percentChange: ((userGrowth - previousUserGrowth) / previousUserGrowth * 100).toFixed(1)
+        },
+        trialUsage: {
+          current: trialUsage,
+          previous: previousTrialUsage,
+          change: trialUsage - previousTrialUsage,
+          percentChange: ((trialUsage - previousTrialUsage) / previousTrialUsage * 100).toFixed(1)
+        },
+        premiumConversion: {
+          current: premiumConversion,
+          previous: previousPremiumConversion,
+          change: (premiumConversion - previousPremiumConversion).toFixed(1),
+          percentChange: ((premiumConversion - previousPremiumConversion) / previousPremiumConversion * 100).toFixed(1)
+        },
+        systemUptime: {
+          current: systemUptime,
+          previous: previousSystemUptime,
+          change: (systemUptime - previousSystemUptime).toFixed(1),
+          percentChange: ((systemUptime - previousSystemUptime) / previousSystemUptime * 100).toFixed(1)
+        },
+        timeframe: days,
+        generatedAt: new Date().toISOString()
+      };
+    }
+
+    // Update analytics display with data
+    function updateAnalyticsDisplay(data) {
+      try {
+        // Update key metrics
+        updateMetric('user-growth', data.userGrowth.current);
+        updateMetric('user-growth-percent', formatChange(data.userGrowth.percentChange));
+        
+        updateMetric('trial-usage', data.trialUsage.current);
+        updateMetric('trial-usage-percent', `${data.trialUsage.current} trials used`);
+        
+        updateMetric('premium-conversion', `${data.premiumConversion.current}%`);
+        updateMetric('premium-conversion-change', formatChange(data.premiumConversion.percentChange));
+        
+        updateMetric('system-uptime', `${data.systemUptime.current}%`);
+        
+        // Update detailed analytics table
+        updateAnalyticsTable(data);
+        
+        logSystemAction('analytics_display_updated', { 
+          dataPoints: Object.keys(data).length,
+          timestamp: new Date().toISOString() 
+        });
+      } catch (error) {
+        logError(error, { action: 'update_analytics_display', context: 'analytics' });
+      }
+    }
+
+    // Update individual metric
+    function updateMetric(elementId, value) {
+      const element = document.getElementById(elementId);
+      if (element) {
+        element.textContent = value;
+      }
+    }
+
+    // Format change value with sign and color
+    function formatChange(percentChange) {
+      const change = parseFloat(percentChange);
+      if (change > 0) {
+        return `+${change}%`;
+      } else if (change < 0) {
+        return `${change}%`;
+      } else {
+        return '0%';
+      }
+    }
+
+    // Update analytics table
+    function updateAnalyticsTable(data) {
+      const tableBody = document.getElementById('analytics-table-body');
+      if (!tableBody) return;
+      
+      const metrics = [
+        {
+          name: 'User Growth',
+          current: data.userGrowth.current,
+          previous: data.userGrowth.previous,
+          change: data.userGrowth.change,
+          trend: data.userGrowth.percentChange > 0 ? 'up' : 'down'
+        },
+        {
+          name: 'Trial Usage',
+          current: data.trialUsage.current,
+          previous: data.trialUsage.previous,
+          change: data.trialUsage.change,
+          trend: data.trialUsage.percentChange > 0 ? 'up' : 'down'
+        },
+        {
+          name: 'Premium Conversion',
+          current: `${data.premiumConversion.current}%`,
+          previous: `${data.premiumConversion.previous}%`,
+          change: `${data.premiumConversion.change}%`,
+          trend: data.premiumConversion.percentChange > 0 ? 'up' : 'down'
+        },
+        {
+          name: 'System Uptime',
+          current: `${data.systemUptime.current}%`,
+          previous: `${data.systemUptime.previous}%`,
+          change: `${data.systemUptime.change}%`,
+          trend: data.systemUptime.percentChange > 0 ? 'up' : 'down'
+        }
+      ];
+      
+      tableBody.innerHTML = metrics.map(metric => `
+        <tr>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${metric.name}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${metric.current}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${metric.previous}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm ${metric.change >= 0 ? 'text-green-600' : 'text-red-600'}">${metric.change >= 0 ? '+' : ''}${metric.change}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm">
+            <i class="fas fa-arrow-${metric.trend} text-${metric.trend === 'up' ? 'green' : 'red'}-500"></i>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // Show settings section (placeholder)
+    function showSettingsSection() {
+      const content = document.querySelector('.admin-content');
+      const existingSettings = document.getElementById('settings-section');
+      
+      if (!existingSettings) {
+        const settingsSection = document.createElement('div');
+        settingsSection.id = 'settings-section';
+        settingsSection.className = 'admin-card';
+        settingsSection.innerHTML = `
+          <div class="admin-card-header">
+            <div class="admin-card-icon" style="background: var(--gray-600);">
+              <i class="fas fa-cog"></i>
+            </div>
+            <h2 class="admin-card-title">System Settings</h2>
+          </div>
+          <p class="text-gray-600">Settings features coming soon...</p>
+        `;
+        content.appendChild(settingsSection);
+      }
+    }
+
+    // Fetch users from API
+    async function fetchUsers() {
+      logUserAction('fetch_users_start', { timestamp: new Date().toISOString() });
+      debugLog('Fetching users...', null, 'user_management');
+      
+      const usersTableSpinner = document.getElementById('users-table-spinner');
+      const noUsers = document.getElementById('no-users');
+      const usersList = document.getElementById('users-list');
+      const userCount = document.getElementById('user-count');
+
+      showElement(usersTableSpinner);
+      hideElement(noUsers);
+      hideElement(usersList);
+
+      try {
+        logUserAction('fetch_users_api_call', { 
+          endpoint: `${API_URL}/api/admin/users`,
+          method: 'GET',
+          hasToken: !!token
+        });
+
+        const response = await fetch(`${API_URL}/api/admin/users`, {
+          method: 'GET',
+          headers: { 
+            'Accept': 'application/json',
+            'Authorization': token ? `Bearer ${token}` : ''
+          },
+          credentials: 'include'
+        });
+
+        debugLog('Users fetch response status:', response.status, 'user_management');
+        logUserAction('fetch_users_response', { 
+          status: response.status,
+          statusText: response.statusText,
+          ok: response.ok
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          logUserAction('fetch_users_error', { 
+            status: response.status,
+            error: errorText
+          });
+          throw new Error(`HTTP error: ${response.status} - ${errorText || response.statusText}`);
+        }
+
+        const result = await response.json();
+        debugLog('Users fetch result:', result, 'user_management');
+        
+        users = result.users || [];
+        filteredUsers = [...users];
+        
+        logUserAction('fetch_users_success', { 
+          userCount: users.length,
+          totalUsers: result.total || users.length,
+          page: result.page || 1,
+          limit: result.limit || 20
+        });
+        
+        debugLog('Found', users.length, 'users', 'user_management');
+        
+        updateUserCount();
+        renderUsers();
+        
+      } catch (error) {
+        logError(error, { action: 'fetch_users', context: 'user_management' });
+        console.error('Error fetching users:', error);
+        showToast(`Failed to fetch users: ${error.message}`, 'error');
+        
+        if (error.message.includes('401') || error.message.includes('Unauthorized')) {
+          logUserAction('fetch_users_auth_error', { error: error.message });
+          handleAuthenticationError();
+        }
+      } finally {
+        hideElement(usersTableSpinner);
+        logUserAction('fetch_users_complete', { 
+          finalUserCount: users.length,
+          timestamp: new Date().toISOString()
+        });
+      }
+    }
+
+    // Render users
+    function renderUsers() {
+      debugLog('Rendering users, count:', filteredUsers.length);
+      
+      const usersList = document.getElementById('users-list');
+      const noUsers = document.getElementById('no-users');
+      
+      if (filteredUsers.length === 0) {
+        debugLog('No users to render, showing empty state');
+        showElement(noUsers);
+        noUsers.textContent = 'No users found.';
+        hideElement(usersList);
+        return;
+      }
+      
+      debugLog('Creating user cards...');
+      usersList.innerHTML = '';
+      
+      filteredUsers.forEach((user, index) => {
+        debugLog(`Creating user card ${index + 1}/${filteredUsers.length} for user:`, user.id);
+        const card = createUserCard(user);
+        usersList.appendChild(card);
+      });
+      
+      debugLog('Finished rendering all user cards');
+      showElement(usersList);
+      hideElement(noUsers);
+    }
+
+    // Create user card
+    function createUserCard(user) {
+      const card = document.createElement('div');
+      card.className = 'user-card';
+      card.dataset.userId = user.id;
+      
+      const createdDate = new Date(user.created_at).toLocaleDateString();
+      const lastLogin = user.last_login ? new Date(user.last_login).toLocaleDateString() : 'Never';
+      const statusClass = user.is_active ? 'active' : 'inactive';
+      const accessClass = user.access ? 'premium' : 'free';
+      const userInitials = (user.name || user.username || user.email).charAt(0).toUpperCase();
+      
+      card.innerHTML = `
+        <div class="user-card-header">
+          <div class="user-avatar">
+            ${userInitials}
+          </div>
+          <div class="user-info">
+            <h3 class="text-white">${user.name || user.username || 'Unknown User'}</h3>
+            <p class="text-white">${user.email}</p>
+          </div>
+          <div class="user-status ${statusClass}">
+            ${user.is_active ? 'Active' : 'Inactive'}
+          </div>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <div>
+            <p class="text-sm text-white">Access Level</p>
+            <p class="font-medium ${accessClass === 'premium' ? 'text-blue-400' : 'text-white'}">
+              ${user.access ? 'Premium' : 'Free'}
+            </p>
+          </div>
+          <div>
+            <p class="text-sm text-white">Trials</p>
+            <p class="font-medium text-white">${user.trials_remaining || 0}</p>
+          </div>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <div>
+            <p class="text-sm text-white">Joined</p>
+            <p class="text-sm text-white">${createdDate}</p>
+          </div>
+          <div>
+            <p class="text-sm text-white">Last Login</p>
+            <p class="text-sm text-white">${lastLogin}</p>
+          </div>
+        </div>
+        
+        <div class="flex justify-end space-x-2">
+          <button
+            class="btn-secondary edit-user-btn"
+            data-user-id="${user.id}"
+            title="Edit User"
+          >
+            <i class="fas fa-edit"></i>
+            <span>Edit</span>
+          </button>
+          <button
+            class="btn-danger delete-user-btn"
+            data-user-id="${user.id}"
+            title="Delete User"
+          >
+            <i class="fas fa-trash"></i>
+            <span>Delete</span>
+          </button>
+        </div>
+      `;
+      
+      // Add event listeners to the buttons
+      const editBtn = card.querySelector('.edit-user-btn');
+      const deleteBtn = card.querySelector('.delete-user-btn');
+      
+      if (editBtn) {
+        logUserAction('edit_button_attached', { userId: user.id });
+        editBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          logUserAction('edit_button_clicked', { userId: user.id });
+          openEditUserModal(user.id);
+        });
+      } else {
+        logError(new Error('Edit button not found'), { userId: user.id, context: 'createUserCard' });
+      }
+      
+      if (deleteBtn) {
+        logUserAction('delete_button_attached', { userId: user.id });
+        deleteBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          logUserAction('delete_button_clicked', { userId: user.id });
+          showDeleteUserConfirmation(user.id);
+        });
+      } else {
+        logError(new Error('Delete button not found'), { userId: user.id, context: 'createUserCard' });
+      }
+      
+      return card;
+    }
+
+    // Update user count
+    function updateUserCount() {
+      const userCount = document.getElementById('user-count');
+      if (userCount) {
+        userCount.textContent = `${users.length} users found`;
+      }
+    }
+
+    // Handle user search
+    function handleUserSearch(query) {
+      currentUserSearch = query.toLowerCase();
+      applyUserFilters();
+    }
+
+    // Handle user filter
+    function handleUserFilter(filter) {
+      currentUserFilter = filter;
+      applyUserFilters();
+    }
+
+    // Apply user filters and search
+    function applyUserFilters() {
+      const accessFilter = document.getElementById('filter-access').value;
+      const statusFilter = document.getElementById('filter-status').value;
+      
+      filteredUsers = users.filter(user => {
+        const matchesSearch = !currentUserSearch || 
+          user.username.toLowerCase().includes(currentUserSearch) ||
+          user.name.toLowerCase().includes(currentUserSearch) ||
+          user.email.toLowerCase().includes(currentUserSearch);
+        
+        const matchesAccess = !accessFilter || 
+          (accessFilter === 'true' && user.access) ||
+          (accessFilter === 'false' && !user.access);
+        
+        const matchesStatus = !statusFilter ||
+          (statusFilter === 'active' && user.is_active) ||
+          (statusFilter === 'inactive' && !user.is_active);
+        
+        return matchesSearch && matchesAccess && matchesStatus;
+      });
+      
+      renderUsers();
+    }
+
+    // Open edit user modal
+    async function openEditUserModal(userId) {
+      logUserAction('edit_user_modal_open', { userId });
+      try {
+        debugLog('Opening edit user modal for user:', userId, 'user_management');
+        
+        logUserAction('edit_user_fetch_start', { userId });
+        const response = await fetch(`${API_URL}/api/admin/users/${userId}`, {
+          method: 'GET',
+          headers: { 
+            'Accept': 'application/json',
+            'Authorization': token ? `Bearer ${token}` : ''
+          },
+          credentials: 'include'
+        });
+        
+        if (!response.ok) {
+          logUserAction('edit_user_fetch_error', { userId, status: response.status });
+          throw new Error(`Failed to fetch user: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        const user = result.user;
+        
+        if (user) {
+          populateEditUserForm(user);
+          showModal('edit-user-modal');
+        } else {
+          throw new Error('User not found');
+        }
+      } catch (error) {
+        console.error('Error opening edit user modal:', error);
+        showToast(`Error: ${error.message}`, 'error');
+      }
+    }
+
+    // Populate edit user form
+    function populateEditUserForm(user) {
+      document.getElementById('edit-user-id').value = user.id;
+      document.getElementById('edit-username').value = user.username || '';
+      document.getElementById('edit-name').value = user.name || '';
+      document.getElementById('edit-email').value = user.email || '';
+      document.getElementById('edit-phone').value = user.phone || '';
+      document.getElementById('edit-trials').value = user.trials_remaining || 0;
+      document.getElementById('edit-access').value = user.access ? 'true' : 'false';
+      document.getElementById('edit-status').value = user.is_active ? 'true' : 'false';
+    }
+
+    // Show delete user confirmation
+    function showDeleteUserConfirmation(userId) {
+      debugLog('Showing delete user confirmation for user:', userId);
+      
+      const modal = document.getElementById('delete-user-modal');
+      const confirmBtn = document.getElementById('confirm-user-delete');
+      
+      if (confirmBtn) {
+        confirmBtn.onclick = () => {
+          deleteUser(userId);
+          closeModal('delete-user-modal');
+        };
+      }
+      
+      showModal('delete-user-modal');
+    }
+
+    // Delete user
+    async function deleteUser(userId) {
+      logUserAction('delete_user_start', { userId });
+      debugLog('Starting delete process for user:', userId, 'user_management');
+      
+      try {
+        showLoadingOverlay();
+        
+        logUserAction('delete_user_api_call', { userId });
+        const response = await fetch(`${API_URL}/api/admin/users/${userId}`, {
+          method: 'DELETE',
+          headers: { 
+            'Accept': 'application/json',
+            'Authorization': token ? `Bearer ${token}` : ''
+          },
+          credentials: 'include'
+        });
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          logUserAction('delete_user_error', { userId, status: response.status, error: errorText });
+          throw new Error(`HTTP error: ${response.status} - ${errorText || response.statusText}`);
+        }
+        
+        const result = await response.json();
+        logUserAction('delete_user_response', { userId, success: result.success });
+        
+        if (result.success) {
+          logUserAction('delete_user_success', { userId, deletedUser: result.data });
+          showToast('User deleted successfully', 'success');
+          await fetchUsers();
+        } else {
+          logUserAction('delete_user_failed', { userId, error: result.error });
+          throw new Error(result.error || 'Failed to delete user');
+        }
+      } catch (error) {
+        logError(error, { action: 'delete_user', userId, context: 'user_management' });
+        console.error('Error deleting user:', error);
+        showToast(`Error deleting user: ${error.message}`, 'error');
+        
+        if (error.message.includes('401') || error.message.includes('Unauthorized')) {
+          logUserAction('delete_user_auth_error', { userId, error: error.message });
+          handleAuthenticationError();
+        }
+      } finally {
+        hideLoadingOverlay();
+        logUserAction('delete_user_complete', { userId, timestamp: new Date().toISOString() });
+      }
+    }
+
+    // Show modal
+    function showModal(modalId) {
+      const modal = document.getElementById(modalId);
+      if (modal) {
+        modal.style.display = 'flex';
+        modal.classList.add('show');
+      }
+    }
+
+    // Close modal
+    function closeModal(modalId) {
+      const modal = document.getElementById(modalId);
+      if (modal) {
+        modal.style.display = 'none';
+        modal.classList.remove('show');
+      }
+    }
+
+    // Show loading overlay
+    function showLoadingOverlay() {
+      const overlay = document.getElementById('loading-overlay');
+      if (overlay) {
+        overlay.classList.remove('hidden');
+      }
+    }
+
+    // Hide loading overlay
+    function hideLoadingOverlay() {
+      const overlay = document.getElementById('loading-overlay');
+      if (overlay) {
+        overlay.classList.add('hidden');
+      }
+    }
+
+    // Show element
+    function showElement(element) {
+      if (element) {
+        element.style.display = 'block';
+        element.classList.remove('hidden');
+      }
+    }
+
+    // Hide element
+    function hideElement(element) {
+      if (element) {
+        element.style.display = 'none';
+        element.classList.add('hidden');
+      }
+    }
+
+    // Sanitize input
+    function sanitize(input) {
+      if (!input) return '';
+      const div = document.createElement('div');
+      div.textContent = input;
+      return div.innerHTML;
+    }
+
+    // Show toast notification
+    function showToast(message, type = 'info') {
+      const toastContainer = document.getElementById('toast-container');
+      if (!toastContainer) return;
+      
+      const toast = document.createElement('div');
+      toast.className = `toast toast-${type}`;
+      toast.textContent = message;
+      
+      toastContainer.appendChild(toast);
+      
+      setTimeout(() => toast.classList.add('show'), 100);
+      
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
+    // Handle authentication error
+    function handleAuthenticationError() {
+      token = '';
+      localStorage.removeItem('adminToken');
+      showLogin();
+      showToast('Session expired. Please log in again.', 'warning');
+    }
+
+    // Initialize user management event listeners
+    function initializeUserManagement() {
+      // Search input
+      const searchUsers = document.getElementById('search-users');
+      if (searchUsers) {
+        searchUsers.addEventListener('input', (e) => {
+          handleUserSearch(e.target.value);
+        });
+      }
+
+      // Filter selects
+      const filterAccess = document.getElementById('filter-access');
+      if (filterAccess) {
+        filterAccess.addEventListener('change', (e) => {
+          applyUserFilters();
+        });
+      }
+
+      const filterStatus = document.getElementById('filter-status');
+      if (filterStatus) {
+        filterStatus.addEventListener('change', (e) => {
+          applyUserFilters();
+        });
+      }
+
+      // Edit user form
+      const editUserForm = document.getElementById('edit-user-form');
+      if (editUserForm) {
+        editUserForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          await handleEditUser();
+        });
+      }
+    }
+
+    // Handle edit user
+    async function handleEditUser() {
+      const userId = document.getElementById('edit-user-id').value;
+      const username = document.getElementById('edit-username').value;
+      const name = document.getElementById('edit-name').value;
+      const email = document.getElementById('edit-email').value;
+      const phone = document.getElementById('edit-phone').value;
+      const trials = parseInt(document.getElementById('edit-trials').value);
+      const access = document.getElementById('edit-access').value === 'true';
+      const is_active = document.getElementById('edit-status').value === 'true';
+
+      const saveButton = document.getElementById('save-user-button');
+      const saveSpinner = document.getElementById('save-user-spinner');
+      const saveText = document.getElementById('save-user-button-text');
+
+      logUserAction('save_user_start', { userId, username, email, access, trials, is_active });
+
+      try {
+        saveButton.disabled = true;
+        saveSpinner.classList.remove('hidden');
+        saveText.textContent = 'Saving...';
+
+        logUserAction('save_user_api_call', { userId, updateData: { username, name, email, phone, access, trials, is_active } });
+
+        const response = await fetch(`${API_URL}/api/admin/users/${userId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': token ? `Bearer ${token}` : ''
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            username,
+            name,
+            email,
+            phone,
+            trials_remaining: trials,
+            access,
+            is_active
+          })
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          logUserAction('save_user_error', { userId, status: response.status, error: errorText });
+          throw new Error(`HTTP error: ${response.status} - ${errorText || response.statusText}`);
+        }
+
+        const result = await response.json();
+        logUserAction('save_user_response', { userId, success: result.success });
+
+        if (result.success) {
+          logUserAction('save_user_success', { userId, updatedUser: result.data });
+          showToast('User updated successfully', 'success');
+          closeModal('edit-user-modal');
+          await fetchUsers();
+        } else {
+          logUserAction('save_user_failed', { userId, error: result.error });
+          throw new Error(result.error || 'Failed to update user');
+        }
+      } catch (error) {
+        logError(error, { action: 'save_user', userId, context: 'user_management' });
+        console.error('Error updating user:', error);
+        showToast(`Error updating user: ${error.message}`, 'error');
+      } finally {
+        saveButton.disabled = false;
+        saveSpinner.classList.add('hidden');
+        saveText.textContent = 'Save Changes';
+        logUserAction('save_user_complete', { userId, timestamp: new Date().toISOString() });
+      }
+    }
+
+    // Initialize user management when DOM is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+      initializeUserManagement();
+      initializeSidebar();
+      updateDashboardStats();
+    });
+
+    // Sidebar functionality
+    function initializeSidebar() {
+      logSystemAction('sidebar_initialize', { timestamp: new Date().toISOString() });
+      
+      const sidebarToggle = document.getElementById('sidebar-toggle');
+      const sidebar = document.getElementById('admin-sidebar');
+      const main = document.getElementById('admin-main');
+      
+      if (sidebarToggle && sidebar && main) {
+        sidebarToggle.addEventListener('click', function() {
+          const isCollapsed = sidebar.classList.contains('collapsed');
+          sidebar.classList.toggle('collapsed');
+          main.classList.toggle('sidebar-collapsed');
+          
+          logSystemAction('sidebar_toggle', { 
+            action: isCollapsed ? 'expand' : 'collapse',
+            timestamp: new Date().toISOString()
+          });
+        });
+        
+        logSystemAction('sidebar_initialized', { 
+          hasToggle: !!sidebarToggle,
+          hasSidebar: !!sidebar,
+          hasMain: !!main
+        });
+      } else {
+        logSystemAction('sidebar_init_error', { 
+          hasToggle: !!sidebarToggle,
+          hasSidebar: !!sidebar,
+          hasMain: !!main
+        });
+      }
+    }
+
+    // Update dashboard statistics
+    async function updateDashboardStats() {
+      logSystemAction('dashboard_stats_update_start', { timestamp: new Date().toISOString() });
+      
+      try {
+        // Update user statistics
+        logSystemAction('dashboard_stats_users_fetch', { endpoint: `${API_URL}/api/admin/users` });
+        
+        const usersResponse = await fetch(`${API_URL}/api/admin/users`, {
+          method: 'GET',
+          headers: { 
+            'Accept': 'application/json',
+            'Authorization': token ? `Bearer ${token}` : ''
+          },
+          credentials: 'include'
+        });
+        
+        if (usersResponse.ok) {
+          const usersData = await usersResponse.json();
+          if (usersData.success && usersData.data) {
+            const users = usersData.data.users || [];
+            const totalUsers = users.length;
+            const premiumUsers = users.filter(user => user.access).length;
+            const activeUsers = users.filter(user => user.is_active).length;
+            
+            document.getElementById('total-users').textContent = totalUsers;
+            document.getElementById('premium-users').textContent = premiumUsers;
+            document.getElementById('active-users').textContent = activeUsers;
+            
+            logSystemAction('dashboard_stats_users_updated', { 
+              totalUsers, 
+              premiumUsers, 
+              activeUsers 
+            });
+          }
+        } else {
+          logSystemAction('dashboard_stats_users_error', { 
+            status: usersResponse.status,
+            statusText: usersResponse.statusText
+          });
+        }
+        
+        // Update garment statistics
+        logSystemAction('dashboard_stats_garments_fetch', { endpoint: `${API_URL}/garments/admin/all` });
+        
+        const garmentsResponse = await fetch(`${API_URL}/garments/admin/all`, {
+          method: 'GET',
+          headers: { 
+            'Accept': 'application/json',
+            'Authorization': `Bearer admin-session`,
+            'X-User-Email': 'admin@metavrai.shop'
+          },
+          credentials: 'include'
+        });
+        
+        if (garmentsResponse.ok) {
+          const garmentsData = await garmentsResponse.json();
+          if (garmentsData.success && garmentsData.data) {
+            const garments = garmentsData.data.garments || [];
+            document.getElementById('total-garments').textContent = garments.length;
+            
+            logSystemAction('dashboard_stats_garments_updated', { 
+              totalGarments: garments.length 
+            });
+          }
+        } else {
+          logSystemAction('dashboard_stats_garments_error', { 
+            status: garmentsResponse.status,
+            statusText: garmentsResponse.statusText
+          });
+        }
+        
+        logSystemAction('dashboard_stats_update_success', { 
+          timestamp: new Date().toISOString()
+        });
+      } catch (error) {
+        logError(error, { action: 'updateDashboardStats', context: 'system' });
+        console.error('Error updating dashboard stats:', error);
+      }
+    }
+
       </script>
     
     <!-- Scripts -->

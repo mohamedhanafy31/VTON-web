@@ -1,8 +1,32 @@
 import bcrypt from 'bcrypt';
-import db from '../config/db.js';
+import { UserModel } from '../models/UserModel.js';
 import logger from '../utils/logger.js';
+import db from '../config/db.js';
 import admin from 'firebase-admin';
-import { UserModel } from '../models/index.js';
+
+// Rate limiting for registration attempts
+const registrationAttempts = new Map();
+const MAX_ATTEMPTS = 5;
+const ATTEMPT_WINDOW = 15 * 60 * 1000; // 15 minutes
+
+// Check rate limit for registration
+function checkRateLimit(ip) {
+  const now = Date.now();
+  const attempts = registrationAttempts.get(ip) || [];
+  
+  // Remove old attempts outside the window
+  const recentAttempts = attempts.filter(timestamp => now - timestamp < ATTEMPT_WINDOW);
+  
+  if (recentAttempts.length >= MAX_ATTEMPTS) {
+    return false; // Rate limit exceeded
+  }
+  
+  // Add current attempt
+  recentAttempts.push(now);
+  registrationAttempts.set(ip, recentAttempts);
+  
+  return true; // Within rate limit
+}
 
 // Store login controller
 export const storeLogin = async (req, res) => {
@@ -260,45 +284,122 @@ export const resetStorePassword = async (req, res) => {
 // User Registration Controller
 export const userRegister = async (req, res) => {
   logger.info('POST /auth/register called', { username: req.body.username });
+  
   try {
+    // Check rate limit
+    const clientIP = req.ip || req.connection.remoteAddress;
+    if (!checkRateLimit(clientIP)) {
+      return res.status(429).json({ 
+        error: 'Too many registration attempts', 
+        message: 'Please wait 15 minutes before trying again' 
+      });
+    }
+
     const { username, name, email, phone, password } = req.body;
     
+    // Basic field validation
     if (!username || !name || !email || !phone || !password) {
       return res.status(400).json({ error: 'All fields are required' });
     }
 
-    if (username.length < 3) {
+    // Trim whitespace from all fields
+    const trimmedUsername = username.trim();
+    const trimmedName = name.trim();
+    const trimmedEmail = email.trim().toLowerCase();
+    const trimmedPhone = phone.trim();
+
+    // Enhanced username validation
+    if (trimmedUsername.length < 3) {
       return res.status(400).json({ error: 'Username must be at least 3 characters long' });
     }
-
-    if (password.length < 6) {
-      return res.status(400).json({ error: 'Password must be at least 6 characters long' });
+    if (trimmedUsername.length > 30) {
+      return res.status(400).json({ error: 'Username must be less than 30 characters long' });
+    }
+    if (!/^[a-zA-Z0-9_-]+$/.test(trimmedUsername)) {
+      return res.status(400).json({ error: 'Username can only contain letters, numbers, underscores, and hyphens' });
+    }
+    if (/^[0-9_-]/.test(trimmedUsername)) {
+      return res.status(400).json({ error: 'Username cannot start with numbers, underscores, or hyphens' });
     }
 
-    // Check if user already exists
-    const existingUser = await UserModel.findByEmail(email);
+    // Enhanced name validation
+    if (trimmedName.length < 2) {
+      return res.status(400).json({ error: 'Name must be at least 2 characters long' });
+    }
+    if (trimmedName.length > 100) {
+      return res.status(400).json({ error: 'Name must be less than 100 characters long' });
+    }
+    if (!/^[a-zA-Z\s'-]+$/.test(trimmedName)) {
+      return res.status(400).json({ error: 'Name can only contain letters, spaces, hyphens, and apostrophes' });
+    }
+
+    // Enhanced email validation
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
+      return res.status(400).json({ error: 'Please enter a valid email address' });
+    }
+    if (trimmedEmail.length > 254) {
+      return res.status(400).json({ error: 'Email address is too long' });
+    }
+    if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(trimmedEmail)) {
+      return res.status(400).json({ error: 'Email format is invalid' });
+    }
+
+    // Enhanced password validation
+    if (password.length < 8) {
+      return res.status(400).json({ error: 'Password must be at least 8 characters long' });
+    }
+    if (password.length > 128) {
+      return res.status(400).json({ error: 'Password must be less than 128 characters long' });
+    }
+    if (!/(?=.*[a-z])/.test(password)) {
+      return res.status(400).json({ error: 'Password must contain at least one lowercase letter' });
+    }
+    if (!/(?=.*[A-Z])/.test(password)) {
+      return res.status(400).json({ error: 'Password must contain at least one uppercase letter' });
+    }
+    if (!/(?=.*\d)/.test(password)) {
+      return res.status(400).json({ error: 'Password must contain at least one number' });
+    }
+    if (!/(?=.*[@$!%*?&])/.test(password)) {
+      return res.status(400).json({ error: 'Password must contain at least one special character (@$!%*?&)' });
+    }
+
+    // Enhanced phone validation
+    const cleanPhone = trimmedPhone.replace(/[\s\-\(\)]/g, '');
+    if (!/^[\+]?[1-9][\d]{0,15}$/.test(cleanPhone)) {
+      return res.status(400).json({ error: 'Please enter a valid phone number' });
+    }
+    if (cleanPhone.length < 10) {
+      return res.status(400).json({ error: 'Phone number must be at least 10 digits long' });
+    }
+    if (cleanPhone.length > 15) {
+      return res.status(400).json({ error: 'Phone number must be less than 15 digits long' });
+    }
+
+    // Check if user already exists by email
+    const existingUser = await UserModel.findByEmail(trimmedEmail);
     if (existingUser) {
       return res.status(409).json({ error: 'User with this email already exists' });
     }
 
     // Check if username is already taken
-    const existingUsername = await UserModel.findByUsername(username);
+    const existingUsername = await UserModel.findByUsername(trimmedUsername);
     if (existingUsername) {
       return res.status(409).json({ error: 'Username is already taken' });
     }
 
-    // Create new user
+    // Create new user with trimmed data
     const userData = {
-      username,
-      name,
-    email, 
-      phone,
+      username: trimmedUsername,
+      name: trimmedName,
+      email: trimmedEmail, 
+      phone: trimmedPhone,
       password: await bcrypt.hash(password, 10)
     };
 
     const newUser = await UserModel.create(userData);
     
-    logger.info('User registration successful', { userId: newUser.id, username });
+    logger.info('User registration successful', { userId: newUser.id, username: trimmedUsername });
     
     res.status(201).json({
       success: true,
@@ -591,5 +692,87 @@ export const checkUserAccess = async (req, res, next) => {
     logger.error('Error checking user access:', { message: error.message, stack: error.stack });
     // On error, continue to allow the request to proceed
     next();
+  }
+};
+
+// Check email availability
+export const checkEmailAvailability = async (req, res) => {
+  try {
+    const { email } = req.params;
+    
+    if (!email) {
+      return res.status(400).json({ error: 'Email parameter is required' });
+    }
+
+    // Basic email format validation
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(400).json({ error: 'Invalid email format' });
+    }
+
+    // Check if email already exists
+    const existingUser = await UserModel.findByEmail(email);
+    
+    if (existingUser) {
+      return res.json({ 
+        available: false, 
+        message: 'Email is already registered' 
+      });
+    }
+
+    return res.json({ 
+      available: true, 
+      message: 'Email is available' 
+    });
+
+  } catch (error) {
+    logger.error('Email availability check error:', { message: error.message, email: req.params.email });
+    res.status(500).json({ error: 'Failed to check email availability', details: error.message });
+  }
+};
+
+// Check username availability
+export const checkUsernameAvailability = async (req, res) => {
+  try {
+    const { username } = req.params;
+    
+    if (!username) {
+      return res.status(400).json({ error: 'Username parameter is required' });
+    }
+
+    // Basic username format validation
+    if (username.length < 3) {
+      return res.status(400).json({ error: 'Username must be at least 3 characters long' });
+    }
+
+    if (username.length > 30) {
+      return res.status(400).json({ error: 'Username must be less than 30 characters long' });
+    }
+
+    if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
+      return res.status(400).json({ error: 'Username can only contain letters, numbers, underscores, and hyphens' });
+    }
+
+    if (/^[0-9_-]/.test(username)) {
+      return res.status(400).json({ error: 'Username cannot start with numbers, underscores, or hyphens' });
+    }
+
+    // Check if username already exists
+    const existingUser = await UserModel.findByUsername(username);
+    
+    if (existingUser) {
+      return res.json({ 
+        available: false, 
+        message: 'Username is already taken' 
+      });
+    }
+
+    return res.json({ 
+      available: true, 
+      message: 'Username is available' 
+    });
+
+  } catch (error) {
+    logger.error('Username availability check error:', { message: error.message, username: req.params.username });
+    res.status(500).json({ error: 'Failed to check username availability', details: error.message });
   }
 }; 

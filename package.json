@@ -6,7 +6,13 @@
   "type": "module",
   "scripts": {
     "start": "node src/server.js",
-    "dev": "node src/server.js"
+    "dev": "cp env.development.template .env 2>/dev/null || true && node src/server.js",
+    "prod": "cp env.production.template .env 2>/dev/null || true && node src/server.js",
+    "start:dev": "NODE_ENV=development node src/server.js",
+    "start:prod": "NODE_ENV=production node src/server.js",
+    "setup:dev": "echo 'Setting up development environment...' && cp env.development.template .env && echo 'Please update .env with your development Firebase credentials'",
+    "setup:prod": "echo 'Setting up production environment...' && cp env.production.template .env && echo 'Please update .env with your production Firebase credentials'",
+    "validate-config": "node src/utils/validateConfig.js"
   },
   "dependencies": {
     "@google-cloud/connect-firestore": "^3.0.0",
